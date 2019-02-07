@@ -151,8 +151,6 @@ $(document).ready(function(){
                             
                                 <li><a href="/post/">Posts</a></li>
                             
-                                <li><a href="/tags/">Tags</a></li>
-                            
                         </ul>
                     
                     
@@ -160,7 +158,7 @@ $(document).ready(function(){
                             
                                 <li class="navbar-icon"><a href="https://github.com/owenqiz"><i class="fa fa-github"></i></a></li>
                             
-                                <li class="navbar-icon"><a href="https://twitter.com/owenqi/"><i class="fa fa-twitter"></i></a></li>
+                                <li class="navbar-icon"><a href="https://gitlab.com/owenqi"><i class="fa fa-gitlab"></i></a></li>
                             
                                 <li class="navbar-icon"><a href="https://www.facebook.com/owenqiz"><i class="fa fa-facebook-f"></i></a></li>
                             
@@ -202,8 +200,8 @@ $(document).ready(function(){
 
     
 
-        <a href="/categories/mmiscellaneous">
-        <kbd class="item-cat"> Mmiscellaneous </kbd>
+        <a href="/categories/miscellaneous">
+        <kbd class="item-cat"> Miscellaneous </kbd>
     </a>
     
     
@@ -218,27 +216,15 @@ $(document).ready(function(){
     <br> <div class="text-justify">
 
 
-<p>This post examines the features of <a href="http://www.rstudio.org/docs/authoring/using_markdown">R Markdown</a>
-using <a href="http://yihui.name/knitr/">knitr</a> in Rstudio 0.96.
-This combination of tools provides an exciting improvement in usability for
-<a href="http://stats.stackexchange.com/a/15006/183">reproducible analysis</a>.
-Specifically, this post
-(1) discusses getting started with R Markdown and <code>knitr</code> in Rstudio 0.96;
-(2) provides a basic example of producing console output and plots using R Markdown;
-(3) highlights several code chunk options such as caching and controlling how input and output is displayed;
-(4) demonstrates use of standard Markdown notation as well as the extended features of formulas and tables; and
-(5) discusses the implications of R Markdown.
-This post was produced with R Markdown. The source code is available here as a gist.
-The post may be most useful if the source code and displayed post are viewed side by side.
-In some instances, I include a copy of the R Markdown in the displayed HTML, but most of the time I assume you are reading the source and post side by side.</p>
+<p>This post is mainly use for examine the rendering of the theme of the blog. The main aspect that I am care about is the support and hightlight of common use programming languages in this blog such as <code>R</code> and <code>Python</code>, some of the <code>R</code> code I put in this post are simple and non-informative.</p>
 <!-- more -->
-<div id="getting-started" class="section level2">
-<h2>Getting started</h2>
-<p>To work with R Markdown, if necessary:</p>
+<div id="r-studio" class="section level2">
+<h2>R Studio</h2>
+<p>To work with R and R Markdown, for starters,</p>
 <ul>
 <li>Install <a href="http://www.r-project.org/">R</a></li>
-<li>Install the lastest version of <a href="http://rstudio.org/download/">RStudio</a> (at time of posting, this is 0.96)</li>
-<li>Install the latest version of the <code>knitr</code> package: <code>install.packages("knitr")</code></li>
+<li>Install the lastest version of <a href="https://dailies.rstudio.com/rstudio/oss/windows/">RStudio</a></li>
+<li>Install <code>knitr</code> package using <code>install.packages("knitr")</code></li>
 </ul>
 <p>To run the basic working example that produced this blog post:</p>
 <ul>
@@ -248,8 +234,8 @@ In some instances, I include a copy of the R Markdown in the displayed HTML, but
 <li>Click Knit HTML</li>
 </ul>
 </div>
-<div id="prepare-for-analyses" class="section level2">
-<h2>Prepare for analyses</h2>
+<div id="for-r-code-in-the-post" class="section level2">
+<h2>For R Code in the post</h2>
 <pre class="r"><code>set.seed(1234)
 library(ggplot2)
 library(lattice)</code></pre>
@@ -262,8 +248,7 @@ library(lattice)</code></pre>
 <pre><code>```r
 x &lt;- 1:10
 y &lt;- round(rnorm(10, x, 1), 2)
-df &lt;- data.frame(x, y)
-df
+(df &lt;- data.frame(x, y))
 ```
 
 ```
@@ -302,11 +287,6 @@ df</code></pre>
 <div id="simple-plot" class="section level3">
 <h3>Simple plot</h3>
 <p>Here is a basic plot using base graphics:</p>
-<pre><code>```r
-plot(x)
-```
-
-&lt;img src=&quot;2019-02-07-rmd-example_files/figure-html/unnamed-chunk-4-1.png&quot; width=&quot;672&quot; /&gt;</code></pre>
 <pre class="r"><code>plot(x)</code></pre>
 <p><img src="/post/2019-02-07-rmd-example_files/figure-html/simpleplot-1.png" width="672" /></p>
 <p>Note that unlike traditional Sweave, there is no need to write <code>fig=TRUE</code>.</p>
@@ -314,17 +294,6 @@ plot(x)
 <div id="multiple-plots" class="section level3">
 <h3>Multiple plots</h3>
 <p>Also, unlike traditional Sweave, you can include multiple plots in one code chunk:</p>
-<pre><code>```r
-boxplot(1:10~rep(1:2,5))
-```
-
-&lt;img src=&quot;2019-02-07-rmd-example_files/figure-html/unnamed-chunk-5-1.png&quot; width=&quot;672&quot; /&gt;
-
-```r
-plot(x, y)
-```
-
-&lt;img src=&quot;2019-02-07-rmd-example_files/figure-html/unnamed-chunk-5-2.png&quot; width=&quot;672&quot; /&gt;</code></pre>
 <pre class="r"><code>boxplot(1:10~rep(1:2,5))</code></pre>
 <p><img src="/post/2019-02-07-rmd-example_files/figure-html/multipleplots-1.png" width="672" /></p>
 <pre class="r"><code>plot(x, y)</code></pre>
@@ -332,7 +301,7 @@ plot(x, y)
 </div>
 <div id="ggplot2-plot" class="section level3">
 <h3><code>ggplot2</code> plot</h3>
-<p>Ggplot2 plots work well:</p>
+<p><code>ggplot2</code> plots work well:</p>
 <pre class="r"><code>qplot(x, y, data=df)</code></pre>
 <p><img src="/post/2019-02-07-rmd-example_files/figure-html/ggplot2ex-1.png" width="672" /></p>
 </div>
@@ -454,7 +423,7 @@ and removes any preceding text from console output (<code>comment=""</code>; the
 plot(x)
 ```
 
-&lt;img src=&quot;2019-02-07-rmd-example_files/figure-html/unnamed-chunk-10-1.png&quot; width=&quot;288&quot; /&gt;</code></pre>
+&lt;img src=&quot;2019-02-07-rmd-example_files/figure-html/unnamed-chunk-7-1.png&quot; width=&quot;288&quot; /&gt;</code></pre>
 <pre class="r"><code>plot(x)</code></pre>
 <p><img src="/post/2019-02-07-rmd-example_files/figure-html/smallplot-1.png" width="288" /></p>
 </div>
@@ -508,7 +477,7 @@ See the source code for how to produce such points. However, RStudio does includ
 <h3>Equations</h3>
 <p>Equations are included by using LaTeX notation and including them either between single dollar signs (inline equations) or double dollar signs (displayed equations).
 If you hang around the Q&amp;A site <a href="http://stats.stackexchange.com">CrossValidated</a> you’ll be familiar with this idea.</p>
-<p>There are inline equations such as <span class="math inline">\(y_i = \alpha + \beta x_i + e_i\)</span>.</p>
+<p>There are inline equations such as <span class="math inline">\(y_i = \alpha + \beta x_i + \varepsilon_i\)</span>.</p>
 <p>And displayed formulas:</p>
 <p><span class="math display">\[\frac{1}{1+\exp(-x)}\]</span></p>
 <p>knitr provides self-contained HTML code that calls a Mathjax script to display formulas.
@@ -551,7 +520,7 @@ You may need to view this post on my website.</p>
 <h3>Images</h3>
 <p>Here’s an example image:</p>
 <div class="figure">
-<img src="http://i.imgur.com/RVNmr.jpg" alt="image from redmond barry building unimelb" />
+<img src="stm_ete_hiver.jpg" alt="image from redmond barry building unimelb" />
 <p class="caption">image from redmond barry building unimelb</p>
 </div>
 </div>
@@ -637,6 +606,7 @@ E.g., in the source code I have calculated 2 + 2 = 4 .</p>
 
         <footer id = "bigfooter">
             <div style = "padding:15px;">
+                <p>&copy owenqi 2019 </p>
                 <p>Powered by <a href="https://gohugo.io">Hugo</a>. Themed by <a href="https://github.com/nathancday/min_night">min_night</a>.
                 </p>
                 <a rel="license" href="https://creativecommons.org/licenses/by/4.0/"

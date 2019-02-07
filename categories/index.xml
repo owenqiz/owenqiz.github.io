@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Categories on owenqi&#39;s blog</title>
+    <title>Categories on owenqi</title>
     <link>/categories/</link>
-    <description>Recent content in Categories on owenqi&#39;s blog</description>
+    <description>Recent content in Categories on owenqi</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     
@@ -11,11 +11,11 @@
     
     
     <item>
-      <title>Mmiscellaneous</title>
-      <link>/categories/mmiscellaneous/</link>
+      <title>Miscellaneous</title>
+      <link>/categories/miscellaneous/</link>
       <pubDate>Thu, 07 Feb 2019 00:00:00 +0000</pubDate>
       
-      <guid>/categories/mmiscellaneous/</guid>
+      <guid>/categories/miscellaneous/</guid>
       <description></description>
     </item>
     

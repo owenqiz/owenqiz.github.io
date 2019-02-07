@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>owenqi&#39;s blog</title>
+    <title>owenqi</title>
     <link>/</link>
-    <description>Recent content on owenqi&#39;s blog</description>
+    <description>Recent content on owenqi</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Thu, 07 Feb 2019 00:00:00 +0000</lastBuildDate>
@@ -53,7 +53,9 @@
       <pubDate>Thu, 07 Feb 2019 00:00:00 +0000</pubDate>
       
       <guid>/2019/02/07/rmd-example/</guid>
-      <description>This post examines the features of R Markdownusing knitr in Rstudio 0.96.This combination of tools provides an exciting improvement in usability forreproducible analysis.Specifically, this post(1) discusses getting started with R Markdown and knitr in Rstudio 0.96;(2) provides a basic example of producing console output and plots using R Markdown;(3) highlights several code chunk options such as caching and controlling how input and output is displayed;(4) demonstrates use of standard Markdown notation as well as the extended features of formulas and tables; and(5) discusses the implications of R Markdown.</description>
+      <description>This post is mainly use for examine the rendering of the theme of the blog. The main aspect that I am care about is the support and hightlight of common use programming languages in this blog such as R and Python, some of the R code I put in this post are simple and non-informative.
+R StudioTo work with R and R Markdown, for starters,
+Install RInstall the lastest version of RStudioInstall knitr package using install.</description>
     </item>
     
   </channel>
