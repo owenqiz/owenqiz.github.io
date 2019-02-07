@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Statistics on owenqi&#39;s blog</title>
+    <link>/categories/statistics/</link>
+    <description>Recent content in Statistics on owenqi&#39;s blog</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Thu, 07 Feb 2019 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="/categories/statistics/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>A Simple Linear Regression</title>
+      <link>/2019/02/07/hello-test/</link>
+      <pubDate>Thu, 07 Feb 2019 00:00:00 +0000</pubDate>
+      
+      <guid>/2019/02/07/hello-test/</guid>
+      <description>We build a linear regression below.Simple linear regression is of the form \[Y_i = \beta_0 + \beta_1X_i + \varepsilon_i\]where \(\varepsilon_i \sim N(0,\sigma^2)\), with \(\sigma\) be a constant.
+fit = lm(dist ~ speed, data = cars)b = coef(summary(fit))plot(fit)The slope of the regression is 3.9324088.
+</description>
+    </item>
+    
+  </channel>
+</rss>

@@ -59,24 +59,12 @@ fit = lm(dist ~ speed, data = cars)b = coef(summary(fit))plot(fit)The slope o
     </item>
     
     <item>
-      <title>Hello R Markdown</title>
-      <link>/2015/07/23/hello-r-markdown/</link>
-      <pubDate>Thu, 23 Jul 2015 21:13:14 -0500</pubDate>
+      <title>An R Markdown Examples</title>
+      <link>/2019/02/07/rmd-example/</link>
+      <pubDate>Thu, 07 Feb 2019 00:00:00 +0000</pubDate>
       
-      <guid>/2015/07/23/hello-r-markdown/</guid>
-      <description>R MarkdownThis is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see http://rmarkdown.rstudio.com.
-You can embed an R code chunk like this:
-summary(cars)## speed dist ## Min. : 4.0 Min. : 2.00 ## 1st Qu.:12.0 1st Qu.: 26.00 ## Median :15.0 Median : 36.00 ## Mean :15.4 Mean : 42.98 ## 3rd Qu.</description>
-    </item>
-    
-    <item>
-      <title>Creating a New Theme</title>
-      <link>/2014/09/28/creating-a-new-theme/</link>
-      <pubDate>Sun, 28 Sep 2014 00:00:00 +0000</pubDate>
-      
-      <guid>/2014/09/28/creating-a-new-theme/</guid>
-      <description>Introduction This tutorial will show you how to create a simple theme in Hugo. I assume that you are familiar with HTML, the bash command line, and that you are comfortable using Markdown to format content. I&amp;rsquo;ll explain how Hugo uses templates and how you can organize your templates to create a theme. I won&amp;rsquo;t cover using CSS to style your theme.
-We&amp;rsquo;ll start with creating a new site with a very basic template.</description>
+      <guid>/2019/02/07/rmd-example/</guid>
+      <description>This post examines the features of R Markdownusing knitr in Rstudio 0.96.This combination of tools provides an exciting improvement in usability forreproducible analysis.Specifically, this post(1) discusses getting started with R Markdown and knitr in Rstudio 0.96;(2) provides a basic example of producing console output and plots using R Markdown;(3) highlights several code chunk options such as caching and controlling how input and output is displayed;(4) demonstrates use of standard Markdown notation as well as the extended features of formulas and tables; and(5) discusses the implications of R Markdown.</description>
     </item>
     
   </channel>

@@ -3,8 +3,8 @@ title: A Simple Linear Regression
 author: owenqi
 date: '2019-02-07'
 slug: hello test
-categories: []
-tags: []
+categories: ["Statistics"]
+tags: ["R Markdown"]
 ---
 
 ## We build a linear regression below.
