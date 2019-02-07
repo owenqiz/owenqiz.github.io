@@ -12,17 +12,6 @@
     
     
     <item>
-      <title>A Simple Linear Regression</title>
-      <link>/2019/02/07/hello-test/</link>
-      <pubDate>Thu, 07 Feb 2019 00:00:00 +0000</pubDate>
-      
-      <guid>/2019/02/07/hello-test/</guid>
-      <description>We build a linear regression below.Simple linear regression is of the form \[Y_i = \beta_0 + \beta_1X_i + \varepsilon_i\]where \(\varepsilon_i \sim N(0,\sigma^2)\), with \(\sigma\) be a constant.
-fit = lm(dist ~ speed, data = cars)b = coef(summary(fit))plot(fit)The slope of the regression is 3.9324088.
-</description>
-    </item>
-    
-    <item>
       <title>An R Markdown Examples</title>
       <link>/2019/02/07/rmd-example/</link>
       <pubDate>Thu, 07 Feb 2019 00:00:00 +0000</pubDate>
