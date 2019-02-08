@@ -11,21 +11,13 @@
   </url>
   
   <url>
-    <loc>/project/project3/</loc>
-  </url>
-  
-  <url>
-    <loc>/project/project4/</loc>
+    <loc>/2019/02/08/eda/</loc>
+    <lastmod>2019-02-08T00:00:00+00:00</lastmod>
   </url>
   
   <url>
     <loc>/2019/02/07/rmd-example/</loc>
     <lastmod>2019-02-07T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>/tags/bootstrap/</loc>
-    <priority>0</priority>
   </url>
   
   <url>
@@ -45,11 +37,6 @@
   
   <url>
     <loc>/tags/golang/</loc>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>/tags/highlight-js/</loc>
     <priority>0</priority>
   </url>
   
@@ -76,7 +63,7 @@
   
   <url>
     <loc>/post/</loc>
-    <lastmod>2019-02-07T00:00:00+00:00</lastmod>
+    <lastmod>2019-02-08T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -92,12 +79,14 @@
   </url>
   
   <url>
-    <loc>/tags/responsive/</loc>
+    <loc>/tags/spatial/</loc>
+    <lastmod>2019-02-08T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
-    <loc>/tags/syntax-highlighting/</loc>
+    <loc>/categories/statistics/</loc>
+    <lastmod>2019-02-08T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -109,7 +98,7 @@
   
   <url>
     <loc>/</loc>
-    <lastmod>2019-02-07T00:00:00+00:00</lastmod>
+    <lastmod>2019-02-08T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   

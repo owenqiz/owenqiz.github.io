@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Posts on owenqi</title>
-    <link>/post/</link>
-    <description>Recent content in Posts on owenqi</description>
+    <title>Spatial on owenqi</title>
+    <link>/tags/spatial/</link>
+    <description>Recent content in Spatial on owenqi</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Fri, 08 Feb 2019 00:00:00 +0000</lastBuildDate>
     
-	<atom:link href="/post/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="/tags/spatial/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
@@ -19,17 +19,6 @@
       <guid>/2019/02/08/eda/</guid>
       <description>This post is a practice based on a tutorial.
 Data was downloaded from British Geological Survey as “DPHE/BGS National Hydrochemical Survey”, describing various groundwater quality parameters for several thousand wells measured by the British Geological Survey throughout Bangladesh in 1998-1999. The dataset contains the results of the survey of 3534 boreholes from 61 out of 64 districts in Bangladesh. 34 variables are recorded, with 14 descriptive and 20 measured ones, we only focusing on the Arsenic level which has the measuring unit of \(\mu\)g/L.</description>
-    </item>
-    
-    <item>
-      <title>An R Markdown Examples</title>
-      <link>/2019/02/07/rmd-example/</link>
-      <pubDate>Thu, 07 Feb 2019 00:00:00 +0000</pubDate>
-      
-      <guid>/2019/02/07/rmd-example/</guid>
-      <description>This post is mainly use for examine the rendering of the theme of the blog. The main aspect that I am care about is the support and hightlight of common use programming languages in this blog such as R and Python, some of the R code I put in this post are simple and non-informative.
-R StudioTo work with R and R Markdown, for starters,
-Install RInstall the lastest version of RStudioInstall knitr package using install.</description>
     </item>
     
   </channel>
