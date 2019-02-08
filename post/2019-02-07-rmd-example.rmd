@@ -213,9 +213,7 @@ A  | B | C
 
 ### Images
 Here's an example image:
-
-![image from redmond barry building unimelb](stm_ete_hiver.jpg)
-
+![stm](/./static/stm.jpg)
 
 ### Code
 Here is Markdown R code chunk displayed as code:

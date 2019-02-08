@@ -1,24 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
-  <channel>
-    <title>Mmiscellaneous on owenqi</title>
-    <link>/categories/mmiscellaneous/</link>
-    <description>Recent content in Mmiscellaneous on owenqi</description>
-    <generator>Hugo -- gohugo.io</generator>
-    <language>en-us</language>
-    <lastBuildDate>Thu, 07 Feb 2019 00:00:00 +0000</lastBuildDate>
-    
-	<atom:link href="/categories/mmiscellaneous/index.xml" rel="self" type="application/rss+xml" />
-    
-    
-    <item>
-      <title>An R Markdown Examples</title>
-      <link>/2019/02/07/rmd-example/</link>
-      <pubDate>Thu, 07 Feb 2019 00:00:00 +0000</pubDate>
-      
-      <guid>/2019/02/07/rmd-example/</guid>
-      <description>This post examines the features of R Markdownusing knitr in Rstudio 0.96.This combination of tools provides an exciting improvement in usability forreproducible analysis.Specifically, this post(1) discusses getting started with R Markdown and knitr in Rstudio 0.96;(2) provides a basic example of producing console output and plots using R Markdown;(3) highlights several code chunk options such as caching and controlling how input and output is displayed;(4) demonstrates use of standard Markdown notation as well as the extended features of formulas and tables; and(5) discusses the implications of R Markdown.</description>
-    </item>
-    
-  </channel>
-</rss>
