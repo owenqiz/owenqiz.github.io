@@ -267,18 +267,20 @@ district &lt;- split(noncensor, noncensor$district)</code></pre>
 <p>And our two candidates are <strong>Comilla</strong> and <strong>Kishoreganj</strong> as mentioned above. We subset the dataframes from the big one.</p>
 <pre class="r"><code>comilla &lt;- district$Comilla
 kishoreganj &lt;- district$Kishoreganj</code></pre>
+<p>A save and load command and store and retrieve the data, which will make later manipulation easier, (optional).</p>
+<pre class="r"><code># save(noncensor,file=&quot;noncensor.Rda&quot;)
+load(&quot;noncensor.Rda&quot;)
+district &lt;- split(noncensor, noncensor$district)
+comilla &lt;- district$Comilla
+kishoreganj &lt;- district$Kishoreganj</code></pre>
 </div>
 <div id="basic-plots" class="section level3">
 <h3>2. Basic Plots</h3>
 <div id="original-plot-function" class="section level4">
 <h4>Original <code>plot</code> Function</h4>
 <p>The package <code>geoR</code> works on <code>geodata</code> which contains at least a list of two component, coordiantes and data. To use function in <code>geoR</code>, we need to convert <code>dataframe</code> into <code>geodata</code> by <code>geoR::as.geodata</code>, an example can be found on the <a href="https://www.rdocumentation.org/packages/geoR/versions/1.7-5.2.1/topics/as.geodata">documentation</a>.</p>
-<pre class="r"><code># save(noncensor,file=&quot;noncensor.Rda&quot;)
-load(&quot;noncensor.Rda&quot;)
-district &lt;- split(noncensor, noncensor$district)
-comilla &lt;- district$Comilla
-kishoreganj &lt;- district$Kishoreganj</code></pre>
-<p>Now we plot the data.</p>
+<p>We first do a quick data display with exploratory checks on spatial patterns, trends in the coordinates, and distribution of the data. We are using the default plot for a geodata object in geoR: plot.geodata. The lowess argument adds a smooth line to the upper right scatter plot (data value vs y value) and to the lower left scatter plot (x value vs data value). The upper left plot shows color coded data quartile at the location of the data.</p>
+<p>Now, we extract useful information from the dataframe and convert them into <code>geodata</code> and <code>plot</code>.</p>
 <pre class="r"><code>library(geoR)
 com &lt;- as.geodata(comilla[,c(1,2,6)])</code></pre>
 <pre><code>## as.geodata: 8 replicated data locations found. 
@@ -288,14 +290,15 @@ com &lt;- as.geodata(comilla[,c(1,2,6)])</code></pre>
 ##  Consider using jitterDupCoords() for jittering replicated locations</code></pre>
 <pre class="r"><code>kis &lt;- as.geodata(kishoreganj[,c(1,2,6)])
 
-plot(com)</code></pre>
+plot(com, lowess = TRUE)</code></pre>
 <p><img src="/post/2019-02-08-eda_files/figure-html/geor_plot-1.png" width="672" /></p>
-<pre class="r"><code>plot(kis)</code></pre>
-<p><img src="/post/2019-02-08-eda_files/figure-html/geor_plot-2.png" width="672" />
-As we can see that, there is no pattern can be found on the plot and the data are highly skewed.</p>
+<pre class="r"><code>plot(kis, lowess = TRUE)</code></pre>
+<p><img src="/post/2019-02-08-eda_files/figure-html/geor_plot-2.png" width="672" /></p>
+<p>As we can see from the plot, there is no pattern can be found on the plot and the data are highly skewed.</p>
 </div>
 <div id="ggplot2-implementation" class="section level4">
 <h4><code>ggplot2</code> implementation</h4>
+<p>One problem for me</p>
 </div>
 </div>
 <div id="semivariogram" class="section level3">
