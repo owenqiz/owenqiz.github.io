@@ -195,7 +195,7 @@ $(document).ready(function(){
     
 
     <h4><a href="/2019/02/08/eda/">EDA - in progress</a></h4>
-    <h5>February 8, 2019 - 3 minutes</h5>
+    <h5>February 8, 2019 - 4 minutes</h5>
     <h5></h5>
 
     
@@ -216,7 +216,7 @@ $(document).ready(function(){
     <br> <div class="text-justify">
 
 
-<p>This post is a practice based on a <a href="https://www.stat.washington.edu/peter/591/geoR_sln.html">tutorial</a>.</p>
+<p>This post is a practice based on tutorials from <a href="https://www.stat.washington.edu/peter/591/geoR_sln.html">tutorial 1</a> and <a href="http://leg.ufpr.br/geoR/geoRdoc/geoRintro.html">tutorial 2</a>.</p>
 <p>Data was downloaded from <a href="http://www.bgs.ac.uk/research/groundwater/health/arsenic/Bangladesh/data.html">British Geological Survey</a> as “DPHE/BGS National Hydrochemical Survey”, describing various groundwater quality parameters for several thousand wells measured by the British Geological Survey throughout Bangladesh in 1998-1999. The dataset contains the results of the survey of <strong>3534</strong> boreholes from 61 out of 64 districts in Bangladesh. 34 variables are recorded, with 14 descriptive and 20 measured ones, we only focusing on the <em>Arsenic</em> level which has the measuring unit of <span class="math inline">\(\mu\)</span>g/L.</p>
 <p>Note that among all 3534 observations, 1105 observations are <strong>cencored</strong> data of two type, 111 measurements are labeled <code>&lt; 6</code> and 944 measurements are labeled <code>&lt; 0.5</code>. The remaining 2429 are precised measurements.</p>
 <p>We are going to use <code>R</code> package <code>geoR</code> to perform the EDA, which does NOT have functions to handle the censored data, we start with only the non-censored data. We will perform the EDA on two different scale on three places.</p>
@@ -227,7 +227,7 @@ $(document).ready(function(){
 </ol>
 <div id="data-reading-and-cleaning" class="section level3">
 <h3>1. Data Reading and Cleaning</h3>
-<p>We first read data from the BGS website.</p>
+<p>We first read the data from the BGS website.</p>
 <pre class="r"><code># Arsenic data download from http://www.bgs.ac.uk/home.html
 # http://www.bgs.ac.uk/downloads/start.cfm?id=2214
 
@@ -238,7 +238,7 @@ NationalSurveyData &lt;- read.csv(&quot;http://www.bgs.ac.uk/downloads/start.cfm
 colnames(NationalSurveyData) &lt;- tolower(colnames(NationalSurveyData))</code></pre>
 <p>Then, we only select column <code>4,5,9,10,11,15</code> which correspond to <code>lat_deg, long_deg, division, district, thana, as</code>. Put it into a new dataframe called <code>as_level</code>.</p>
 <pre class="r"><code>as_level &lt;- NationalSurveyData[,c(4,5,9,10,11,15)]</code></pre>
-<p>Now we select these two type of censored data, and label them as <code>-1, -2</code> respectively.</p>
+<p>Now we select these two types of censored data, and label them as <code>-1, -2</code> respectively for later manipulations.</p>
 <pre class="r"><code>censor_6 &lt;- subset(as_level, as_level$as == &quot;&lt; 6&quot;)
 censor_p5 &lt;- subset(as_level, as_level$as == &quot;&lt; 0.5&quot;)
 
@@ -256,20 +256,47 @@ x &lt;- noncensor$as
 x &lt;- as.numeric(levels(x))[x]
 noncensor$as &lt;- x</code></pre>
 <p>Now we have the dataframe <code>noncensor</code> which contains all precised measured data of observation 2429 and further subsetting into sub-regions.</p>
-<p>For computation and exploratory purpose, we use the subset the data with respect to different level of sub-regions by <code>R</code> function <code>split</code>, for starters, we want to choose the sub-regions who has two criteria,</p>
+<p>For computation and exploratory purpose, we use the subset the data with respect to different level of sub-regions by <code>R</code> function <code>split</code>, for starters, we want to choose the sub-regions who have two conditions,</p>
 <ol style="list-style-type: decimal">
 <li>The number of observations are around 100.</li>
 <li>One region with more high level arsenic observations, and another region has less high level arsenic observations.</li>
 </ol>
-<p>An example of the code is to look for second level sub-regions (district) is</p>
+<p>An example of the code to look for second level sub-regions (district) is</p>
 <pre class="r"><code># 2nd level district
 district &lt;- split(noncensor, noncensor$district)</code></pre>
-<p>And our two candidates are <strong>Comilla</strong> and <strong>Kishoreganj</strong> as mentioned above. We subset the dataframe from the big one.</p>
+<p>And our two candidates are <strong>Comilla</strong> and <strong>Kishoreganj</strong> as mentioned above. We subset the dataframes from the big one.</p>
 <pre class="r"><code>comilla &lt;- district$Comilla
 kishoreganj &lt;- district$Kishoreganj</code></pre>
 </div>
 <div id="basic-plots" class="section level3">
 <h3>2. Basic Plots</h3>
+<div id="original-plot-function" class="section level4">
+<h4>Original <code>plot</code> Function</h4>
+<p>The package <code>geoR</code> works on <code>geodata</code> which contains at least a list of two component, coordiantes and data. To use function in <code>geoR</code>, we need to convert <code>dataframe</code> into <code>geodata</code> by <code>geoR::as.geodata</code>, an example can be found on the <a href="https://www.rdocumentation.org/packages/geoR/versions/1.7-5.2.1/topics/as.geodata">documentation</a>.</p>
+<pre class="r"><code># save(noncensor,file=&quot;noncensor.Rda&quot;)
+load(&quot;noncensor.Rda&quot;)
+district &lt;- split(noncensor, noncensor$district)
+comilla &lt;- district$Comilla
+kishoreganj &lt;- district$Kishoreganj</code></pre>
+<p>Now we plot the data.</p>
+<pre class="r"><code>library(geoR)
+com &lt;- as.geodata(comilla[,c(1,2,6)])</code></pre>
+<pre><code>## as.geodata: 8 replicated data locations found. 
+##  Consider using jitterDupCoords() for jittering replicated locations. 
+## WARNING: there are data at coincident or very closed locations, some of the geoR&#39;s functions may not work.
+##  Use function dup.coords() to locate duplicated coordinates.
+##  Consider using jitterDupCoords() for jittering replicated locations</code></pre>
+<pre class="r"><code>kis &lt;- as.geodata(kishoreganj[,c(1,2,6)])
+
+plot(com)</code></pre>
+<p><img src="/post/2019-02-08-eda_files/figure-html/geor_plot-1.png" width="672" /></p>
+<pre class="r"><code>plot(kis)</code></pre>
+<p><img src="/post/2019-02-08-eda_files/figure-html/geor_plot-2.png" width="672" />
+As we can see that, there is no pattern can be found on the plot and the data are highly skewed.</p>
+</div>
+<div id="ggplot2-implementation" class="section level4">
+<h4><code>ggplot2</code> implementation</h4>
+</div>
 </div>
 <div id="semivariogram" class="section level3">
 <h3>3. Semivariogram</h3>
