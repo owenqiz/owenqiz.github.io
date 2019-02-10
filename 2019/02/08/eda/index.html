@@ -195,7 +195,7 @@ $(document).ready(function(){
     
 
     <h4><a href="/2019/02/08/eda/">EDA - in progress</a></h4>
-    <h5>February 8, 2019 - 4 minutes</h5>
+    <h5>February 8, 2019 - 5 minutes</h5>
     <h5></h5>
 
     
@@ -282,19 +282,20 @@ kishoreganj &lt;- district$Kishoreganj</code></pre>
 <p>We first do a quick data display with exploratory checks on spatial patterns, trends in the coordinates, and distribution of the data. We are using the default plot for a geodata object in <code>geoR::plot.geodata</code>. The lowess argument adds a smooth line to the upper right scatter plot (data value vs y value) and to the lower left scatter plot (x value vs data value). The upper left plot shows color coded data quartile at the location of the data, fefault colors for the quartiles in the first plot are (from 1st to 4th) <span style="color:blue">blue</span>, <span style="color:green">green</span>, <span style="color:gold">yellow</span> and <span style="color:red">red</span>.</p>
 <p>Now, we extract useful information from the dataframe and convert them into <code>geodata</code> and <code>plot</code>.</p>
 <pre class="r"><code>library(geoR)
-bang &lt;- as.geodata(noncensor[,c(1,2,6)])</code></pre>
+# use the order c(2,1,6) to consider the shape of bangladesh 
+bang &lt;- as.geodata(noncensor[,c(2,1,6)])</code></pre>
 <pre><code>## as.geodata: 81 replicated data locations found. 
 ##  Consider using jitterDupCoords() for jittering replicated locations. 
 ## WARNING: there are data at coincident or very closed locations, some of the geoR&#39;s functions may not work.
 ##  Use function dup.coords() to locate duplicated coordinates.
 ##  Consider using jitterDupCoords() for jittering replicated locations</code></pre>
-<pre class="r"><code>com &lt;- as.geodata(comilla[,c(1,2,6)])</code></pre>
+<pre class="r"><code>com &lt;- as.geodata(comilla[,c(2,1,6)])</code></pre>
 <pre><code>## as.geodata: 8 replicated data locations found. 
 ##  Consider using jitterDupCoords() for jittering replicated locations. 
 ## WARNING: there are data at coincident or very closed locations, some of the geoR&#39;s functions may not work.
 ##  Use function dup.coords() to locate duplicated coordinates.
 ##  Consider using jitterDupCoords() for jittering replicated locations</code></pre>
-<pre class="r"><code>kis &lt;- as.geodata(kishoreganj[,c(1,2,6)])
+<pre class="r"><code>kis &lt;- as.geodata(kishoreganj[,c(2,1,6)])
 
 plot(bang, lowess = TRUE)</code></pre>
 <p><img src="/post/2019-02-08-eda_files/figure-html/geor_plot-1.png" width="672" /></p>
