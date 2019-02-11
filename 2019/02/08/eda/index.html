@@ -344,40 +344,30 @@ p1 &lt;- ggplot(map, aes(long, lat, group = group)) +  geom_polygon(fill=&quot;w
   geom_point(data = data, aes(x = long_deg, y = lat_deg, color = as), inherit.aes = FALSE, alpha = 0.5) +
   scale_colour_manual(values = c(&quot;dodgerblue3&quot;, &quot;forestgreen&quot;, &quot;goldenrod3&quot;, &quot;firebrick3&quot;)) + theme_bw() + 
   xlab(&quot;longitude (x coord)&quot;) + ylab(&quot;latitude (y coord)&quot;) + 
-  theme(panel.background = element_rect(fill = &quot;transparent&quot;),  # bg of the panel
-        plot.background = element_rect(fill = &quot;transparent&quot;, color = NA), # bg of the plot
-        legend.title=element_blank())
+  theme(legend.title = element_blank())
 }
 else{
 p1 &lt;- ggplot(map, aes(long, lat, group = group)) +  geom_polygon(fill=&quot;white&quot;, colour=&quot;gray&quot;) +
   geom_point(data = data, aes(x = long_deg, y = lat_deg, color = as), inherit.aes = FALSE, alpha = 0.5) +
   scale_colour_gradientn(colours = c(&quot;dodgerblue3&quot;, &quot;goldenrod3&quot;, &quot;firebrick3&quot;), breaks = c(0, 10, 50, 100)) + theme_bw() + 
   xlab(&quot;longitude (x coord)&quot;) + ylab(&quot;latitude (y coord)&quot;) + 
-  theme(panel.background = element_rect(fill = &quot;transparent&quot;),  # bg of the panel
-        plot.background = element_rect(fill = &quot;transparent&quot;, color = NA), # bg of the plot
-        legend.title=element_blank())
+  theme(legend.title = element_blank())
 }
 
 p2 &lt;- ggplot(data = data, aes(x = lat_deg, y = as)) + geom_point(alpha = 0.5) + 
       geom_smooth(method = loess, se = FALSE) + theme_bw() + 
       xlab(&quot;latitude (y coord)&quot;) + ylab(&quot;arsenic&quot;) + 
-      theme(panel.background = element_rect(fill = &quot;transparent&quot;),  # bg of the panel
-            plot.background = element_rect(fill = &quot;transparent&quot;, color = NA), # bg of the plot
-            legend.title=element_blank()) + coord_flip() # rotate the plot
+      theme(legend.title=element_blank()) + coord_flip() # rotate the plot
 
 
 p3 &lt;- ggplot(data = data, aes(x = long_deg, y = as)) + geom_point(alpha = 0.5) + 
       geom_smooth(method = loess, se = FALSE) + 
       theme_bw() + xlab(&quot;longitude (x coord)&quot;) + ylab(&quot;arsenic&quot;) + 
-      theme(panel.background = element_rect(fill = &quot;transparent&quot;),  # bg of the panel
-        plot.background = element_rect(fill = &quot;transparent&quot;, color = NA), # bg of the plot
-        legend.title=element_blank())
+      theme(legend.title=element_blank())
 
-p4 &lt;- ggplot(data = data, aes(x = as)) + geom_histogram(aes(y=..density..),bins = 60, fill=&quot;white&quot;, color=&quot;darkgray&quot;) +
+p4 &lt;- ggplot(data = data, aes(x = as)) + geom_histogram(aes(y=..density..),bins =         60, fill=&quot;white&quot;, color=&quot;darkgray&quot;) +
       geom_density(alpha=.2, fill=&quot;#c4c2c2&quot;) + xlab(&quot;arsenic&quot;) + theme_bw() + 
-      theme(panel.background = element_rect(fill = &quot;transparent&quot;),  # bg of the panel
-            plot.background = element_rect(fill = &quot;transparent&quot;, color = NA), # bg of the plot
-            legend.title=element_blank())
+      theme(legend.title=element_blank())
 
 p &lt;- ggarrange(p1, p2, p3, p4, ncol = 2, nrow = 2)
 return(p)
