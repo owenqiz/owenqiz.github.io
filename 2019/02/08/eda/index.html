@@ -197,7 +197,7 @@ $(document).ready(function(){
     
 
     <h4><a href="/2019/02/08/eda/">EDA - in progress</a></h4>
-    <h5>February 8, 2019 - 5 minutes</h5>
+    <h5>February 8, 2019 - 7 minutes</h5>
     <h5></h5>
 
     
@@ -265,8 +265,12 @@ noncensor$as &lt;- x</code></pre>
 </ol>
 <p>An example of the code to look for second level sub-regions (district) is</p>
 <pre class="r"><code># 2nd level district
-district &lt;- split(noncensor, noncensor$district)</code></pre>
-<p>And our two candidates are <strong>Comilla</strong> and <strong>Kishoreganj</strong> as mentioned above. We subset the dataframes from the big one.</p>
+district &lt;- split(noncensor, noncensor$district)
+
+dist_name &lt;- attributes(district)[[1]][-1]
+size &lt;- sapply(district, nrow)[-1]
+dist &lt;- cbind(dist_name, size)</code></pre>
+<p>According to the criteria and the table, we have two candidates, namely <strong>Comilla</strong> and <strong>Kishoreganj</strong> as mentioned above. We subset the dataframes from the big one.</p>
 <pre class="r"><code>comilla &lt;- district$Comilla
 kishoreganj &lt;- district$Kishoreganj</code></pre>
 <p>A save and load command and store and retrieve the data, which will make later manipulation easier, (optional).</p>
@@ -309,14 +313,15 @@ plot(bang, lowess = TRUE)</code></pre>
 </div>
 <div id="ggplot2-implementation" class="section level4">
 <h4><code>ggplot2</code> implementation</h4>
-<p>To implement by <code>ggplot2</code>, we need both the data and the map files to visulaize, <a href="https://mgimond.github.io/ES218/Week02b.html#reading_from_a_r_data_file">mgimond’s tutorial</a> illustrate how to read maps from Global Administrative Areas <a href="https://gadm.org/index.html">GADM</a>. The map data keep update constantly, the current version (2019-Feb-10) is 3.6. This post will, however use version 2.8, since the file size are way smaller (precise mapping does NOT matter at this stage).</p>
+<p>To implement by <code>ggplot2</code>, we need both the data and the map files to visulaize, <a href="https://mgimond.github.io/ES218/Week02b.html#reading_from_a_r_data_file">mgimond’s tutorial</a> illustrate how to read maps from Global Administrative Areas <a href="https://gadm.org/index.html">GADM</a>. The map data keep update constantly, the current version (2019-Feb-10) is <a href="https://gadm.org/download_country_v3.html">v3.6</a>. This post will, however, use the version <a href="https://gadm.org/download_country_v2.html">v2.8</a>, since the file size are way smaller (precise mapping does NOT matter at this stage).</p>
 <p>We first read the district level data from GADM, for the whole country, we use the zero level map, for district, we use the second level map.</p>
 <pre class="r"><code>library(sp)
 library(maptools)</code></pre>
 <pre><code>## Checking rgeos availability: TRUE</code></pre>
 <pre class="r"><code>library(ggplot2)
-
-# map for whole country
+library(ggpubr)</code></pre>
+<pre><code>## Loading required package: magrittr</code></pre>
+<pre class="r"><code># map for whole country
 map_bangladesh &lt;- readRDS(gzcon(url(&#39;https://biogeo.ucdavis.edu/data/gadm2.8/rds/BGD_adm0.rds&#39;)))
 
 # if you have download from the gadm website
@@ -328,6 +333,65 @@ map_bangladesh2 &lt;- readRDS(gzcon(url(&#39;https://biogeo.ucdavis.edu/data/gad
 # two chosen sub-regions
 map_comilla &lt;- subset(map_bangladesh2, map_bangladesh2@data$NAME_2 %in% c(&quot;Comilla&quot;))
 map_kishoreganj &lt;- subset(map_bangladesh2, map_bangladesh2@data$NAME_2 %in% c(&quot;Kishoreganj&quot;))</code></pre>
+<p>The implementation of <code>basic_plot</code> is as follows,</p>
+<pre class="r"><code>basic_plot &lt;- function(data, map, qt = FALSE){
+# implement plot function using ggplot2
+# two option, quartile = TRUE use the same implementation as geoR or observation values
+if (qt == TRUE){
+quartile &lt;- c(0, as.numeric(quantile(data$as))[-1])
+data$as &lt;- cut(data$as, breaks = quartile, labels = paste(&quot;quartile&quot;, 1:4 , sep=&quot; &quot;))
+p1 &lt;- ggplot(map, aes(long, lat, group = group)) +  geom_polygon(fill=&quot;white&quot;, colour=&quot;gray&quot;) +
+  geom_point(data = data, aes(x = long_deg, y = lat_deg, color = as), inherit.aes = FALSE, alpha = 0.5) +
+  scale_colour_manual(values = c(&quot;dodgerblue3&quot;, &quot;forestgreen&quot;, &quot;goldenrod3&quot;, &quot;firebrick3&quot;)) + theme_bw() + 
+  xlab(&quot;longitude (x coord)&quot;) + ylab(&quot;latitude (y coord)&quot;) + 
+  theme(panel.background = element_rect(fill = &quot;transparent&quot;),  # bg of the panel
+        plot.background = element_rect(fill = &quot;transparent&quot;, color = NA), # bg of the plot
+        legend.title=element_blank())
+}
+else{
+p1 &lt;- ggplot(map, aes(long, lat, group = group)) +  geom_polygon(fill=&quot;white&quot;, colour=&quot;gray&quot;) +
+  geom_point(data = data, aes(x = long_deg, y = lat_deg, color = as), inherit.aes = FALSE, alpha = 0.5) +
+  scale_colour_gradientn(colours = c(&quot;dodgerblue3&quot;, &quot;goldenrod3&quot;, &quot;firebrick3&quot;), breaks = c(0, 10, 50, 100)) + theme_bw() + 
+  xlab(&quot;longitude (x coord)&quot;) + ylab(&quot;latitude (y coord)&quot;) + 
+  theme(panel.background = element_rect(fill = &quot;transparent&quot;),  # bg of the panel
+        plot.background = element_rect(fill = &quot;transparent&quot;, color = NA), # bg of the plot
+        legend.title=element_blank())
+}
+
+p2 &lt;- ggplot(data = data, aes(x = lat_deg, y = as)) + geom_point(alpha = 0.5) + 
+      geom_smooth(method = loess, se = FALSE) + theme_bw() + 
+      xlab(&quot;latitude (y coord)&quot;) + ylab(&quot;arsenic&quot;) + 
+      theme(panel.background = element_rect(fill = &quot;transparent&quot;),  # bg of the panel
+            plot.background = element_rect(fill = &quot;transparent&quot;, color = NA), # bg of the plot
+            legend.title=element_blank()) + coord_flip() # rotate the plot
+
+
+p3 &lt;- ggplot(data = data, aes(x = long_deg, y = as)) + geom_point(alpha = 0.5) + 
+      geom_smooth(method = loess, se = FALSE) + 
+      theme_bw() + xlab(&quot;longitude (x coord)&quot;) + ylab(&quot;arsenic&quot;) + 
+      theme(panel.background = element_rect(fill = &quot;transparent&quot;),  # bg of the panel
+        plot.background = element_rect(fill = &quot;transparent&quot;, color = NA), # bg of the plot
+        legend.title=element_blank())
+
+p4 &lt;- ggplot(data = data, aes(x = as)) + geom_histogram(aes(y=..density..),bins = 60, fill=&quot;white&quot;, color=&quot;darkgray&quot;) +
+      geom_density(alpha=.2, fill=&quot;#c4c2c2&quot;) + xlab(&quot;arsenic&quot;) + theme_bw() + 
+      theme(panel.background = element_rect(fill = &quot;transparent&quot;),  # bg of the panel
+            plot.background = element_rect(fill = &quot;transparent&quot;, color = NA), # bg of the plot
+            legend.title=element_blank())
+
+p &lt;- ggarrange(p1, p2, p3, p4, ncol = 2, nrow = 2)
+return(p)
+}</code></pre>
+<p>Now we plot the same graph of Bangladesh, Comilla and Kishoreganj,</p>
+<pre class="r"><code>basic_plot(noncensor, map_bangladesh)</code></pre>
+<pre><code>## Regions defined for each Polygons</code></pre>
+<p><img src="/post/2019-02-08-eda_files/figure-html/re_plot-1.png" width="672" /></p>
+<pre class="r"><code>basic_plot(comilla, map_comilla)</code></pre>
+<pre><code>## Regions defined for each Polygons</code></pre>
+<p><img src="/post/2019-02-08-eda_files/figure-html/re_plot-2.png" width="672" /></p>
+<pre class="r"><code>basic_plot(kishoreganj, map_kishoreganj)</code></pre>
+<pre><code>## Regions defined for each Polygons</code></pre>
+<p><img src="/post/2019-02-08-eda_files/figure-html/re_plot-3.png" width="672" /></p>
 </div>
 </div>
 <div id="semivariogram" class="section level3">
