@@ -337,22 +337,11 @@ map_kishoreganj &lt;- subset(map_bangladesh2, map_bangladesh2@data$NAME_2 %in% c
 <pre class="r"><code>basic_plot &lt;- function(data, map, qt = FALSE){
 # implement plot function using ggplot2
 # two option, quartile = TRUE use the same implementation as geoR or observation values
-if (qt == TRUE){
-quartile &lt;- c(0, as.numeric(quantile(data$as))[-1])
-data$as &lt;- cut(data$as, breaks = quartile, labels = paste(&quot;quartile&quot;, 1:4 , sep=&quot; &quot;))
-p1 &lt;- ggplot(map, aes(long, lat, group = group)) +  geom_polygon(fill=&quot;white&quot;, colour=&quot;gray&quot;) +
-  geom_point(data = data, aes(x = long_deg, y = lat_deg, color = as), inherit.aes = FALSE, alpha = 0.5) +
-  scale_colour_manual(values = c(&quot;dodgerblue3&quot;, &quot;forestgreen&quot;, &quot;goldenrod3&quot;, &quot;firebrick3&quot;)) + theme_bw() + 
-  xlab(&quot;longitude (x coord)&quot;) + ylab(&quot;latitude (y coord)&quot;) + 
-  theme(legend.title = element_blank())
-}
-else{
-p1 &lt;- ggplot(map, aes(long, lat, group = group)) +  geom_polygon(fill=&quot;white&quot;, colour=&quot;gray&quot;) +
-  geom_point(data = data, aes(x = long_deg, y = lat_deg, color = as), inherit.aes = FALSE, alpha = 0.5) +
-  scale_colour_gradientn(colours = c(&quot;dodgerblue3&quot;, &quot;goldenrod3&quot;, &quot;firebrick3&quot;), breaks = c(0, 10, 50, 100)) + theme_bw() + 
-  xlab(&quot;longitude (x coord)&quot;) + ylab(&quot;latitude (y coord)&quot;) + 
-  theme(legend.title = element_blank())
-}
+# move p1 move to the end to avoid re-numeric if qt = TRUE
+p4 &lt;- ggplot(data = data, aes(x = as)) + geom_histogram(aes(y=..density..),bins =         60, fill=&quot;white&quot;, color=&quot;darkgray&quot;) +
+    geom_density(alpha=.2, fill=&quot;#c4c2c2&quot;) + xlab(&quot;arsenic&quot;) + theme_bw() + 
+    theme(legend.title=element_blank())  
+  
 
 p2 &lt;- ggplot(data = data, aes(x = lat_deg, y = as)) + geom_point(alpha = 0.5) + 
       geom_smooth(method = loess, se = FALSE) + theme_bw() + 
@@ -365,9 +354,22 @@ p3 &lt;- ggplot(data = data, aes(x = long_deg, y = as)) + geom_point(alpha = 0.5
       theme_bw() + xlab(&quot;longitude (x coord)&quot;) + ylab(&quot;arsenic&quot;) + 
       theme(legend.title=element_blank())
 
-p4 &lt;- ggplot(data = data, aes(x = as)) + geom_histogram(aes(y=..density..),bins =         60, fill=&quot;white&quot;, color=&quot;darkgray&quot;) +
-      geom_density(alpha=.2, fill=&quot;#c4c2c2&quot;) + xlab(&quot;arsenic&quot;) + theme_bw() + 
-      theme(legend.title=element_blank())
+if (qt == TRUE){
+  quartile &lt;- c(0, as.numeric(quantile(data$as))[-1])
+  data$as &lt;- cut(data$as, breaks = quartile, labels = paste(&quot;quartile&quot;, 1:4 , sep=&quot; &quot;))
+  p1 &lt;- ggplot(map, aes(long, lat, group = group)) +  geom_polygon(fill=&quot;white&quot;, colour=&quot;gray&quot;) +
+    geom_point(data = data, aes(x = long_deg, y = lat_deg, color = as), inherit.aes = FALSE, alpha = 0.5) +
+    scale_colour_manual(values = c(&quot;dodgerblue3&quot;, &quot;forestgreen&quot;, &quot;goldenrod3&quot;, &quot;firebrick3&quot;)) + theme_bw() + 
+    xlab(&quot;longitude (x coord)&quot;) + ylab(&quot;latitude (y coord)&quot;) + 
+    theme(legend.title=element_blank())
+}
+else{
+  p1 &lt;- ggplot(map, aes(long, lat, group = group)) +  geom_polygon(fill=&quot;white&quot;, colour=&quot;gray&quot;) +
+    geom_point(data = data, aes(x = long_deg, y = lat_deg, color = as), inherit.aes = FALSE, alpha = 0.5) +
+    scale_colour_gradientn(colours = c(&quot;dodgerblue3&quot;, &quot;goldenrod3&quot;, &quot;firebrick3&quot;), breaks = c(0, 10, 50, 100)) + theme_bw() + 
+    xlab(&quot;longitude (x coord)&quot;) + ylab(&quot;latitude (y coord)&quot;) + 
+    theme(legend.title=element_blank())
+}
 
 p &lt;- ggarrange(p1, p2, p3, p4, ncol = 2, nrow = 2)
 return(p)
@@ -384,8 +386,8 @@ return(p)
 <p><img src="/post/2019-02-08-eda_files/figure-html/re_plot-3.png" width="672" /></p>
 </div>
 </div>
-<div id="semivariogram" class="section level3">
-<h3>3. Semivariogram</h3>
+<div id="variogram" class="section level3">
+<h3>3. Variogram</h3>
 </div>
 </div>
 
