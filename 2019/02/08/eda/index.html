@@ -197,7 +197,7 @@ $(document).ready(function(){
     
 
     <h4><a href="/2019/02/08/eda/">EDA - in progress</a></h4>
-    <h5>February 8, 2019 - 7 minutes</h5>
+    <h5>February 8, 2019 - 9 minutes</h5>
     <h5></h5>
 
     
@@ -218,7 +218,7 @@ $(document).ready(function(){
     <br> <div class="text-justify">
 
 
-<p>This post is a practice based on tutorials from <a href="https://www.stat.washington.edu/peter/591/geoR_sln.html">tutorial 1</a> and <a href="http://leg.ufpr.br/geoR/geoRdoc/geoRintro.html">tutorial 2</a>.</p>
+<p>This post is a practice note based on tutorials from <a href="https://www.stat.washington.edu/peter/591/geoR_sln.html">tutorial 1</a> and <a href="http://leg.ufpr.br/geoR/geoRdoc/geoRintro.html">tutorial 2</a> towards my thesis.</p>
 <p>Data was downloaded from <a href="http://www.bgs.ac.uk/research/groundwater/health/arsenic/Bangladesh/data.html">British Geological Survey</a> as “DPHE/BGS National Hydrochemical Survey”, describing various groundwater quality parameters for several thousand wells measured by the British Geological Survey throughout Bangladesh in 1998-1999. The dataset contains the results of the survey of <strong>3534</strong> boreholes from 61 out of 64 districts in Bangladesh. 34 variables are recorded, with 14 descriptive and 20 measured ones, we only focusing on the <em>Arsenic</em> level which has the measuring unit of <span class="math inline">\(\mu\)</span>g/L.</p>
 <p>Note that among all 3534 observations, 1105 observations are <strong>cencored</strong> data of two type, 111 measurements are labeled <code>&lt; 6</code> and 944 measurements are labeled <code>&lt; 0.5</code>. The remaining 2429 are precised measurements.</p>
 <p>We are going to use <code>R</code> package <code>geoR</code> to perform the EDA, which does NOT have functions to handle the censored data, we start with only the non-censored data. We will perform the EDA on two different scale on three places.</p>
@@ -273,22 +273,22 @@ dist &lt;- cbind(dist_name, size)</code></pre>
 <p>According to the criteria and the table, we have two candidates, namely <strong>Comilla</strong> and <strong>Kishoreganj</strong> as mentioned above. We subset the dataframes from the big one.</p>
 <pre class="r"><code>comilla &lt;- district$Comilla
 kishoreganj &lt;- district$Kishoreganj</code></pre>
-<p>A save and load command and store and retrieve the data, which will make later manipulation easier, (optional).</p>
+<p>A local save and load for the data will make later manipulation easier (optional).</p>
 <pre class="r"><code># save(noncensor,file=&quot;noncensor.Rda&quot;)
 load(&quot;noncensor.Rda&quot;)
 district &lt;- split(noncensor, noncensor$district)
 comilla &lt;- district$Comilla
 kishoreganj &lt;- district$Kishoreganj</code></pre>
 </div>
-<div id="basic-plots" class="section level3">
-<h3>2. Basic Plots</h3>
-<div id="original-plot-function" class="section level4">
-<h4>Original <code>plot</code> Function</h4>
-<p>The package <code>geoR</code> works on <code>geodata</code> which contains at least a list of two component, coordiantes and data. To use function in <code>geoR</code>, we need to convert <code>dataframe</code> into <code>geodata</code> by <code>geoR::as.geodata</code>, an example can be found on the <a href="https://www.rdocumentation.org/packages/geoR/versions/1.7-5.2.1/topics/as.geodata">documentation</a>.</p>
-<p>We first do a quick data display with exploratory checks on spatial patterns, trends in the coordinates, and distribution of the data. We are using the default plot for a geodata object in <code>geoR::plot.geodata</code>. The lowess argument adds a smooth line to the upper right scatter plot (data value vs y value) and to the lower left scatter plot (x value vs data value). The upper left plot shows color coded data quartile at the location of the data, fefault colors for the quartiles in the first plot are (from 1st to 4th) <span style="color:blue">blue</span>, <span style="color:green">green</span>, <span style="color:gold">yellow</span> and <span style="color:red">red</span>.</p>
-<p>Now, we extract useful information from the dataframe and convert them into <code>geodata</code> and <code>plot</code>.</p>
-<pre class="r"><code>library(geoR)
-# use the order c(2,1,6) to consider the shape of bangladesh 
+<div id="basic-summary" class="section level3">
+<h3>2. Basic Summary</h3>
+<pre class="r"><code>library(geoR)</code></pre>
+<pre><code>## --------------------------------------------------------------
+##  Analysis of Geostatistical Data
+##  For an Introduction to geoR go to http://www.leg.ufpr.br/geoR
+##  geoR version 1.7-5.2.1 (built on 2016-05-02) is now loaded
+## --------------------------------------------------------------</code></pre>
+<pre class="r"><code># use the order c(2,1,6) to consider the shape of bangladesh 
 bang &lt;- as.geodata(noncensor[,c(2,1,6)])</code></pre>
 <pre><code>## as.geodata: 81 replicated data locations found. 
 ##  Consider using jitterDupCoords() for jittering replicated locations. 
@@ -303,7 +303,65 @@ bang &lt;- as.geodata(noncensor[,c(2,1,6)])</code></pre>
 ##  Consider using jitterDupCoords() for jittering replicated locations</code></pre>
 <pre class="r"><code>kis &lt;- as.geodata(kishoreganj[,c(2,1,6)])
 
-plot(bang, lowess = TRUE)</code></pre>
+summary(com)</code></pre>
+<pre><code>## Number of data points: 101 
+## 
+## Coordinates summary
+##     long_deg lat_deg
+## min   90.716  23.071
+## max   91.338  23.768
+## 
+## Distance summary
+##       min       max 
+## 0.0000000 0.8529021 
+## 
+## Data summary
+##     Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
+##   0.8000  12.8000 115.0000 154.1317 243.0000 698.0000 
+## 
+## Duplicated Coordinates
+##      dup long_deg lat_deg  data
+## 171    1   90.716  23.536 411.0
+## 1662   2   90.716  23.536  72.7
+## 1679   3   90.933  23.639 327.0
+## 1678   4   90.933  23.639  70.8
+## 172    5   91.007  23.489 118.0
+## 1670   6   91.007  23.489 203.0
+## 1796   7   91.053  23.374   1.8
+## 1797   8   91.053  23.374  14.2
+## 1745   9   91.117  23.235   1.6
+## 180   10   91.117  23.235  98.0
+## 1699  11   91.128  23.553   2.4
+## 176   12   91.128  23.553   9.0
+## 1755  13   91.181  23.466   2.6
+## 1754  14   91.181  23.466   5.0
+## 1691  15   91.244  23.180  11.6
+## 174   16   91.244  23.180  64.0</code></pre>
+<pre class="r"><code>summary(kis)</code></pre>
+<pre><code>## Number of data points: 92 
+## 
+## Coordinates summary
+##     long_deg lat_deg
+## min  90.6027 24.0620
+## max  91.1335 24.6191
+## 
+## Distance summary
+##       min       max 
+## 0.0004000 0.5741063 
+## 
+## Data summary
+##      Min.   1st Qu.    Median      Mean   3rd Qu.      Max. 
+##   0.50000   5.40000  24.85000  60.72065  77.82500 573.00000</code></pre>
+<p>Note that for the data for the whole Bangladesh, 81 replicates are found, while for the data in Comilla, 8 replicates are recorded. By examine the orginal data, they are measured at the same day, hence <strong>we might consider it as potential nugget effect due to measurement error ??</strong> or <strong>taking the advice of the <code>geoR</code>, use <code>jitterDupCoords()</code> to move it a little bit</strong></p>
+</div>
+<div id="basic-plots" class="section level3">
+<h3>3. Basic Plots</h3>
+<div id="original-plot-function" class="section level4">
+<h4>Original <code>plot</code> Function</h4>
+<p>The package <code>geoR</code> works on <code>geodata</code> which contains at least a list of two component, coordiantes and data. To use function in <code>geoR</code>, we need to convert <code>dataframe</code> into <code>geodata</code> by <code>geoR::as.geodata</code>, an example can be found on the <a href="https://www.rdocumentation.org/packages/geoR/versions/1.7-5.2.1/topics/as.geodata">documentation</a>.</p>
+<p>We first do a quick data display with exploratory checks on spatial patterns, trends in the coordinates, and distribution of the data. We are using the default plot for a geodata object in <code>geoR::plot.geodata</code>. The lowess argument adds a smooth line to the upper right scatter plot (data value vs y value) and to the lower left scatter plot (x value vs data value). The upper left plot shows color coded data quartile at the location of the data, fefault colors for the quartiles in the first plot are (from 1st to 4th) <span style="color:blue">blue</span>, <span style="color:green">green</span>, <span style="color:gold">yellow</span> and <span style="color:red">red</span>.</p>
+<p>Now, we extract useful information from the dataframe and convert them into <code>geodata</code> and <code>plot</code>.</p>
+<pre class="r"><code>plot(bang, lowess = TRUE)</code></pre>
 <p><img src="/post/2019-02-08-eda_files/figure-html/geor_plot-1.png" width="672" /></p>
 <pre class="r"><code>plot(com, lowess = TRUE)</code></pre>
 <p><img src="/post/2019-02-08-eda_files/figure-html/geor_plot-2.png" width="672" /></p>
@@ -337,7 +395,7 @@ map_kishoreganj &lt;- subset(map_bangladesh2, map_bangladesh2@data$NAME_2 %in% c
 <pre class="r"><code>basic_plot &lt;- function(data, map, qt = FALSE){
 # implement plot function using ggplot2
 # two option, quartile = TRUE use the same implementation as geoR or observation values
-# move p1 move to the end to avoid re-numeric if qt = TRUE
+# p1 move to the end to avoid re-numeric if qt = TRUE
 p4 &lt;- ggplot(data = data, aes(x = as)) + geom_histogram(aes(y=..density..),bins =         60, fill=&quot;white&quot;, color=&quot;darkgray&quot;) +
     geom_density(alpha=.2, fill=&quot;#c4c2c2&quot;) + xlab(&quot;arsenic&quot;) + theme_bw() + 
     theme(legend.title=element_blank())  
@@ -356,7 +414,7 @@ p3 &lt;- ggplot(data = data, aes(x = long_deg, y = as)) + geom_point(alpha = 0.5
 
 if (qt == TRUE){
   quartile &lt;- c(0, as.numeric(quantile(data$as))[-1])
-  data$as &lt;- cut(data$as, breaks = quartile, labels = paste(&quot;quartile&quot;, 1:4 , sep=&quot; &quot;))
+  data$as &lt;- cut(data$as, breaks = quartile, labels = paste(&quot;Q&quot;, 1:4 , sep=&quot;&quot;))
   p1 &lt;- ggplot(map, aes(long, lat, group = group)) +  geom_polygon(fill=&quot;white&quot;, colour=&quot;gray&quot;) +
     geom_point(data = data, aes(x = long_deg, y = lat_deg, color = as), inherit.aes = FALSE, alpha = 0.5) +
     scale_colour_manual(values = c(&quot;dodgerblue3&quot;, &quot;forestgreen&quot;, &quot;goldenrod3&quot;, &quot;firebrick3&quot;)) + theme_bw() + 
@@ -387,7 +445,10 @@ return(p)
 </div>
 </div>
 <div id="variogram" class="section level3">
-<h3>3. Variogram</h3>
+<h3>4. Variogram</h3>
+<p>Accordig to the <a href="https://www.rdocumentation.org/packages/geoR/versions/1.7-5.2.1/topics/variog">documentation</a>, <code>variog</code> implement two types of estimation on semivariance <span class="math inline">\(\gamma(h)\)</span>, we will use the default, i.e. the one computes the classical method of moments estimator.
+<span class="math display">\[\gamma(h) = \frac{1}{2N_h}\sum_{i = 1}^{N_h}[Y(x_{i+h}) - Y(x_{i})]^2\]</span></p>
+<p>Similarly, we use <code>ggplot2</code> to combine 3 types of variogram for each region.</p>
 </div>
 </div>
 
