@@ -333,7 +333,7 @@ map_bangladesh2 &lt;- readRDS(gzcon(url(&#39;https://biogeo.ucdavis.edu/data/gad
 # two chosen sub-regions
 map_comilla &lt;- subset(map_bangladesh2, map_bangladesh2@data$NAME_2 %in% c(&quot;Comilla&quot;))
 map_kishoreganj &lt;- subset(map_bangladesh2, map_bangladesh2@data$NAME_2 %in% c(&quot;Kishoreganj&quot;))</code></pre>
-<p>The implementation of <code>basic_plot</code> is as follows,</p>
+<p>The implementation of <code>basic_plot</code> is as follows, note that there is one difference in the fitted curve of the plot, in <code>plot</code> function, we can call the argument <code>lowess</code> which stands for <em>locally weighted scatterplot smoothing</em>, in <code>basic_plot</code> can call the argument <code>loess</code> which is <em>locally estimated scatterplot smoothing</em>. For more information please refer to <a href="https://en.wikipedia.org/wiki/Local_regression">Wikipedia Local Regression</a>.</p>
 <pre class="r"><code>basic_plot &lt;- function(data, map, qt = FALSE){
 # implement plot function using ggplot2
 # two option, quartile = TRUE use the same implementation as geoR or observation values
