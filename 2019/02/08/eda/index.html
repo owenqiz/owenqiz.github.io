@@ -309,7 +309,25 @@ plot(bang, lowess = TRUE)</code></pre>
 </div>
 <div id="ggplot2-implementation" class="section level4">
 <h4><code>ggplot2</code> implementation</h4>
-<p>One problem for me</p>
+<p>To implement by <code>ggplot2</code>, we need both the data and the map files to visulaize, <a href="https://mgimond.github.io/ES218/Week02b.html#reading_from_a_r_data_file">mgimond’s tutorial</a> illustrate how to read maps from Global Administrative Areas <a href="https://gadm.org/index.html">GADM</a>. The map data keep update constantly, the current version (2019-Feb-10) is 3.6. This post will, however use version 2.8, since the file size are way smaller (precise mapping does NOT matter at this stage).</p>
+<p>We first read the district level data from GADM, for the whole country, we use the zero level map, for district, we use the second level map.</p>
+<pre class="r"><code>library(sp)
+library(maptools)</code></pre>
+<pre><code>## Checking rgeos availability: TRUE</code></pre>
+<pre class="r"><code>library(ggplot2)
+
+# map for whole country
+map_bangladesh &lt;- readRDS(gzcon(url(&#39;https://biogeo.ucdavis.edu/data/gadm2.8/rds/BGD_adm0.rds&#39;)))
+
+# if you have download from the gadm website
+# map_bangladesh &lt;- readRDS(&quot;BGD_adm0.rds&quot;)
+
+# map for district
+map_bangladesh2 &lt;- readRDS(gzcon(url(&#39;https://biogeo.ucdavis.edu/data/gadm2.8/rds/BGD_adm2.rds&#39;)))
+
+# two chosen sub-regions
+map_comilla &lt;- subset(map_bangladesh2, map_bangladesh2@data$NAME_2 %in% c(&quot;Comilla&quot;))
+map_kishoreganj &lt;- subset(map_bangladesh2, map_bangladesh2@data$NAME_2 %in% c(&quot;Kishoreganj&quot;))</code></pre>
 </div>
 </div>
 <div id="semivariogram" class="section level3">
