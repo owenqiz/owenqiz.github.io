@@ -449,28 +449,33 @@ return(p)
 <p>Accordig to the <a href="https://www.rdocumentation.org/packages/geoR/versions/1.7-5.2.1/topics/variog">documentation</a>, <code>variog</code> implement two types of estimation on semivariance <span class="math inline">\(\hat{\gamma}(h)\)</span>, we will use the default, i.e. the one computes the classical method of moments estimator.
 <span class="math display">\[\hat{\gamma}(h) = \frac{1}{2N_h}\sum_{i = 1}^{N_h}[Y(x_{i+h}) - Y(x_{i})]^2\]</span></p>
 <p>Similarly, we use <code>ggplot2</code> to combine different types of variogram for each region, we examine the omnivariogram of bined and smooth version, also combine with 4 directional variogram. Note that, if duplicates are exist, we will NOT able present the 4 directional variogram.</p>
+<p>Note that for computation purpose, big regions (here we set samples <span class="math inline">\(\geq\)</span> 500) will only present the binned omnidirectional variogram.</p>
 <pre class="r"><code>variogram &lt;- function(data, trend = &quot;cte&quot;){
   # max.dist NOT specified, will use the max of pairwise distance
   # trend have const = &quot;cte&quot;, linear = &quot;1st&quot;, quadratic = &quot;2nd&quot;
   # in basic_plot we assume it is constant
   
-  omni_vario_bin &lt;- variog(data, trend = trend)  
-  omni_vario_sm &lt;- variog(data, trend = trend, option = &quot;smooth&quot;)
-  
+  omni_vario_bin &lt;- variog(data, trend = trend)
   df_omni_vario_bin &lt;- as.data.frame(cbind(semivariance = omni_vario_bin$v, distance = omni_vario_bin$u))
-  df_omni_vario_sm &lt;- as.data.frame(cbind(semivariance = omni_vario_sm$v, distance = omni_vario_sm$u))
   
   p1 &lt;- ggplot(data = df_omni_vario_bin, aes(x = distance, y = semivariance)) + 
     geom_point() + xlim(0, NA) + ylim(0,NA) + theme_bw()
   
+  if(length(data[[2]]) &gt;= 500){
+    return(p1)
+  }
+  else{
+  omni_vario_sm &lt;- variog(data, trend = trend, option = &quot;smooth&quot;)
+  df_omni_vario_sm &lt;- as.data.frame(cbind(semivariance = omni_vario_sm$v, distance = omni_vario_sm$u))
+ 
   p2 &lt;- ggplot(data = df_omni_vario_sm, aes(x = distance, y = semivariance)) + 
     geom_point(alpha = .75) + xlim(0, NA) + ylim(0,NA) + theme_bw()
 
   # check if the area contains duplicates
-  if (length(summary(data)) == 5){ # exist duplicates
-    p &lt;- ggarrange(p1, p2, ncol = 1, nrow = 2)
-    return(p)
-  } 
+    if (length(summary(data)) == 5){ # exist duplicates
+        p &lt;- ggarrange(p1, p2, ncol = 1, nrow = 2)
+        return(p)
+    } 
   else{ # no duplicate length of summary is 4
     direct4_vario &lt;- variog4(data, trend = trend)
     u &lt;- sapply(direct4_vario, `[[`, 1)[,-5]
@@ -490,14 +495,19 @@ return(p)
     p &lt;- ggarrange(p1, p2,p3, ncol = 1, nrow = 3)
     return(p)  
   }
+  }
 }</code></pre>
-<p>The result for <strong>Comilla</strong> and <strong>Kishoreganj</strong> are as follows, note that the computation for the whole Bangldesh is quite intensive, pairwise computation for 2400+ location is intensive.</p>
+<p>The result of Bangladesh, Comilla and Kishoreganj are as follows,</p>
+<pre class="r"><code>variogram(bang)</code></pre>
+<pre><code>## variog: computing omnidirectional variogram
+## variog: co-locatted data found, adding one bin at the origin</code></pre>
+<p><img src="/post/2019-02-08-eda_files/figure-html/vario_plot-1.png" width="672" /></p>
 <pre class="r"><code>variogram(com)</code></pre>
 <pre><code>## variog: computing omnidirectional variogram
 ## variog: co-locatted data found, adding one bin at the origin
 ## variog: computing omnidirectional variogram
 ## variog: co-locatted data found, adding one bin at the origin</code></pre>
-<p><img src="/post/2019-02-08-eda_files/figure-html/vario_plot-1.png" width="672" /></p>
+<p><img src="/post/2019-02-08-eda_files/figure-html/vario_plot-2.png" width="672" /></p>
 <pre class="r"><code>variogram(kis)</code></pre>
 <pre><code>## variog: computing omnidirectional variogram
 ## variog: computing omnidirectional variogram
@@ -510,7 +520,8 @@ return(p)
 ## variog: computing variogram for direction = 135 degrees (2.356 radians)
 ##         tolerance angle = 22.5 degrees (0.393 radians)
 ## variog: computing omnidirectional variogram</code></pre>
-<p><img src="/post/2019-02-08-eda_files/figure-html/vario_plot-2.png" width="672" /></p>
+<p><img src="/post/2019-02-08-eda_files/figure-html/vario_plot-3.png" width="672" />
+#### Fit Variogram with <code>variofit</code></p>
 </div>
 </div>
 
