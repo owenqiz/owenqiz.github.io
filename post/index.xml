@@ -18,7 +18,7 @@
       
       <guid>/2019/02/08/eda/</guid>
       <description>This post is a practice note based on tutorials from tutorial 1 and tutorial 2 towards my thesis.
-Data was downloaded from British Geological Survey as “DPHE/BGS National Hydrochemical Survey”, describing various groundwater quality parameters for several thousand wells measured by the British Geological Survey throughout Bangladesh in 1998-1999. The dataset contains the results of the survey of 3534 boreholes from 61 out of 64 districts in Bangladesh. 34 variables are recorded, with 14 descriptive and 20 measured ones, we only focusing on the Arsenic level which has the measuring unit of \(\mu\)g/L.</description>
+Data was downloaded from British Geological Survey as “DPHE/BGS National Hydrochemical Survey”, describing various groundwater quality parameters for several thousand wells measured by the British Geological Survey throughout Bangladesh in 1998-1999. The dataset contains the results of the survey of 3534 boreholes from 61 out of 64 districts in Bangladesh.</description>
     </item>
     
     <item>
