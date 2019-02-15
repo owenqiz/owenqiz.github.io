@@ -524,8 +524,16 @@ return(p)
 ##         tolerance angle = 22.5 degrees (0.393 radians)
 ## variog: computing omnidirectional variogram</code></pre>
 <p><img src="/post/2019-02-08-eda_files/figure-html/vario_plot-3.png" width="672" /></p>
-<div id="fit-variogram-with-variofit" class="section level4">
-<h4>Fit Variogram with <code>variofit</code></h4>
+<div id="model-estimation" class="section level4">
+<h4>4. Model estimation</h4>
+<p>There are 4 methods for estimating the (covariance) model parameters in <code>geoR</code>.</p>
+<ul>
+<li>visual variogram fitting: using the function `<code>eyefit</code>.</li>
+<li>variogram fitting: using the function <code>variofit</code> basically fitting a non-linear model to the empirical variogram.</li>
+<li>likelihood (ML or REML): using the function <code>likfit</code>.</li>
+<li>Bayesian inference: using the function <code>krige.bayes</code>.</li>
+</ul>
+<p>I will perform <code>variofit</code> and <code>likfit</code> for now</p>
 </div>
 </div>
 </div>
