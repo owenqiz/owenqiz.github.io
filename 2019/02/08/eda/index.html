@@ -153,6 +153,8 @@ $(document).ready(function(){
                             
                                 <li><a href="/tags/">Tags</a></li>
                             
+                                <li><a href="/about/">About</a></li>
+                            
                         </ul>
                     
                     
@@ -199,7 +201,7 @@ $(document).ready(function(){
     
 
     <h4><a href="/2019/02/08/eda/">EDA - in progress</a></h4>
-    <h5>February 8, 2019 - 11 minutes</h5>
+    <h5>February 8, 2019 - 12 minutes</h5>
     <h5></h5>
 
     
@@ -220,7 +222,7 @@ $(document).ready(function(){
     <br> <div class="text-justify">
 
 
-<p>This post is a practice note based on tutorials from <a href="https://www.stat.washington.edu/peter/591/geoR_sln.html">tutorial 1</a> and <a href="http://leg.ufpr.br/geoR/geoRdoc/geoRintro.html">tutorial 2</a> towards my thesis.</p>
+<p>This post is a practice note based on tutorials from <a href="https://www.stat.washington.edu/peter/591/geoR_sln.html">tutorial 1</a>, <a href="http://leg.ufpr.br/geoR/geoRdoc/geoRintro.html">tutorial 2</a> and <a href="http://rstudio-pubs-static.s3.amazonaws.com/21593_ac892ba517084b309776e9fc17b2ebb0.html">tutorial 3</a> towards my thesis.</p>
 <p>Data was downloaded from <a href="http://www.bgs.ac.uk/research/groundwater/health/arsenic/Bangladesh/data.html">British Geological Survey</a> as “DPHE/BGS National Hydrochemical Survey”, describing various groundwater quality parameters for several thousand wells measured by the British Geological Survey throughout Bangladesh in 1998-1999. The dataset contains the results of the survey of <strong>3534</strong> boreholes from 61 out of 64 districts in Bangladesh. 34 variables are recorded, with 14 descriptive and 20 measured ones, we only focusing on the <em>Arsenic</em> level which has the measuring unit of <span class="math inline">\(\mu\)</span>g/L.</p>
 <p>Note that among all 3534 observations, 1105 observations are <strong>cencored</strong> data of two type, 111 measurements are labeled <code>&lt; 6</code> and 944 measurements are labeled <code>&lt; 0.5</code>. The remaining 2429 are precised measurements.</p>
 <p>We are going to use <code>R</code> package <code>geoR</code> to perform the EDA, which does NOT have functions to handle the censored data, we start with only the non-censored data. We will perform the EDA on two different scale on three places.</p>
@@ -528,12 +530,22 @@ return(p)
 <h4>4. Model estimation</h4>
 <p>There are 4 methods for estimating the (covariance) model parameters in <code>geoR</code>.</p>
 <ul>
-<li>visual variogram fitting: using the function `<code>eyefit</code>.</li>
-<li>variogram fitting: using the function <code>variofit</code> basically fitting a non-linear model to the empirical variogram.</li>
-<li>likelihood (ML or REML): using the function <code>likfit</code>.</li>
-<li>Bayesian inference: using the function <code>krige.bayes</code>.</li>
+<li>interactive fitting: using the function `<code>eyefit</code>.</li>
+<li>non-linear using the function <code>variofit</code> basically fitting a non-linear model to the empirical variogram.</li>
+<li>likelihood (ML or REML) fitting: using the function <code>likfit</code>.</li>
+<li>Bayesian fitting using the function <code>krige.bayes</code>.</li>
 </ul>
-<p>I will perform <code>variofit</code> and <code>likfit</code> for now</p>
+<p>I will use <code>variofit</code>(taking <code>variog</code> object as argument) and <code>likfit</code> (use the <code>geodata</code> as input). According to the empirical variogram, we will NOT set the nugget effect to be zero, but either given a fixed value or estimate the parameter <span class="math inline">\(\hat{\tau}^2\)</span>. The default covariance model is <strong>matern</strong> which has the form
+<span class="math display">\[\gamma(h) = \left\{\begin{array}{ll}
+0 &amp; ,h = 0\\
+\tau^2 + \sigma^2\left(1-\frac{(\phi h)^\nu}{2^{\nu-1}\Gamma(\nu)}K_\nu(\phi h)\right) &amp;, h &gt;0
+\end{array}\right.\]</span>
+where <span class="math inline">\(\Gamma\)</span> is the gamma function and <span class="math inline">\(K_\nu\)</span> is the modified <a href="https://en.wikipedia.org/wiki/Bessel_function">Bessel function</a> of the second kind.</p>
+<p>Fitting variogram for Comilla and Kishoreganj are as follows,</p>
+</div>
+<div id="some-thoughts" class="section level4">
+<h4>5. Some thoughts</h4>
+<p><a href="https://www4.stat.ncsu.edu/~reich/workshop/Ozone_Example.html">Kriging example</a></p>
 </div>
 </div>
 </div>
