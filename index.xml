@@ -40,15 +40,6 @@ Data was downloaded from British Geological Survey as “DPHE/BGS National Hydro
     </item>
     
     <item>
-      <title>About</title>
-      <link>/about-page/</link>
-      <pubDate>Thu, 07 Feb 2019 00:00:00 +0000</pubDate>
-      
-      <guid>/about-page/</guid>
-      <description>This is an about page, I will write something later will it works?</description>
-    </item>
-    
-    <item>
       <title>An R Markdown Examples</title>
       <link>/2019/02/07/rmd-example/</link>
       <pubDate>Thu, 07 Feb 2019 00:00:00 +0000</pubDate>

@@ -199,7 +199,7 @@ $(document).ready(function(){
     
 
     <h4><a href="/2019/02/08/eda/">EDA - in progress</a></h4>
-    <h5>February 8, 2019 - 12 minutes</h5>
+    <h5>February 8, 2019 - 110 minutes</h5>
     <h5></h5>
 
     
@@ -533,16 +533,2090 @@ return(p)
 <li>likelihood (ML or REML) fitting: using the function <code>likfit</code>.</li>
 <li>Bayesian fitting using the function <code>krige.bayes</code>.</li>
 </ul>
-<p>I will use <code>variofit</code>(taking <code>variog</code> object as argument) and <code>likfit</code> (use the <code>geodata</code> as input). According to the empirical variogram, we will NOT set the nugget effect to be zero, but either given a fixed value or estimate the parameter <span class="math inline">\(\hat{\tau}^2\)</span>. The default covariance model is <strong>matern</strong> which has the form
+<p>I will use <code>variofit</code>(taking <code>variog</code> object as argument) and <code>likfit</code> (use <code>geodata</code> as input). According to the empirical variogram, we will NOT set the nugget effect to be zero, but either given a fixed value or estimate the parameter <span class="math inline">\(\hat{\tau}^2\)</span>. The default covariance model is <strong>matern</strong> which has the form
 <span class="math display">\[\gamma(h) = \left\{\begin{array}{ll}
 0 &amp; ,h = 0\\
 \tau^2 + \sigma^2\left(1-\frac{(\phi h)^\nu}{2^{\nu-1}\Gamma(\nu)}K_\nu(\phi h)\right) &amp;, h &gt;0
 \end{array}\right.\]</span>
 where <span class="math inline">\(\Gamma\)</span> is the gamma function and <span class="math inline">\(K_\nu\)</span> is the modified <a href="https://en.wikipedia.org/wiki/Bessel_function">Bessel function</a> of the second kind.</p>
+<p>In terms of the <code>ggplot2</code> implementation, a <a href="https://groups.google.com/forum/#!topic/ggplot2/2OphgBnKl8k">post</a> has discuss how to convert a <code>likfit</code> object or <code>variofit</code> object into dataframe, a working auxiliary function can be found on <a href="https://gist.github.com/cwickham/4027851#file-fit_variofit-r">Github Gist</a></p>
+<pre class="r"><code># convert a variofit model into dataframe
+# source: https://gist.github.com/cwickham/4027851
+vario2df &lt;- function (x, max.dist, scaled = FALSE, ...) {
+  my.l &lt;- list()
+  if (missing(max.dist)) {
+    my.l$max.dist &lt;- x$max.dist
+    if (is.null(my.l$max.dist)) 
+      stop(&quot;argument max.dist needed for this object&quot;)
+  }
+  else my.l$max.dist &lt;- max.dist
+  if (any(x$cov.model == c(&quot;matern&quot;, &quot;powered.exponential&quot;, 
+                           &quot;cauchy&quot;, &quot;gencauchy&quot;, &quot;gneiting.matern&quot;))) 
+    my.l$kappa &lt;- x$kappa
+  else kappa &lt;- NULL
+  if (is.vector(x$cov.pars)) 
+    my.l$sill.total &lt;- x$nugget + x$cov.pars[1]
+  else my.l$sill.total &lt;- x$nugget + sum(x$cov.pars[, 1])
+  my.l$nugget &lt;- x$nugget
+  my.l$cov.pars &lt;- x$cov.pars
+  my.l$cov.model &lt;- x$cov.model
+  if (scaled) {
+    if (is.vector(x$cov.model)) 
+      my.l$cov.pars[1] &lt;- my.l$cov.pars[1]/my.l$sill.total
+    else my.l$cov.pars[, 1] &lt;- my.l$cov.cov.pars[, 1]/my.l$sill.total
+    my.l$sill.total &lt;- 1
+  }
+  gamma.f &lt;- function(x, my.l) {
+    if (any(my.l$cov.model == c(&quot;linear&quot;, &quot;power&quot;))) 
+      return(my.l$nugget + my.l$cov.pars[1] * (x^my.l$cov.pars[2]))
+    else return(my.l$sill.total - cov.spatial(x, cov.model = my.l$cov.model, 
+                                              kappa = my.l$kappa, cov.pars = my.l$cov.pars))
+  }
+  x_vals &lt;- seq(0, my.l$max.dist, length.out = 100)
+  data.frame(x = x_vals, fit = gamma.f(x_vals, my.l = my.l))
+}</code></pre>
+<pre class="r"><code>variofit_plot &lt;- function(data, nug = 10^4){
+  
+  vg &lt;- variog(data)
+  df_vg &lt;- as.data.frame(cbind(semivariance = vg[[2]], distance = vg[[1]]))
+  
+  # fixed nugget effect
+  ml_fn &lt;- likfit(data, ini = c(1,0.5), fix.nugget = TRUE, nugget = nug)
+  reml_fn &lt;- likfit(data, ini = c(1,0.5), fix.nugget = TRUE, nugget = nug, method = &quot;RML&quot;)
+  ols_fn &lt;- variofit(vg,ini = c(1,0.5), fix.nugget = TRUE, nugget = nug, weights=&quot;equal&quot;)
+  wls_fn &lt;- variofit(vg, ini = c(1,0.5), fix.nugget = TRUE, nugget = nug)
+  
+  # dataframe for 4 different estimations
+  lab &lt;- rep(c(&quot;ML&quot;, &quot;ReML&quot;,&quot;OLS&quot;,&quot;WLS&quot;), each = 100)
+  
+  df1 &lt;- lapply(list(ml_fn, reml_fn, ols_fn, wls_fn), vario2df)
+  u &lt;- df1[[1]][,1]
+  v &lt;- sapply(df1, `[[`, 2)
+  df1_vg_line &lt;- cbind(semivariance = c(v), distance = u)
+  df1_vg_line &lt;- data.frame(df1_vg_line, method = lab)
+
+  ymax &lt;- 1.1 * max(df_vg$semivariance)
+  p1 &lt;- ggplot(data = df_vg, aes(x = distance, y = semivariance)) + geom_point() + xlim(0, NA) + ylim(0,ymax)
+  p1 &lt;- p1 + geom_line(data = df1_vg_line, aes(x = distance, y = semivariance, 
+                     group = method, col = method, linetype = method), # colour and linetype for different method 
+                     size = 1, na.rm = TRUE) + theme_bw() + ggtitle(&quot;Fixed Nugget Effect&quot;) +
+       theme(plot.title = element_text(hjust = 0.5))
+  
+  # estimated nugget effect
+  ml_n &lt;- likfit(data, ini = c(1,0.5), nug = 10^4)
+  reml_n &lt;- likfit(data, ini = c(1,0.5), nug = 10^4, method = &quot;RML&quot;)
+  ols_n &lt;- variofit(vg, ini = c(1,0.5), nugget= 10^4, weights=&quot;equal&quot;)
+  wls_n &lt;- variofit(vg, ini = c(1,0.5), nugget=10^4)
+  
+  df2 &lt;- lapply(list(ml_n, reml_n, ols_n, wls_n), vario2df)
+  u &lt;- df2[[1]][,1]
+  v &lt;- sapply(df2, `[[`, 2)
+  df2_vg_line &lt;- cbind(semivariance = c(v), distance = u)
+  df2_vg_line &lt;- data.frame(df2_vg_line, method = lab)
+  
+  p2 &lt;- ggplot(data = df_vg, aes(x = distance, y = semivariance)) + geom_point() + xlim(0, NA) + ylim(0,ymax)
+  p2 &lt;- p2 + geom_line(data = df2_vg_line, aes(x = distance, y = semivariance, 
+                                              group = method, col = method, linetype = method), # colour and linetype for different method 
+                      size = 1, na.rm = TRUE) + theme_bw() + ggtitle(&quot;Estimated Nugget Effect&quot;) +
+    theme(plot.title = element_text(hjust = 0.5))
+  p &lt;- ggarrange(p1, p2, nrow = 1, ncol = 2, common.legend = TRUE, legend = &quot;bottom&quot;)
+  return(p)
+}</code></pre>
 <p>Fitting variogram for Comilla and Kishoreganj are as follows,</p>
+<pre class="r"><code>variofit_plot(com)</code></pre>
+<pre><code>## variog: computing omnidirectional variogram
+## variog: co-locatted data found, adding one bin at the origin
+## ---------------------------------------------------------------
+## likfit: likelihood maximisation using the function optim.
+## likfit: Use control() to pass additional
+##          arguments for the maximisation function.
+##         For further details see documentation for optim.
+## likfit: It is highly advisable to run this function several
+##         times with different initial values for the parameters.
+## likfit: WARNING: This step can be time demanding!
+## ---------------------------------------------------------------</code></pre>
+<pre><code>## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.</code></pre>
+<pre><code>## likfit: end of numerical maximisation.</code></pre>
+<pre><code>## Warning in varcov.spatial(coords = coords.rep[[i]], cov.model = cov.model, : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.</code></pre>
+<pre><code>## Warning in varcov.spatial(coords = coords[ind.rep[[i]], ], cov.model = cov.model, : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.</code></pre>
+<pre><code>## Warning in varcov.spatial(coords = coords[ind.rep[[i]], ], cov.model = cov.model, : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.</code></pre>
+<pre><code>## Warning in likfit(data, ini = c(1, 0.5), fix.nugget = TRUE, nugget = nug, :
+## argument &quot;method&quot; has changed and is now used as an argument to be passed
+## to optim(). Use &quot;lik.method&quot; to define the likelihood method</code></pre>
+<pre><code>## ---------------------------------------------------------------
+## likfit: likelihood maximisation using the function optim.
+## likfit: Use control() to pass additional
+##          arguments for the maximisation function.
+##         For further details see documentation for optim.
+## likfit: It is highly advisable to run this function several
+##         times with different initial values for the parameters.
+## likfit: WARNING: This step can be time demanding!
+## ---------------------------------------------------------------</code></pre>
+<pre><code>## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.</code></pre>
+<pre><code>## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.</code></pre>
+<pre><code>## likfit: end of numerical maximisation.</code></pre>
+<pre><code>## Warning in varcov.spatial(coords = coords.rep[[i]], cov.model = cov.model, : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.</code></pre>
+<pre><code>## Warning in varcov.spatial(coords = coords[ind.rep[[i]], ], cov.model = cov.model, : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.</code></pre>
+<pre><code>## Warning in varcov.spatial(coords = coords[ind.rep[[i]], ], cov.model = cov.model, : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.</code></pre>
+<pre><code>## 
+## WARNING: estimated range is more than 10 times bigger than the biggest distance between two points. Consider re-examine the model:
+##  1) excluding spatial dependence if estimated sill is too low and/or 
+##  2) taking trends (covariates) into account
+## variofit: covariance model used is matern 
+## variofit: weights used: equal 
+## variofit: minimisation function used: optim 
+## variofit: covariance model used is matern 
+## variofit: weights used: npairs 
+## variofit: minimisation function used: optim 
+## ---------------------------------------------------------------
+## likfit: likelihood maximisation using the function optim.
+## likfit: Use control() to pass additional
+##          arguments for the maximisation function.
+##         For further details see documentation for optim.
+## likfit: It is highly advisable to run this function several
+##         times with different initial values for the parameters.
+## likfit: WARNING: This step can be time demanding!
+## ---------------------------------------------------------------</code></pre>
+<pre><code>## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.</code></pre>
+<pre><code>## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.</code></pre>
+<pre><code>## likfit: end of numerical maximisation.</code></pre>
+<pre><code>## Warning in varcov.spatial(coords = coords.rep[[i]], cov.model = cov.model, : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.</code></pre>
+<pre><code>## Warning in varcov.spatial(coords = coords[ind.rep[[i]], ], cov.model = cov.model, : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.</code></pre>
+<pre><code>## Warning in varcov.spatial(coords = coords[ind.rep[[i]], ], cov.model = cov.model, : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.</code></pre>
+<pre><code>## 
+## WARNING: estimated sill is less than 1 hundredth of the total variance. Consider re-examine the model excluding spatial dependence</code></pre>
+<pre><code>## Warning in likfit(data, ini = c(1, 0.5), nug = 10^4, method = &quot;RML&quot;):
+## argument &quot;method&quot; has changed and is now used as an argument to be passed
+## to optim(). Use &quot;lik.method&quot; to define the likelihood method</code></pre>
+<pre><code>## ---------------------------------------------------------------
+## likfit: likelihood maximisation using the function optim.
+## likfit: Use control() to pass additional
+##          arguments for the maximisation function.
+##         For further details see documentation for optim.
+## likfit: It is highly advisable to run this function several
+##         times with different initial values for the parameters.
+## likfit: WARNING: This step can be time demanding!
+## ---------------------------------------------------------------</code></pre>
+<pre><code>## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.</code></pre>
+<pre><code>## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.
+
+## Warning in varcov.spatial(dists.lowertri = get(&quot;.likGRF.dists.vec&quot;, pos = 1)[[i]], : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.</code></pre>
+<pre><code>## likfit: end of numerical maximisation.</code></pre>
+<pre><code>## Warning in varcov.spatial(coords = coords.rep[[i]], cov.model = cov.model, : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.</code></pre>
+<pre><code>## Warning in varcov.spatial(coords = coords[ind.rep[[i]], ], cov.model = cov.model, : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.</code></pre>
+<pre><code>## Warning in varcov.spatial(coords = coords[ind.rep[[i]], ], cov.model = cov.model, : Two or more pairs of data at coincident (or very close) locations. 
+## This may cause crashes in some matrices operations.</code></pre>
+<pre><code>## 
+## WARNING: estimated sill is less than 1 hundredth of the total variance. Consider re-examine the model excluding spatial dependence
+## variofit: covariance model used is matern 
+## variofit: weights used: equal 
+## variofit: minimisation function used: optim 
+## variofit: covariance model used is matern 
+## variofit: weights used: npairs 
+## variofit: minimisation function used: optim</code></pre>
+<p><img src="/post/2019-02-08-eda_files/figure-html/examing%20variofit-1.png" width="672" /></p>
+<pre class="r"><code>variofit_plot(kis)</code></pre>
+<pre><code>## variog: computing omnidirectional variogram
+## ---------------------------------------------------------------
+## likfit: likelihood maximisation using the function optim.
+## likfit: Use control() to pass additional
+##          arguments for the maximisation function.
+##         For further details see documentation for optim.
+## likfit: It is highly advisable to run this function several
+##         times with different initial values for the parameters.
+## likfit: WARNING: This step can be time demanding!
+## ---------------------------------------------------------------
+## likfit: end of numerical maximisation.
+## 
+## WARNING: estimated sill is less than 1 hundredth of the total variance. Consider re-examine the model excluding spatial dependence</code></pre>
+<pre><code>## Warning in likfit(data, ini = c(1, 0.5), fix.nugget = TRUE, nugget = nug, :
+## argument &quot;method&quot; has changed and is now used as an argument to be passed
+## to optim(). Use &quot;lik.method&quot; to define the likelihood method</code></pre>
+<pre><code>## ---------------------------------------------------------------
+## likfit: likelihood maximisation using the function optim.
+## likfit: Use control() to pass additional
+##          arguments for the maximisation function.
+##         For further details see documentation for optim.
+## likfit: It is highly advisable to run this function several
+##         times with different initial values for the parameters.
+## likfit: WARNING: This step can be time demanding!
+## ---------------------------------------------------------------
+## likfit: end of numerical maximisation.
+## 
+## WARNING: estimated range is more than 10 times bigger than the biggest distance between two points. Consider re-examine the model:
+##  1) excluding spatial dependence if estimated sill is too low and/or 
+##  2) taking trends (covariates) into account
+## variofit: covariance model used is matern 
+## variofit: weights used: equal 
+## variofit: minimisation function used: optim 
+## variofit: covariance model used is matern 
+## variofit: weights used: npairs 
+## variofit: minimisation function used: optim 
+## ---------------------------------------------------------------
+## likfit: likelihood maximisation using the function optim.
+## likfit: Use control() to pass additional
+##          arguments for the maximisation function.
+##         For further details see documentation for optim.
+## likfit: It is highly advisable to run this function several
+##         times with different initial values for the parameters.
+## likfit: WARNING: This step can be time demanding!
+## ---------------------------------------------------------------
+## likfit: end of numerical maximisation.
+## 
+## WARNING: estimated sill is less than 1 hundredth of the total variance. Consider re-examine the model excluding spatial dependence</code></pre>
+<pre><code>## Warning in likfit(data, ini = c(1, 0.5), nug = 10^4, method = &quot;RML&quot;):
+## argument &quot;method&quot; has changed and is now used as an argument to be passed
+## to optim(). Use &quot;lik.method&quot; to define the likelihood method</code></pre>
+<pre><code>## ---------------------------------------------------------------
+## likfit: likelihood maximisation using the function optim.
+## likfit: Use control() to pass additional
+##          arguments for the maximisation function.
+##         For further details see documentation for optim.
+## likfit: It is highly advisable to run this function several
+##         times with different initial values for the parameters.
+## likfit: WARNING: This step can be time demanding!
+## ---------------------------------------------------------------
+## likfit: end of numerical maximisation.
+## 
+## WARNING: estimated sill is less than 1 hundredth of the total variance. Consider re-examine the model excluding spatial dependence
+## variofit: covariance model used is matern 
+## variofit: weights used: equal 
+## variofit: minimisation function used: optim 
+## variofit: covariance model used is matern 
+## variofit: weights used: npairs 
+## variofit: minimisation function used: optim</code></pre>
+<p><img src="/post/2019-02-08-eda_files/figure-html/examing%20variofit-2.png" width="672" /></p>
 </div>
 <div id="some-thoughts" class="section level4">
 <h4>5. Some thoughts</h4>
+<p>There are several doubts within this analysis</p>
+<ol style="list-style-type: decimal">
+<li>How to deal with the existence of the colocation (really closed by NOT the same well).</li>
+<li>It is appropriate to plot quantile instead of some interval.</li>
+<li>Since the data is clearly skewed, fitting gaussian processes is not appropriate.</li>
+<li>Since the region is far from pole, should we use degree or convert to UTM zone.</li>
+<li>ML fit cannot choose <code>matern</code> as input, strange.</li>
+<li>variogram fit plot for Kishoreganj strange.</li>
+</ol>
 <p><a href="https://www4.stat.ncsu.edu/~reich/workshop/Ozone_Example.html">Kriging example</a></p>
 </div>
 </div>
