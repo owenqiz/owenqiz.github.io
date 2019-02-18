@@ -6,18 +6,28 @@
     <description>Recent content in Statistics on owenqi</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Fri, 08 Feb 2019 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Mon, 18 Feb 2019 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/categories/statistics/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
-      <title>EDA - in progress</title>
+      <title>EDA on Bangladesh Groundwater Arsenic Part 2</title>
+      <link>/2019/02/18/eda-2/</link>
+      <pubDate>Mon, 18 Feb 2019 00:00:00 +0000</pubDate>
+      
+      <guid>/2019/02/18/eda-2/</guid>
+      <description>We have perfrom initial EDA on arsenic level in the early post. From the plots in part 1
+The region being chosen there doesn’t seem to be much spatial correlationIt is hard to interpret this in longitude and latitudeIn this post, R code for simple data transformation and technique use in part 1 will NOT be shown again, we just present the result. Code for new technique will be included.</description>
+    </item>
+    
+    <item>
+      <title>EDA on Bangladesh Groundwater Arsenic Part 1</title>
       <link>/2019/02/08/eda/</link>
       <pubDate>Fri, 08 Feb 2019 00:00:00 +0000</pubDate>
       
       <guid>/2019/02/08/eda/</guid>
-      <description>This post is a practice note based on tutorials from tutorial 1, tutorial 2 and tutorial 3 towards my thesis.
+      <description>This post is a practice note based on tutorials from tutorial 1, tutorial 2 and tutorial 3 towards my thesis, we first perform EDA on data of original scale.
 Data was downloaded from British Geological Survey as “DPHE/BGS National Hydrochemical Survey”, describing various groundwater quality parameters for several thousand wells measured by the British Geological Survey throughout Bangladesh in 1998-1999. The dataset contains the results of the survey of 3534 boreholes from 61 out of 64 districts in Bangladesh.</description>
     </item>
     
