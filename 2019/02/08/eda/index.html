@@ -220,7 +220,7 @@ $(document).ready(function(){
     <br> <div class="text-justify">
 
 
-<p>This post is a practice note based on tutorials from <a href="https://www.stat.washington.edu/peter/591/geoR_sln.html">tutorial 1</a>, <a href="http://leg.ufpr.br/geoR/geoRdoc/geoRintro.html">tutorial 2</a> and <a href="http://rstudio-pubs-static.s3.amazonaws.com/21593_ac892ba517084b309776e9fc17b2ebb0.html">tutorial 3</a> towards my thesis, we first perform EDA on data of original scale.</p>
+<p>This post is a practice note based on tutorials from <a href="https://www.stat.washington.edu/peter/591/geoR_sln.html">tutorial 1</a>, <a href="http://leg.ufpr.br/geoR/geoRdoc/geoRintro.html">tutorial 2</a> and <a href="http://rstudio-pubs-static.s3.amazonaws.com/21593_ac892ba517084b309776e9fc17b2ebb0.html">tutorial 3</a> towards my thesis, we first perform EDA on data of original scale, once we have idea about our data, we may further perform <a href="https://www4.stat.ncsu.edu/~reich/workshop/Ozone_Example.html">kriging</a>.</p>
 <p>Data was downloaded from <a href="http://www.bgs.ac.uk/research/groundwater/health/arsenic/Bangladesh/data.html">British Geological Survey</a> as “DPHE/BGS National Hydrochemical Survey”, describing various groundwater quality parameters for several thousand wells measured by the British Geological Survey throughout Bangladesh in 1998-1999. The dataset contains the results of the survey of <strong>3534</strong> boreholes from 61 out of 64 districts in Bangladesh. 34 variables are recorded, with 14 descriptive and 20 measured ones, we only focusing on the <em>Arsenic</em> level which has the measuring unit of <span class="math inline">\(\mu\)</span>g/L.</p>
 <p>Note that among all 3534 observations, 1105 observations are <strong>cencored</strong> data of two type, 111 measurements are labeled <code>&lt; 6</code> and 944 measurements are labeled <code>&lt; 0.5</code>. The remaining 2429 are precised measurements.</p>
 <p>We are going to use <code>R</code> package <code>geoR</code> to perform the EDA, which does NOT have functions to handle the censored data, we start with only the non-censored data. We will perform the EDA on two different scale on three places.</p>
@@ -764,7 +764,6 @@ vario2df &lt;- function (x, max.dist, scaled = FALSE, ...) {
 <li>ML fit cannot choose <code>matern</code> as input, strange.</li>
 <li>variogram fit plot for Kishoreganj strange.</li>
 </ol>
-<p><a href="https://www4.stat.ncsu.edu/~reich/workshop/Ozone_Example.html">Kriging example</a></p>
 </div>
 </div>
 </div>

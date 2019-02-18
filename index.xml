@@ -45,8 +45,8 @@
       <pubDate>Fri, 08 Feb 2019 00:00:00 +0000</pubDate>
       
       <guid>/2019/02/08/eda/</guid>
-      <description>This post is a practice note based on tutorials from tutorial 1, tutorial 2 and tutorial 3 towards my thesis, we first perform EDA on data of original scale.
-Data was downloaded from British Geological Survey as “DPHE/BGS National Hydrochemical Survey”, describing various groundwater quality parameters for several thousand wells measured by the British Geological Survey throughout Bangladesh in 1998-1999. The dataset contains the results of the survey of 3534 boreholes from 61 out of 64 districts in Bangladesh.</description>
+      <description>This post is a practice note based on tutorials from tutorial 1, tutorial 2 and tutorial 3 towards my thesis, we first perform EDA on data of original scale, once we have idea about our data, we may further perform kriging.
+Data was downloaded from British Geological Survey as “DPHE/BGS National Hydrochemical Survey”, describing various groundwater quality parameters for several thousand wells measured by the British Geological Survey throughout Bangladesh in 1998-1999.</description>
     </item>
     
     <item>
