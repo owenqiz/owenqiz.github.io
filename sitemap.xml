@@ -11,6 +11,11 @@
   </url>
   
   <url>
+    <loc>/2019/02/19/a-latex-template-for-homework/</loc>
+    <lastmod>2019-02-19T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
     <loc>/2019/02/12/some-summary-on-eoq-model/</loc>
     <lastmod>2019-02-12T00:00:00+00:00</lastmod>
   </url>
@@ -32,14 +37,20 @@
   </url>
   
   <url>
+    <loc>/tags/latex/</loc>
+    <lastmod>2019-02-19T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
     <loc>/categories/miscellaneous/</loc>
-    <lastmod>2019-02-12T00:00:00+00:00</lastmod>
+    <lastmod>2019-02-19T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
   <url>
     <loc>/post/</loc>
-    <lastmod>2019-02-12T00:00:00+00:00</lastmod>
+    <lastmod>2019-02-19T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -62,7 +73,7 @@
   
   <url>
     <loc>/</loc>
-    <lastmod>2019-02-12T00:00:00+00:00</lastmod>
+    <lastmod>2019-02-19T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   

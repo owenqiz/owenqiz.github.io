@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>hello-world.Rmd</title>
+        <title>A LaTex Template for Homework</title>
         <style>
 
     html body {
@@ -23,7 +23,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=VT323">
 
 
- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/lakeside-light.min.css"> 
+ <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css"> 
 
 
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
@@ -45,9 +45,11 @@
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/r.min.js"></script>
     
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/python.min.js"></script>
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/bash.min.js"></script>
     
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/go.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/tex.min.js"></script>
     
 
     <script>hljs.initHighlightingOnLoad();</script>
@@ -111,7 +113,7 @@ $(document).ready(function(){
     
     
     
-    <meta property="og:title" content="hello-world.Rmd">
+    <meta property="og:title" content="A LaTex Template for Homework">
     <meta property="og:type" content="article">
       
       <meta name="twitter:card" content="summary">
@@ -136,7 +138,7 @@ $(document).ready(function(){
         <nav class="navbar navbar-default navbar-fixed-top">
             <div class="container">
                 <div class="navbar-header">
-                    <a class="navbar-brand visible-xs" href="#">hello-world.Rmd</a>
+                    <a class="navbar-brand visible-xs" href="#">A LaTex Template for Homework</a>
                     <button class="navbar-toggle" data-target=".navbar-collapse" data-toggle="collapse">
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>
@@ -149,7 +151,7 @@ $(document).ready(function(){
                             
                                 <li><a href="/">Home</a></li>
                             
-                                <li><a href="/post/">Posts</a></li>
+                                <li><a href="/post/">Blog</a></li>
                             
                                 <li><a href="/tags/">Tags</a></li>
                             
@@ -160,11 +162,13 @@ $(document).ready(function(){
                             
                                 <li class="navbar-icon"><a href="https://github.com/owenqiz"><i class="fa fa-github"></i></a></li>
                             
-                                <li class="navbar-icon"><a href="https://twitter.com/owenqi/"><i class="fa fa-twitter"></i></a></li>
+                                <li class="navbar-icon"><a href="https://gitlab.com/owenqi"><i class="fa fa-gitlab"></i></a></li>
                             
                                 <li class="navbar-icon"><a href="https://www.facebook.com/owenqiz"><i class="fa fa-facebook-f"></i></a></li>
                             
                                 <li class="navbar-icon"><a href="https://www.linkedin.com/in/qi-zhang-10309993/"><i class="fa fa-linkedin"></i></a></li>
+                            
+                                <li class="navbar-icon"><a href="https://www.weibo.com/owenqi"><i class="fa fa-weibo"></i></a></li>
                             
                             <li id="night-mode-toggle">
     <input type="checkbox" id = "button-status"
@@ -196,11 +200,20 @@ $(document).ready(function(){
       
     
 
-    <h4><a href="/2019/02/07/hello-world-rmd/">hello-world.Rmd</a></h4>
-    <h5>February 7, 2019 - 1 minutes</h5>
+    <h4><a href="/2019/02/19/a-latex-template-for-homework/">A LaTex Template for Homework</a></h4>
+    <h5>February 19, 2019 - 2 minutes</h5>
     <h5></h5>
 
     
+
+        <a href="/categories/miscellaneous">
+        <kbd class="item-cat"> Miscellaneous </kbd>
+    </a>
+    
+    
+    <a href="/tags/latex">
+        <kbd class="item-tag"> LaTeX </kbd>
+    </a>
     
 
 </div>
@@ -209,12 +222,78 @@ $(document).ready(function(){
     <br> <div class="text-justify">
 
 
-<p>We build a linear regression below.</p>
-<pre class="r"><code>fit = lm(dist ~ speed, data = cars)
-b = coef(summary(fit))
-plot(fit)</code></pre>
-<p><img src="/post/2019-02-07-hello-world_files/figure-html/unnamed-chunk-1-1.png" width="672" /><img src="/post/2019-02-07-hello-world_files/figure-html/unnamed-chunk-1-2.png" width="672" /><img src="/post/2019-02-07-hello-world_files/figure-html/unnamed-chunk-1-3.png" width="672" /><img src="/post/2019-02-07-hello-world_files/figure-html/unnamed-chunk-1-4.png" width="672" /></p>
-<p>The slope of the regression is 3.9324088.</p>
+<p>Yes, there are already tons of LaTeX templates, why make another one? Well, personally, those templates are good, but not my style. I prefer putting all my solutions inside a box, but a simple box doesn’t look nice enough for me.</p>
+<p>Consider that I will use it for a fairly long time, I just made one myself, mainly using the package <code>tcolorbox</code>. In the end, I end up with all my assignment using this template, except for writing a report.</p>
+<pre class="tex"><code>\documentclass{article}
+\usepackage[a4paper,left=3cm,right=2cm,top=2.5cm,bottom=2.5cm]{geometry}
+\usepackage{amsmath,amsfonts,amsthm}
+\usepackage{tcolorbox} %use to set solution environment
+\tcbuselibrary{skins, breakable}
+\usepackage{tikz}
+\usetikzlibrary{positioning}
+\tikzset{&gt;=stealth}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage[english]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+\usepackage{booktabs}
+\usepackage{enumitem}
+%\usepackage{courier}
+
+
+\newenvironment{solution}{\tcolorbox[enhanced,breakable,colback=white,
+    attach boxed title to top left = {yshift = -2mm},title=\textbf{Solution}]}
+{\endtcolorbox}
+%customized solution environment
+
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\EX}[1]{\mathbb{E}\left(#1\right)}
+\newcommand{\prob}[1]{\mathbb{P}\left\lbrace #1 \right\rbrace }
+\newcommand{\bv}[1]{\mathbf{#1}}
+\newcommand{\note}{\textbf{Note: }}
+\newcommand{\dint}{\displaystyle\int}
+\newcommand{\ind}[1]{1_{\lbrace #1 \rbrace}}
+\newcommand{\poi}{\mathrm{Poisson}}
+
+\pagestyle{fancy}
+\fancyhf{}
+\rhead{id}
+\chead{\emph{name}}
+\lhead{course code}
+\rfoot{ \thepage \text{ of} \pageref{LastPage}}
+\setlength{\headsep}{10pt}
+
+
+
+\begin{document}
+\begin{center}
+{\large \textbf{Assignment \# 1}}
+\end{center}
+\flushleft
+\textbf{Q1.(5.2.3) Compounding } \begin{enumerate}[topsep = 0 ex, itemsep=0ex,partopsep=0ex,parsep=0ex,label=(\alph*).]
+    \item Let $X$ have the Poisson distribution with parameter $Y$ , where $Y$ has the Poisson distribution with
+    parameter $\mu$. Show that $G_{X+Y}(x) = \exp\lbrace\mu(xe^{x-1}-1)\rbrace$.
+    \item Let $X_1, X_2,\ldots$ be independent identically distributed random variables with the logarithmic
+    mass function
+    $$f(k) = \frac{(1-p)^k}{k\ln(1/p)}, k \geq 1,$$
+    where $0 &lt; p &lt;1$. If $N$ is independent of the $X_i$ and has the Poisson distribution with parameter $\mu$, show that $Y = \sum_{i=1}^{N}X_i$ has a type of negative binomial distribution.
+\end{enumerate}
+\begin{solution}
+\begin{enumerate}[topsep = 0 ex, itemsep=0ex,partopsep=0ex,parsep=0ex,label=(\alph*).]
+\item Given $X\sim \poi(Y), Y \sim \poi(\mu)$, recall generating function of $\poi(\lambda)$ is $G_X(s) = e^{\lambda(s-1)}$.
+Now, conditioning on value of $Y$, by the definition of generating function, we have
+$$G_{X+Y}(x) = \EX{x^{X+Y}} = \EX{\EX{x^{X+Y}|Y}}= \EX{x^Y\cdot e^{Y(x-1)}} = \EX{(xe^{x-1})^Y} = e^{\mu(xe^{x-1}-1)}$$
+\item Since $X_1,X_2,\ldots$ are i.i.d random variables, then they share a common generating function
+$$G_{X_1}(s) = \sum_{k=1}^{\infty}s^k\cdot \frac{(1-p)^k}{k\ln(1/p)} = \frac{\ln(1-s(1-p))}{\ln p}$$
+Now, by the compounding Theorem, we have
+$$G_Y(s) = G_N(G_{X_1}(s)) = \exp\left\{\mu(G_{X_1}(s)-1)\right\} = \left(\frac{1-s(1-p)}{p}\right)^{\mu/\ln p}$$
+\note Recall the series of logarithm, $\ln(1-x) = -\sum\limits_{n=1}^{\infty}x^n/n$.
+\end{enumerate}
+\end{solution}
+    
+\end{document}</code></pre>
 </div>
 
     
@@ -228,6 +307,7 @@ plot(fit)</code></pre>
 
         <footer id = "bigfooter">
             <div style = "padding:15px;">
+                <p>&copy owenqi 2019 </p>
                 <p>Powered by <a href="https://gohugo.io">Hugo</a>. Themed by <a href="https://github.com/nathancday/min_night">min_night</a>.
                 </p>
                 <a rel="license" href="https://creativecommons.org/licenses/by/4.0/"
