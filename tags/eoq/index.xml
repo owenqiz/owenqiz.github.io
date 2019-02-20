@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Eoq on owenqi</title>
+    <link>/tags/eoq/</link>
+    <description>Recent content in Eoq on owenqi</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Tue, 12 Feb 2019 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="/tags/eoq/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Short Summary on EOQ Model (Deterministic)</title>
+      <link>/2019/02/12/some-summary-on-eoq-model/</link>
+      <pubDate>Tue, 12 Feb 2019 00:00:00 +0000</pubDate>
+      
+      <guid>/2019/02/12/some-summary-on-eoq-model/</guid>
+      <description>I have the chance to take a look on EOQ (Econmic Ordering Quantity) models recently, I simply made a short summary for quick recall.
+The book I use is Winston, W. L., &amp;amp; Goldberg, J. B. (2004). Operations research: applications and algorithms (Vol. 3). Belmont^ eCalif Calif: Thomson/Brooks/Cole.
+1. Assumption and NotationRepetitive ordering, Constant Demand, Constant Lead Time, Continuous Ordering.
+\(K\) = setup or ordering cost\(h\) = cost of holding one unit for one unit of time\(D\) = demand rate per unit time\(r\) = rate at which firm can make product per unit time \((r&amp;gt;D)\)\(s\) = cost of being one unit short for one unit of time2.</description>
+    </item>
+    
+  </channel>
+</rss>

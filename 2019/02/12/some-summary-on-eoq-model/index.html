@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>About</title>
+        <title>Short Summary on EOQ Model (Deterministic)</title>
         <style>
 
     html body {
@@ -111,7 +111,7 @@ $(document).ready(function(){
     
     
     
-    <meta property="og:title" content="About">
+    <meta property="og:title" content="Short Summary on EOQ Model (Deterministic)">
     <meta property="og:type" content="article">
       
       <meta name="twitter:card" content="summary">
@@ -136,7 +136,7 @@ $(document).ready(function(){
         <nav class="navbar navbar-default navbar-fixed-top">
             <div class="container">
                 <div class="navbar-header">
-                    <a class="navbar-brand visible-xs" href="#">About</a>
+                    <a class="navbar-brand visible-xs" href="#">Short Summary on EOQ Model (Deterministic)</a>
                     <button class="navbar-toggle" data-target=".navbar-collapse" data-toggle="collapse">
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>
@@ -149,7 +149,9 @@ $(document).ready(function(){
                             
                                 <li><a href="/">Home</a></li>
                             
-                                <li><a href="/post/">Posts</a></li>
+                                <li><a href="/post/">Blog</a></li>
+                            
+                                <li><a href="/hidden/">Hidden</a></li>
                             
                                 <li><a href="/tags/">Tags</a></li>
                             
@@ -198,11 +200,20 @@ $(document).ready(function(){
       
     
 
-    <h4><a href="/about-page/">About</a></h4>
-    <h5>February 7, 2019 - 1 minutes</h5>
+    <h4><a href="/2019/02/12/some-summary-on-eoq-model/">Short Summary on EOQ Model (Deterministic)</a></h4>
+    <h5>February 12, 2019 - 3 minutes</h5>
     <h5></h5>
 
     
+
+        <a href="/categories/miscellaneous">
+        <kbd class="item-cat"> Miscellaneous </kbd>
+    </a>
+    
+    
+    <a href="/tags/eoq">
+        <kbd class="item-tag"> EOQ </kbd>
+    </a>
     
 
 </div>
@@ -211,7 +222,68 @@ $(document).ready(function(){
     <br> <div class="text-justify">
 
 
-<p>This is an about page, I will write something later will it works?</p>
+<p>I have the chance to take a look on EOQ (Econmic Ordering Quantity) models recently, I simply made a short summary for quick recall.</p>
+<p>The book I use is Winston, W. L., &amp; Goldberg, J. B. (2004). Operations research: applications and algorithms (Vol. 3). Belmont^ eCalif Calif: Thomson/Brooks/Cole.</p>
+<div id="assumption-and-notation" class="section level2">
+<h2>1. Assumption and Notation</h2>
+<p>Repetitive ordering, Constant Demand, Constant Lead Time, Continuous Ordering.</p>
+<ul>
+<li><span class="math inline">\(K\)</span> = setup or ordering cost</li>
+<li><span class="math inline">\(h\)</span> = cost of holding one unit for one unit of time</li>
+<li><span class="math inline">\(D\)</span> = demand rate per unit time</li>
+<li><span class="math inline">\(r\)</span> = rate at which firm can make product per unit time <span class="math inline">\((r&gt;D)\)</span></li>
+<li><span class="math inline">\(s\)</span> = cost of being one unit short for one unit of time</li>
+</ul>
+</div>
+<div id="basic-eoq-model" class="section level2">
+<h2>2. Basic EOQ model</h2>
+<p><span class="math inline">\(D\)</span> known constant; <span class="math inline">\(K\)</span> known and fixed; Lead time <span class="math inline">\(L = 0\)</span>, NO shortage, holding cost <span class="math inline">\(h\)</span> known.
+<span class="math display">\[
+\begin{aligned}
+\text{objective: }  TC(q) &amp;= \text{ordering} + \text{purchasing} + \text{holding}\\
+                                  &amp;= K \cdot D/q + p\cdot D + h \cdot (q/2) \cdot (q/D) \cdot (D/q)\\
+                                  &amp;= KD/q + pD + hq/2\\
+                          \Rightarrow   q^\star &amp;= \sqrt{\frac{2KD}{h}}       
+\end{aligned}
+\]</span>
+<span class="math inline">\(D/q\star\)</span> orders are placed each unit of time. If holding cost is expressed in terms of holding one dollar for one year, denote by <span class="math inline">\(h_d\)</span>, the solution above will replace <span class="math inline">\(h\)</span> by <span class="math inline">\(ph_d\)</span>.</p>
+<p>re-order point (12 month year) for <span class="math inline">\(L \neq 0\)</span>: <span class="math inline">\((D \cdot T/12)\cdot 1_{\{T&lt;EOQ\}} + [(D \cdot T/12) \% q^\star]\cdot 1_{\{T &gt; EOQ\}}\)</span></p>
+</div>
+<div id="quantity-discount-model" class="section level2">
+<h2>3. Quantity Discount Model</h2>
+<ul>
+<li>If <span class="math inline">\(q &lt; b_1\)</span>, each item cost <span class="math inline">\(p_1\)</span></li>
+<li>If <span class="math inline">\(b_1 &lt; q &lt; b_2\)</span>, each item cost <span class="math inline">\(p_2\)</span></li>
+<li>If <span class="math inline">\(b_{k-1} &lt; q &lt; b_k = \infty\)</span>, each item cost <span class="math inline">\(p_k\)</span></li>
+</ul>
+<p>Beginning with the lowest price, determine for each price the order quantity (<span class="math inline">\(q_i^\star\)</span>) that minimizes total annual costs for <span class="math inline">\(b_{i-1} \leq q &lt; b_i\)</span>.</p>
+<p>Continue determining <span class="math inline">\(q_k^\star, q_{k-1}^\star, \ldots\)</span> until one of the <span class="math inline">\(q_i^\star\)</span>’s (call <span class="math inline">\(q_{i&#39;}^\star\)</span>) is admissible; from observation 2, this will mean that <span class="math inline">\(q_{i&#39;}^\star = EOQ_{i&#39;}\)</span> The optimal order quantity will be the member of <span class="math inline">\(\{q_k^\star, q_{k-1}^\star, \ldots, q_{i&#39;}^\star\}\)</span> with the smallest value of <span class="math inline">\(TC(q)\)</span>, the objective function is same as basic EOQ and <span class="math inline">\(h\)</span> can also be replaced by <span class="math inline">\(ph_d\)</span>.</p>
+<p>If <span class="math inline">\(EOQ_i\)</span> is admissible, then <span class="math inline">\(q_i^\star = EOQ_i\)</span>. If <span class="math inline">\(EOQ_i &lt; b_{i-1}\)</span>, then <span class="math inline">\(q_i^\star = b_{i-1}\)</span>.</p>
+</div>
+<div id="continuous-rate-model" class="section level2">
+<h2>4. Continuous Rate Model</h2>
+<p>In this model, instead of purchasing, we use produce internally. The objective function becomes (use graph to help)
+<span class="math display">\[TC(q) = \text{ordering} + \text{holding} = K\cdot\frac{D}{q}+ h\cdot \frac{(r-D)}{2}\cdot \frac{q}{r}\]</span></p>
+<p><span class="math display">\[\text{optimal run size} = \sqrt{\frac{2KDr}{h(r-D)}} = EOQ\cdot \sqrt{\frac{r}{r-D}} = q^\star\cdot \sqrt{\frac{r}{r-D}}\]</span></p>
+</div>
+<div id="eoq-with-back-orders-allowed" class="section level2">
+<h2>5. EOQ with Back Orders Allowed</h2>
+<p>The objective function is
+<span class="math display">\[
+\begin{aligned}
+T(q,M) &amp;= \text{ordering} + \text{holding} + \text{shortage}\\
+&amp; =  K \cdot \frac{D}{q} + h\cdot \frac{M}{2}\cdot \frac{M}{D}\cdot\frac{D}{q} + \frac{1}{2}(q-M)\left(\frac{q-M}{D}\right)s\cdot\frac{D}{q}\\
+&amp;= \frac{KD}{q} + \frac{M^2h}{2q} + \frac{(q-M)^2s}{2q}
+\end{aligned}
+\]</span></p>
+<ul>
+<li><span class="math inline">\(q^\star\)</span> = optimal order quantity</li>
+<li><span class="math inline">\(M^\star\)</span> = maximum inventory level under optimal ordering policy</li>
+<li><span class="math inline">\(q^\star - M^\star\)</span> = maximum shortage occurring under optimal ordering policy</li>
+<li><span class="math inline">\(q^\star = \sqrt{\frac{2KD(h+s)}{hs}} = EOQ\sqrt{\frac{h+s}{s}}\)</span></li>
+<li><span class="math inline">\(M^\star = \sqrt{\frac{2KDs}{h(h+s)}} = EOQ\sqrt{\frac{s}{h+s}}\)</span></li>
+</ul>
+</div>
 </div>
 
     
