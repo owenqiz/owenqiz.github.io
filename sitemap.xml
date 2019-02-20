@@ -21,6 +21,11 @@
   </url>
   
   <url>
+    <loc>/hidden/eda/</loc>
+    <lastmod>2019-02-08T00:00:00+00:00</lastmod>
+  </url>
+  
+  <url>
     <loc>/2019/02/07/rmd-example/</loc>
     <lastmod>2019-02-07T00:00:00+00:00</lastmod>
   </url>
@@ -33,6 +38,12 @@
   <url>
     <loc>/tags/eoq/</loc>
     <lastmod>2019-02-12T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>/hidden/</loc>
+    <lastmod>2019-02-08T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
@@ -62,6 +73,12 @@
   <url>
     <loc>/tags/r-markdown/</loc>
     <lastmod>2019-02-07T00:00:00+00:00</lastmod>
+    <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>/categories/statistics/</loc>
+    <lastmod>2019-02-08T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   
