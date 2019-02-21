@@ -40,6 +40,16 @@ Consider that I will use it for a fairly long time, I just made one myself, main
     </item>
     
     <item>
+      <title>EDA on Bangladesh Groundwater Arsenic Part 2</title>
+      <link>/hidden/eda-2/</link>
+      <pubDate>Mon, 18 Feb 2019 00:00:00 +0000</pubDate>
+      
+      <guid>/hidden/eda-2/</guid>
+      <description>We have perfrom initial EDA on arsenic level in the early post. From the plots in part 1
+The region being chosen there doesn’t seem to be much spatial correlationIt is hard to interpret this in longitude and latitudeIn this post, R code for simple data transformation and technique use in part 1 will NOT be shown again, we just present the result. Code for new technique will be included.</description>
+    </item>
+    
+    <item>
       <title>Short Summary on EOQ Model (Deterministic)</title>
       <link>/2019/02/12/some-summary-on-eoq-model/</link>
       <pubDate>Tue, 12 Feb 2019 00:00:00 +0000</pubDate>
@@ -49,15 +59,6 @@ Consider that I will use it for a fairly long time, I just made one myself, main
 The book I use is Winston, W. L., &amp;amp; Goldberg, J. B. (2004). Operations research: applications and algorithms (Vol. 3). Belmont^ eCalif Calif: Thomson/Brooks/Cole.
 1. Assumption and NotationRepetitive ordering, Constant Demand, Constant Lead Time, Continuous Ordering.
 \(K\) = setup or ordering cost\(h\) = cost of holding one unit for one unit of time\(D\) = demand rate per unit time\(r\) = rate at which firm can make product per unit time \((r&amp;gt;D)\)\(s\) = cost of being one unit short for one unit of time2.</description>
-    </item>
-    
-    <item>
-      <title>eda</title>
-      <link>/hidden/eda/</link>
-      <pubDate>Fri, 08 Feb 2019 00:00:00 +0000</pubDate>
-      
-      <guid>/hidden/eda/</guid>
-      <description>Test how it looks</description>
     </item>
     
     <item>

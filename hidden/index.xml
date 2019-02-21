@@ -6,18 +6,19 @@
     <description>Recent content in Hiddens on owenqi</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Fri, 08 Feb 2019 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Mon, 18 Feb 2019 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/hidden/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
-      <title>eda</title>
-      <link>/hidden/eda/</link>
-      <pubDate>Fri, 08 Feb 2019 00:00:00 +0000</pubDate>
+      <title>EDA on Bangladesh Groundwater Arsenic Part 2</title>
+      <link>/hidden/eda-2/</link>
+      <pubDate>Mon, 18 Feb 2019 00:00:00 +0000</pubDate>
       
-      <guid>/hidden/eda/</guid>
-      <description>Test how it looks</description>
+      <guid>/hidden/eda-2/</guid>
+      <description>We have perfrom initial EDA on arsenic level in the early post. From the plots in part 1
+The region being chosen there doesn’t seem to be much spatial correlationIt is hard to interpret this in longitude and latitudeIn this post, R code for simple data transformation and technique use in part 1 will NOT be shown again, we just present the result. Code for new technique will be included.</description>
     </item>
     
   </channel>
