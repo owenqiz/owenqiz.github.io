@@ -199,7 +199,7 @@ $(document).ready(function(){
     
 
     <h4><a href="/2019/02/22/eoq-probabilistic/">Short Summary on EOQ Model (Probablistic)</a></h4>
-    <h5>February 22, 2019 - 5 minutes</h5>
+    <h5>February 22, 2019 - 6 minutes</h5>
     <h5></h5>
 
     
@@ -226,8 +226,7 @@ $(document).ready(function(){
 <p>A decision maker begins by choosing a value <span class="math inline">\(q\)</span> of a decision variable. Then a random variable <span class="math inline">\(D\)</span> assumes a value <span class="math inline">\(d\)</span>. Finally, a cost <span class="math inline">\(c(d, q)\)</span> is incurred. The decision maker’s goal is to choose <span class="math inline">\(q\)</span> to minimize expected cost.</p>
 <p>Assuming a discrete random variable <span class="math inline">\(D\)</span> with <span class="math inline">\(P(D = d) = p(d)\)</span>, let <span class="math inline">\(E(q)\)</span> expected cost given <span class="math inline">\(q\)</span>, then <span class="math inline">\(E(q) = \sum_{d}p(d)c(d,q)\)</span>. Let <span class="math inline">\(q^\star\)</span> be the optimized <span class="math inline">\(q\)</span>, i.e, <span class="math inline">\(E(q^\star)\)</span> is minimized, then</p>
 <p><span class="math display">\[\begin{equation}
-\label{eq1}
-E(q^\star + 1) - E(q^\star) \geq 0
+E(q^\star + 1) - E(q^\star) \geq 0 \text{ } \qquad \text{} (1)
 \end{equation}\]</span></p>
 </div>
 <div id="news-vendor-problem" class="section level2">
@@ -240,7 +239,7 @@ c_oq + f(d) &amp;, d \leq q\\
 \]</span></p>
 <p>A fraction <span class="math inline">\(P(D \leq q)\)</span> of time, ordering <span class="math inline">\(q + 1\)</span> will cost <span class="math inline">\(c_o\)</span> more and <span class="math inline">\(1 - P(D \leq q)\)</span> of time, ordering <span class="math inline">\(q + 1\)</span> will cost <span class="math inline">\(c_u\)</span> less. On average, ordering <span class="math inline">\(q + 1\)</span> will cost
 <span class="math display">\[c_oP(D \leq q) - c_u[1 - P(D \leq q)]\]</span>
-Using the property of equation (), we have
+Using the property of equation <span class="math inline">\((1)\)</span>, we have
 <span class="math display">\[E(q+1) - E(q) = c_oP(D \leq q) - c_u[1 - P(D \leq q)] \geq 0 \Rightarrow P(D\leq q) \geq \frac{c_u}{c_o + c_u}\]</span>
 Let <span class="math inline">\(F(q) = P( D \leq q)\)</span>, then <span class="math inline">\(F(q^\star) \geq \dfrac{c_u}{c_o + c_u}\)</span>. If <span class="math inline">\(F(q)\)</span> is continuous, then <span class="math inline">\(F(q^\star) = \dfrac{c_u}{c_o + c_u}\)</span></p>
 </div>
@@ -284,7 +283,7 @@ of all demand that is met on time.</p></li>
 <li><p><span class="math inline">\(\text{SLM}_{2}\)</span> the expected <strong>number of cycles</strong> per year during which a shortage occurs.</p></li>
 </ul>
 <p>Using the same notation, we can express the expected shortage per cycle as <span class="math inline">\(E(B_r)\)</span> and per year as <span class="math inline">\(E(B_r)E(D)/q\)</span> and hence</p>
-<p><span class="math display">\[1 - \text{SLM}_1 = \frac{\text{expected shortage per year}}{\text{expected demand per year}} = \frac{E(B_r)E(D)/q}{E(D)} = E(B_r)/q\]</span></p>
+<p><span class="math display">\[1 - \text{SLM}_1 = \frac{\text{expected shortage per year}}{\text{expected demand per year}} = \frac{E(B_r)E(D)/q}{E(D)} = \frac{E(B_r)}{q}\]</span></p>
 
 <p><em>Normal Loss function</em>, <span class="math inline">\(\mathrm{NL}(y)\)</span>, is defined by the fact that <span class="math inline">\(\sigma_X\mathrm{NL}(y)\)</span> is the expected number of shortage occuring duing a lead time if</p>
 <p>(1). lead time demand is normal with mean <span class="math inline">\(E(X)\)</span> and standard deviation <span class="math inline">\(\sigma_X\)</span></p>
@@ -292,7 +291,7 @@ of all demand that is met on time.</p></li>
 <p>The value of <span class="math inline">\(\mathrm{NL}(y)\)</span> can be found on <em>Table 13</em>.</p>
 <p>Note: theoretical computation of <em>standard normal loss</em></p>
 <p><span class="math display">\[\mathrm{NL}(Z) = \int_{Z}^{\infty}(t-Z)\phi(t)dt = \int_{Z}^{\infty}(t-Z)\cdot \frac{1}{\sqrt{2\pi}}\exp\left\{-\frac{t^2}{2}\right\}dt\]</span></p>
-<p>An <code>R</code> implementation is as follows, a <a href="http://rpubs.com/maechler/16436">nice post</a></p>
+<p>An <code>R</code> implementation is as follows, a <a href="http://rpubs.com/maechler/16436">nice post</a> illustrate some applications.</p>
 <pre class="r"><code># compute normal loss function
 NL &lt;- function(x) ifelse(x == Inf, 0, dnorm(x) - x * pnorm(x, lower.tail = FALSE))
 
@@ -314,11 +313,31 @@ invNL &lt;- function(y) uniroot(function(x) NL(x) - y, interval = c(-10,10))$roo
 </div>
 <div id="r-s-periodic-review-policy" class="section level2">
 <h2>5. (R, S) Periodic Review Policy</h2>
-<p>Every <span class="math inline">\(R\)</span> units of time, we review the inventory level and place an order to bring our <em>on-hand inventory level</em> up to <span class="math inline">\(S\)</span>. Given a value of <span class="math inline">\(R\)</span>, we determine the value of <span class="math inline">\(S\)</span> from</p>
-<p><span class="math display">\[P(D_{L+R} \geq S) = \frac{Rh}{c_B}\]</span></p>
+<p><strong>On-hand inventory level</strong> is the sum of on-hand inventory and inventory on order.</p>
+<p>Some <em>new</em> notations (not in the final formula) includes</p>
+<ul>
+<li><span class="math inline">\(R\)</span> = time (in year) between reviews</li>
+<li><span class="math inline">\(J\)</span> = cost of reviewing inventory level</li>
+<li><span class="math inline">\(D_{L+R}\)</span> = (random) demand within during time interval of length <span class="math inline">\(L+R\)</span></li>
+<li><span class="math inline">\(E(D_{L+R}), \sigma_{L+R}\)</span> = mean and standard deviation accordingly</li>
+</ul>
+<p>Every <span class="math inline">\(R\)</span> units of time (e.g. year), we review the inventory level and place an order to bring our <em>on-hand inventory level</em> up to <span class="math inline">\(S\)</span>. Given a value of <span class="math inline">\(R\)</span>, we determine the value of <span class="math inline">\(S\)</span>, the objective function</p>
+<p><span class="math display">\[
+\begin{aligned}
+\text{objective: }  TC(S) &amp;= \text{reviewing} + \text{ordering} + \text{purchasing}  +\text{holding} + \text{shortage}\\
+                                  &amp;= J/R + K/R + pD + h \left[S - E(D_{L+R}) + \frac{E(D)R}{2} \right]
+\end{aligned}
+\]</span></p>
+<p><span class="math display">\[P(D_{L+R} \geq S) = \frac{Rh}{c_B} \qquad \text{ or } \qquad P(D_{L+S}) \geq \frac{Rh}{Rh+c_{LS}}\]</span></p>
+<p>under differnet shortage result assumptions.</p>
+<p>The given value of <span class="math inline">\(R\)</span> above can be determined by
+<span class="math display">\[R = \frac{EOQ}{E(D)}\]</span>
+where,
+<span class="math display">\[EOQ = \sqrt{\frac{(K+J)E(D)}{h}}\]</span></p>
 </div>
 <div id="abc-classification" class="section level2">
 <h2>6. ABC Classification</h2>
+<p>This is an Empirical Rules,</p>
 <ul>
 <li>the 5%–20% of all items accounting for 55%–65% of sales are Type A items;</li>
 <li>the 20%–30% of all items accounting for 20%–40% of sales are Type B items;</li>
