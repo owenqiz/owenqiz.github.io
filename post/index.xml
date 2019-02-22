@@ -6,10 +6,20 @@
     <description>Recent content in Posts on owenqi</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Tue, 19 Feb 2019 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Fri, 22 Feb 2019 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/post/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Short Summary on EOQ Model (Probablistic)</title>
+      <link>/2019/02/22/eoq-probabilistic/</link>
+      <pubDate>Fri, 22 Feb 2019 00:00:00 +0000</pubDate>
+      
+      <guid>/2019/02/22/eoq-probabilistic/</guid>
+      <description>Similar to the previous post, the book is Winston, W. L., &amp;amp; Goldberg, J. B. (2004). Operations research: applications and algorithms (Vol. 3). Belmont^ eCalif Calif: Thomson/Brooks/Cole.
+1. Single-Period Decision ModelsA decision maker begins by choosing a value \(q\) of a decision variable. Then a random variable \(D\) assumes a value \(d\). Finally, a cost \(c(d, q)\) is incurred. The decision maker’s goal is to choose \(q\) to minimize expected cost.</description>
+    </item>
     
     <item>
       <title>A LaTeX Template for Homework</title>

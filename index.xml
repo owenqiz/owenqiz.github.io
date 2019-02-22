@@ -6,7 +6,7 @@
     <description>Recent content on owenqi</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Tue, 19 Feb 2019 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Fri, 22 Feb 2019 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/index.xml" rel="self" type="application/rss+xml" />
     
@@ -30,6 +30,16 @@
     </item>
     
     <item>
+      <title>Short Summary on EOQ Model (Probablistic)</title>
+      <link>/2019/02/22/eoq-probabilistic/</link>
+      <pubDate>Fri, 22 Feb 2019 00:00:00 +0000</pubDate>
+      
+      <guid>/2019/02/22/eoq-probabilistic/</guid>
+      <description>Similar to the previous post, the book is Winston, W. L., &amp;amp; Goldberg, J. B. (2004). Operations research: applications and algorithms (Vol. 3). Belmont^ eCalif Calif: Thomson/Brooks/Cole.
+1. Single-Period Decision ModelsA decision maker begins by choosing a value \(q\) of a decision variable. Then a random variable \(D\) assumes a value \(d\). Finally, a cost \(c(d, q)\) is incurred. The decision maker’s goal is to choose \(q\) to minimize expected cost.</description>
+    </item>
+    
+    <item>
       <title>A LaTeX Template for Homework</title>
       <link>/2019/02/19/a-latex-template-for-homework/</link>
       <pubDate>Tue, 19 Feb 2019 00:00:00 +0000</pubDate>
@@ -37,16 +47,6 @@
       <guid>/2019/02/19/a-latex-template-for-homework/</guid>
       <description>Yes, there are already tons of LaTeX templates, why make another one? Well, personally, those templates are good, but not my style. I prefer putting all my solutions inside a box, but a simple box doesn’t look nice enough for me.
 Consider that I will use it for a fairly long time, I just made one myself, mainly using the package tcolorbox. In the end, I end up with all my assignment using this template, except for writing a report.</description>
-    </item>
-    
-    <item>
-      <title>EDA on Bangladesh Groundwater Arsenic Part 2</title>
-      <link>/hidden/eda-2/</link>
-      <pubDate>Mon, 18 Feb 2019 00:00:00 +0000</pubDate>
-      
-      <guid>/hidden/eda-2/</guid>
-      <description>We have perfrom initial EDA on arsenic level in the early post. From the plots in part 1
-The region being chosen there doesn’t seem to be much spatial correlationIt is hard to interpret this in longitude and latitudeIn this post, R code for simple data transformation and technique use in part 1 will NOT be shown again, we just present the result. Code for new technique will be included.</description>
     </item>
     
     <item>

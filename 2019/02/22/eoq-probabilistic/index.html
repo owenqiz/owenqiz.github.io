@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Short Summary on EOQ Model (Probablistic)</title>
+        <style>
+
+    html body {
+        font-family: 'Mina', sans-serif;
+        background-color: #f5f5f5;
+    }
+
+    :root {
+        --accent: #386890;
+        --border-width:  0 ;
+    }
+
+</style>
+
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Mina">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=VT323">
+
+
+ <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css"> 
+
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+
+ 
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/r.min.js"></script>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/python.min.js"></script>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/bash.min.js"></script>
+    
+
+    <script>hljs.initHighlightingOnLoad();</script>
+
+
+
+
+
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+
+<link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
+<script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
+
+
+<script>$(document).on('click', function() { $('.collapse').collapse('hide'); })</script>
+
+
+<script>
+$(document).ready(function(){
+    
+  var input = $('#night-mode-toggle');
+  var container = $('#bigbody');
+  var stat = $('#button-status');
+  
+  container.toggleClass(localStorage.toggled);
+  stat.bootstrapToggle(localStorage.button).change();
+  
+  input.on('click', function() {
+      if (localStorage.toggled != "-nightmode" ) {
+          container.toggleClass("-nightmode", true );
+          localStorage.toggled = "-nightmode";
+          localStorage.button = "on";
+       } else {
+          container.toggleClass("-nightmode", false );
+          localStorage.toggled = "";
+          localStorage.button = "off"
+       }
+  })
+});
+</script>
+ <meta name="generator" content="Hugo 0.54.0" />
+        
+        
+
+    
+    <link rel="apple-touch-icon" sizes="180x180" href="/img/favicon/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/img/favicon/favicon-16x16.png">
+    <link rel="manifest" href="/img/favicon/site.webmanifest">
+    <link rel="mask-icon" href="/img/favicon/safari-pinned-tab.svg" color="#000000">
+    <link rel="shortcut icon" href="/img/favicon/favicon.ico">
+    <meta name="msapplication-TileColor" content="#2b5797">
+    <meta name="msapplication-config" content="/img/favicon/browserconfig.xml">
+    <meta name="theme-color" content="#ffffff">
+    
+    
+    
+    <meta property="og:title" content="Short Summary on EOQ Model (Probablistic)">
+    <meta property="og:type" content="article">
+      
+      <meta name="twitter:card" content="summary">
+      <meta name="twitter:image" content="/favicon/android-chrome-192x192.png" >
+      
+    <meta property="description" content="">
+    <meta property="og:description" content="">
+    
+    <meta name="twitter:creator" content="">
+    <meta name="twitter:site" content="">
+    
+    </head>
+
+    
+    
+    <script type="text/javascript" async
+      src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+    </script>
+    
+
+    <body id = "bigbody">
+        <nav class="navbar navbar-default navbar-fixed-top">
+            <div class="container">
+                <div class="navbar-header">
+                    <a class="navbar-brand visible-xs" href="#">Short Summary on EOQ Model (Probablistic)</a>
+                    <button class="navbar-toggle" data-target=".navbar-collapse" data-toggle="collapse">
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                </div>
+                <div class="collapse navbar-collapse">
+                    
+                        <ul class="nav navbar-nav">
+                            
+                                <li><a href="/">Home</a></li>
+                            
+                                <li><a href="/post/">Blog</a></li>
+                            
+                                <li><a href="/tags/">Tags</a></li>
+                            
+                        </ul>
+                    
+                    
+                        <ul class="nav navbar-nav navbar-right">
+                            
+                                <li class="navbar-icon"><a href="https://github.com/owenqiz"><i class="fa fa-github"></i></a></li>
+                            
+                                <li class="navbar-icon"><a href="https://gitlab.com/owenqi"><i class="fa fa-gitlab"></i></a></li>
+                            
+                                <li class="navbar-icon"><a href="https://www.facebook.com/owenqiz"><i class="fa fa-facebook-f"></i></a></li>
+                            
+                                <li class="navbar-icon"><a href="https://www.linkedin.com/in/qi-zhang-10309993/"><i class="fa fa-linkedin"></i></a></li>
+                            
+                                <li class="navbar-icon"><a href="https://www.weibo.com/owenqi"><i class="fa fa-weibo"></i></a></li>
+                            
+                            <li id="night-mode-toggle">
+    <input type="checkbox" id = "button-status"
+        data-toggle="toggle"
+        data-width = "10"
+        data-height = "1"
+        data-on="<i class='fa fa-moon-o fa-lg' style='vertical-align:25%'></i>"
+        data-off= "<i class='fa fa-sun-o fa-lg' style='vertical-align:25%'></i>"
+        data-style="ios"
+        data-onstyle = "default">
+</li>
+                        </ul>
+                    
+                </div>
+            </div>
+        </nav>
+
+
+<main>
+
+    <div class="item">
+
+    
+    
+    
+
+    
+    
+      
+    
+
+    <h4><a href="/2019/02/22/eoq-probabilistic/">Short Summary on EOQ Model (Probablistic)</a></h4>
+    <h5>February 22, 2019 - 5 minutes</h5>
+    <h5></h5>
+
+    
+
+        <a href="/categories/miscellaneous">
+        <kbd class="item-cat"> Miscellaneous </kbd>
+    </a>
+    
+    
+    <a href="/tags/eoq">
+        <kbd class="item-tag"> EOQ </kbd>
+    </a>
+    
+
+</div>
+
+
+    <br> <div class="text-justify">
+
+
+<p>Similar to the previous post, the book is Winston, W. L., &amp; Goldberg, J. B. (2004). Operations research: applications and algorithms (Vol. 3). Belmont^ eCalif Calif: Thomson/Brooks/Cole.</p>
+<div id="single-period-decision-models" class="section level2">
+<h2>1. Single-Period Decision Models</h2>
+<p>A decision maker begins by choosing a value <span class="math inline">\(q\)</span> of a decision variable. Then a random variable <span class="math inline">\(D\)</span> assumes a value <span class="math inline">\(d\)</span>. Finally, a cost <span class="math inline">\(c(d, q)\)</span> is incurred. The decision maker’s goal is to choose <span class="math inline">\(q\)</span> to minimize expected cost.</p>
+<p>Assuming a discrete random variable <span class="math inline">\(D\)</span> with <span class="math inline">\(P(D = d) = p(d)\)</span>, let <span class="math inline">\(E(q)\)</span> expected cost given <span class="math inline">\(q\)</span>, then <span class="math inline">\(E(q) = \sum_{d}p(d)c(d,q)\)</span>. Let <span class="math inline">\(q^\star\)</span> be the optimized <span class="math inline">\(q\)</span>, i.e, <span class="math inline">\(E(q^\star)\)</span> is minimized, then</p>
+<p><span class="math display">\[\begin{equation}
+\label{eq1}
+E(q^\star + 1) - E(q^\star) \geq 0
+\end{equation}\]</span></p>
+</div>
+<div id="news-vendor-problem" class="section level2">
+<h2>2. News Vendor Problem</h2>
+<p>Let <span class="math inline">\(c_o\)</span> be overstocking cost and <span class="math inline">\(c_u\)</span> for understoking cost. <span class="math inline">\(f(d)\)</span> be some term does NOT involved <span class="math inline">\(q\)</span>, then
+<span class="math display">\[ c(d,q) = \left\{\begin{array}{ll}
+c_oq + f(d) &amp;, d \leq q\\ 
+-c_uq + f(d)&amp;, d \geq q + 1
+\end{array}\right.
+\]</span></p>
+<p>A fraction <span class="math inline">\(P(D \leq q)\)</span> of time, ordering <span class="math inline">\(q + 1\)</span> will cost <span class="math inline">\(c_o\)</span> more and <span class="math inline">\(1 - P(D \leq q)\)</span> of time, ordering <span class="math inline">\(q + 1\)</span> will cost <span class="math inline">\(c_u\)</span> less. On average, ordering <span class="math inline">\(q + 1\)</span> will cost
+<span class="math display">\[c_oP(D \leq q) - c_u[1 - P(D \leq q)]\]</span>
+Using the property of equation (), we have
+<span class="math display">\[E(q+1) - E(q) = c_oP(D \leq q) - c_u[1 - P(D \leq q)] \geq 0 \Rightarrow P(D\leq q) \geq \frac{c_u}{c_o + c_u}\]</span>
+Let <span class="math inline">\(F(q) = P( D \leq q)\)</span>, then <span class="math inline">\(F(q^\star) \geq \dfrac{c_u}{c_o + c_u}\)</span>. If <span class="math inline">\(F(q)\)</span> is continuous, then <span class="math inline">\(F(q^\star) = \dfrac{c_u}{c_o + c_u}\)</span></p>
+</div>
+<div id="determination-of-reorder-point-and-order-quantity-with-uncertain-demand" class="section level2">
+<h2>3. Determination of Reorder Point and Order Quantity with Uncertain Demand</h2>
+
+<ul>
+<li><span class="math inline">\(K\)</span> = ordering cost</li>
+<li><span class="math inline">\(h\)</span> = holding cost/unit/year</li>
+<li><span class="math inline">\(L\)</span> = leading time (known)</li>
+<li><span class="math inline">\(q\)</span> = order quantity</li>
+<li><span class="math inline">\(D\)</span> = random demand with mean <span class="math inline">\(E(D), \mathrm{Var}(D), \sigma_{D}\)</span></li>
+<li><span class="math inline">\(c_B\)</span> = cost for backlogged shortage</li>
+<li><span class="math inline">\(c_{LS}\)</span> = cost for lost sale</li>
+</ul>
+<p>Let <span class="math inline">\(X\)</span> be demand during lead time, then <span class="math display">\[E(X) = LE(D) \qquad \mathrm{Var}(X) = L(\mathrm{Var}(D)) \qquad \sigma_X = \sigma_D\sqrt{L}\]</span></p>
+<p>Let <span class="math inline">\(r\)</span> is the re-order point, then <span class="math inline">\(r - E(X)\)</span> is the amount of inventory held in excess of lead time demand to meet shortages that may occur before an order arrives. <span class="math inline">\(B_r\)</span> be number of back orders during a cycle under re-order point <span class="math inline">\(r\)</span>. Assuming <span class="math inline">\(q^\star\)</span> can be approximated by EOQ, <span class="math inline">\(D\)</span> is continuous. The objective function is</p>
+<p><span class="math display">\[
+\begin{aligned}
+\text{objective: }  TC(q, r) &amp;= \text{ordering} + \text{holding} + \text{shortage}\\
+                                  &amp;= KE(D)/q + h/2 \cdot (r-E(X) + r - E(X) + q) + c_BE(B_r)E(D)/q     
+\end{aligned}
+\]</span></p>
+<ul>
+<li>If the shortage are <em>backlogged</em>, then <strong>apprximated optimal solution</strong> (detail omitted) is,</li>
+</ul>
+<p><span class="math display">\[EOQ = q^\star = \sqrt{\frac{2KE(D)}{h}} \qquad \text{ and } \qquad P(X \geq r^\star) = \frac{hq^\star}{c_BE(D)}\]</span></p>
+<ul>
+<li>If the shortage result in <em>lost sales</em>, then <strong>approximated optimal solution</strong> is,</li>
+</ul>
+<p><span class="math display">\[EOQ = q^\star = \sqrt{\frac{2KE(D)}{h}} \qquad \text{ and } \qquad P(X \geq r^\star) = \frac{hq^\star}{hq^\star + c_{LS}E(D)}\]</span>
+Note: expected inventory in lost sales case = (expected inventory in back-ordered case) + (expected number of shortages per cycle).</p>
+</div>
+<div id="determination-of-reorder-point-the-service-level-approach" class="section level2">
+<h2>4. Determination of Reorder Point: The Service Level Approach</h2>
+<p>Since it may be difficult to determine the exact cost of a shortage or lost sale, it is often desirable to choose a reorder point that meets a desired service level.</p>
+
+<ul>
+<li><p><span class="math inline">\(\text{SLM}_{1}\)</span> the expected <strong>fraction</strong> (usually expressed as a percentage)
+of all demand that is met on time.</p></li>
+<li><p><span class="math inline">\(\text{SLM}_{2}\)</span> the expected <strong>number of cycles</strong> per year during which a shortage occurs.</p></li>
+</ul>
+<p>Using the same notation, we can express the expected shortage per cycle as <span class="math inline">\(E(B_r)\)</span> and per year as <span class="math inline">\(E(B_r)E(D)/q\)</span> and hence</p>
+<p><span class="math display">\[1 - \text{SLM}_1 = \frac{\text{expected shortage per year}}{\text{expected demand per year}} = \frac{E(B_r)E(D)/q}{E(D)} = E(B_r)/q\]</span></p>
+
+<p><em>Normal Loss function</em>, <span class="math inline">\(\mathrm{NL}(y)\)</span>, is defined by the fact that <span class="math inline">\(\sigma_X\mathrm{NL}(y)\)</span> is the expected number of shortage occuring duing a lead time if</p>
+<p>(1). lead time demand is normal with mean <span class="math inline">\(E(X)\)</span> and standard deviation <span class="math inline">\(\sigma_X\)</span></p>
+<p>(2). re-order point is <span class="math inline">\(E(X) + y\sigma_X\)</span></p>
+<p>The value of <span class="math inline">\(\mathrm{NL}(y)\)</span> can be found on <em>Table 13</em>.</p>
+<p>Note: theoretical computation of <em>standard normal loss</em></p>
+<p><span class="math display">\[\mathrm{NL}(Z) = \int_{Z}^{\infty}(t-Z)\phi(t)dt = \int_{Z}^{\infty}(t-Z)\cdot \frac{1}{\sqrt{2\pi}}\exp\left\{-\frac{t^2}{2}\right\}dt\]</span></p>
+<p>An <code>R</code> implementation is as follows, a <a href="http://rpubs.com/maechler/16436">nice post</a></p>
+<pre class="r"><code># compute normal loss function
+NL &lt;- function(x) ifelse(x == Inf, 0, dnorm(x) - x * pnorm(x, lower.tail = FALSE))
+
+# compute inverse of normal loss function
+invNL &lt;- function(y) uniroot(function(x) NL(x) - y, interval = c(-10,10))$root</code></pre>
+<p>For a EOQ quantity <span class="math inline">\(q\)</span></p>
+<ul>
+<li>If lead time is normally distributed, then for a desired value of <span class="math inline">\(\text{SLM}_1\)</span>, the re-order point <span class="math inline">\(r\)</span> is found from</li>
+</ul>
+<p><span class="math display">\[\mathrm{NL}\left(\frac{r-E(X)}{\sigma_X}\right) = \frac{q(1-\text{SLM}_1)}{\sigma_X}\]</span></p>
+<ul>
+<li>If lead time demand is <strong>continuous</strong> random variable, let desired <span class="math inline">\(\text{SLM}_2 = s_0\)</span> shortages per year, the re-order point <span class="math inline">\(r\)</span> is</li>
+</ul>
+<p><span class="math display">\[P(X \geq r) = \frac{s_0\cdot q}{E(D)}\]</span></p>
+<ul>
+<li>If lead time is <strong>discrete</strong>, everthing is the same as previous, then the re-order point is the smallest value of <span class="math inline">\(r\)</span> satisfying</li>
+</ul>
+<p><span class="math display">\[P(X &gt; r) \leq \frac{s_0\cdot q}{E(D)}\]</span></p>
+</div>
+<div id="r-s-periodic-review-policy" class="section level2">
+<h2>5. (R, S) Periodic Review Policy</h2>
+<p>Every <span class="math inline">\(R\)</span> units of time, we review the inventory level and place an order to bring our <em>on-hand inventory level</em> up to <span class="math inline">\(S\)</span>. Given a value of <span class="math inline">\(R\)</span>, we determine the value of <span class="math inline">\(S\)</span> from</p>
+<p><span class="math display">\[P(D_{L+R} \geq S) = \frac{Rh}{c_B}\]</span></p>
+</div>
+<div id="abc-classification" class="section level2">
+<h2>6. ABC Classification</h2>
+<ul>
+<li>the 5%–20% of all items accounting for 55%–65% of sales are Type A items;</li>
+<li>the 20%–30% of all items accounting for 20%–40% of sales are Type B items;</li>
+<li>the 50%–75% of all items that account for 5%–25% of all sales are Type C items.</li>
+</ul>
+<p>By concentrating effort on Type A (and possibly Type B) items, we can achieve substantial cost reductions.</p>
+</div>
+<div id="exchange-curves" class="section level2">
+<h2>7. Exchange Curves</h2>
+<p>Exchange curves (and exchange surfaces) are used to display trade-offs between various objectives. For example, an exchange curve may display the trade-off between annual ordering costs and average dollar level of inventory. An exchange curve can be used to compare how various ordering policies compare with respect to several objectives.</p>
+</div>
+</div>
+
+    
+    
+
+    
+
+        <h4 class="page-header">Related</h4>
+
+         <div class="item">
+
+    
+    
+    
+
+    
+    
+      
+    
+
+    <h4><a href="/2019/02/12/some-summary-on-eoq-model/">Short Summary on EOQ Model (Deterministic)</a></h4>
+    <h5>February 12, 2019 - 3 minutes</h5>
+    <h5></h5>
+
+    
+
+        <a href="/categories/miscellaneous">
+        <kbd class="item-cat"> Miscellaneous </kbd>
+    </a>
+    
+    
+    <a href="/tags/eoq">
+        <kbd class="item-tag"> EOQ </kbd>
+    </a>
+    
+
+</div>
+ 
+
+    
+
+    
+
+</main>
+
+        <footer id = "bigfooter">
+            <div style = "padding:15px;">
+                <p>&copy owenqi 2019 </p>
+                <p>Powered by <a href="https://gohugo.io">Hugo</a>. Themed by <a href="https://github.com/nathancday/min_night">min_night</a>.
+                </p>
+                <a rel="license" href="https://creativecommons.org/licenses/by/4.0/"
+                title="Creative Commons Attribution 4.0 International license">
+                <i class="fa fa-creative-commons" aria-hidden="true"></i> Attribution 4.0 International license
+                </a>
+            </div>
+        </footer>
+        
+        <script async src="https://www.googletagmanager.com/gtag/js?id="></script>
+        <script>
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments)};
+          gtag('js', new Date());
+          gtag('config', '');
+        </script>
+       
+    </body>
+
+</html>
+
