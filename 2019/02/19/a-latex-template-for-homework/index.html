@@ -222,7 +222,7 @@ $(document).ready(function(){
 
 <p>Yes, there are already tons of LaTeX templates, why make another one? Well, personally, those templates are good, but not my style. I prefer putting all my solutions inside a box, but a simple box doesn’t look nice enough for me.</p>
 <p>Consider that I will use it for a fairly long time, I just made one myself, mainly using the package <code>tcolorbox</code>. In the end, I end up with all my assignment using this template, except for writing a report.</p>
-<pre class="tex"><code>\documentclass{article}
+<pre class="r"><code>\documentclass{article}
 \usepackage[a4paper,left=3cm,right=2cm,top=2.5cm,bottom=2.5cm]{geometry}
 \usepackage{amsmath,amsfonts,amsthm}
 \usepackage{tcolorbox} %use to set solution environment
@@ -239,7 +239,6 @@ $(document).ready(function(){
 \usepackage{booktabs}
 \usepackage{enumitem}
 %\usepackage{courier}
-
 
 \newenvironment{solution}{\tcolorbox[enhanced,breakable,colback=white,
     attach boxed title to top left = {yshift = -2mm},title=\textbf{Solution}]}
@@ -262,8 +261,6 @@ $(document).ready(function(){
 \lhead{course code}
 \rfoot{ \thepage \text{ of} \pageref{LastPage}}
 \setlength{\headsep}{10pt}
-
-
 
 \begin{document}
 \begin{center}

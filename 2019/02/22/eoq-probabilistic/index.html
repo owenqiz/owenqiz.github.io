@@ -314,7 +314,6 @@ invNL &lt;- function(y) uniroot(function(x) NL(x) - y, interval = c(-10,10))$roo
 <div id="r-s-periodic-review-policy" class="section level2">
 <h2>5. (R, S) Periodic Review Policy</h2>
 <p><strong>On-hand inventory level</strong> is the sum of on-hand inventory and inventory on order.</p>
-<p>Some <em>new</em> notations (not in the final formula) includes</p>
 <ul>
 <li><span class="math inline">\(R\)</span> = time (in year) between reviews</li>
 <li><span class="math inline">\(J\)</span> = cost of reviewing inventory level</li>
@@ -325,15 +324,14 @@ invNL &lt;- function(y) uniroot(function(x) NL(x) - y, interval = c(-10,10))$roo
 <p><span class="math display">\[
 \begin{aligned}
 \text{objective: }  TC(S) &amp;= \text{reviewing} + \text{ordering} + \text{purchasing}  +\text{holding} + \text{shortage}\\
-                                  &amp;= J/R + K/R + pD + h \left[S - E(D_{L+R}) + \frac{E(D)R}{2} \right]
+                                  &amp;= J/R + K/R + pD + h \left[S - E(D_{L+R}) + \frac{E(D)R}{2} \right] + \text{shortage}
 \end{aligned}
 \]</span></p>
-<p><span class="math display">\[P(D_{L+R} \geq S) = \frac{Rh}{c_B} \qquad \text{ or } \qquad P(D_{L+S}) \geq \frac{Rh}{Rh+c_{LS}}\]</span></p>
-<p>under differnet shortage result assumptions.</p>
-<p>The given value of <span class="math inline">\(R\)</span> above can be determined by
-<span class="math display">\[R = \frac{EOQ}{E(D)}\]</span>
-where,
-<span class="math display">\[EOQ = \sqrt{\frac{(K+J)E(D)}{h}}\]</span></p>
+<p>For increment of <span class="math inline">\(S\)</span> denoted by <span class="math inline">\(\Delta\)</span> (increase from <span class="math inline">\(S\)</span> to <span class="math inline">\(S+\Delta\)</span>), holding cost increased by <span class="math inline">\(h\Delta\)</span> and reduce of shortage is <span class="math inline">\((1/R)c_B\Delta P(D_{L+R} \geq S)\)</span>, it is minimized when increase equals decrease, i.e. <span class="math inline">\(h\Delta = (1/R)c_B\Delta P(D_{L+R}\geq S)\)</span></p>
+<p><span class="math display">\[P(D_{L+R} \geq S) = \frac{Rh}{c_B} \qquad \text{ or } \qquad P(D_{L+S} \geq S) \geq \frac{Rh}{Rh+c_{LS}}\]</span></p>
+<p>under differnet shortage result assumptions by setting <span class="math inline">\(\Delta = 1\)</span>.</p>
+<p>The given value of <span class="math inline">\(R\)</span> above can be determined by <span class="math inline">\(R = \dfrac{EOQ}{E(D)}\)</span> with
+<span class="math inline">\(EOQ = \sqrt{\dfrac{(K+J)E(D)}{h}}\)</span>.</p>
 </div>
 <div id="abc-classification" class="section level2">
 <h2>6. ABC Classification</h2>
