@@ -297,7 +297,8 @@ NL &lt;- function(x) ifelse(x == Inf, 0, dnorm(x) - x * pnorm(x, lower.tail = FA
 
 # compute inverse of normal loss function
 invNL &lt;- function(y) uniroot(function(x) NL(x) - y, interval = c(-10,10))$root</code></pre>
-<p>For a EOQ quantity <span class="math inline">\(q\)</span></p>
+<p>A property of the normal loss function is: <span class="math inline">\(\mathrm{NL}(y) = \mathrm{NL}(-y) - y\)</span>.</p>
+<p>For a EOQ quantity <span class="math inline">\(q\)</span> (determination see later),</p>
 <ul>
 <li>If lead time is normally distributed, then for a desired value of <span class="math inline">\(\text{SLM}_1\)</span>, the re-order point <span class="math inline">\(r\)</span> is found from</li>
 </ul>
@@ -313,14 +314,14 @@ invNL &lt;- function(y) uniroot(function(x) NL(x) - y, interval = c(-10,10))$roo
 </div>
 <div id="r-s-periodic-review-policy" class="section level2">
 <h2>5. (R, S) Periodic Review Policy</h2>
-<p><strong>On-hand inventory level</strong> is the sum of on-hand inventory and inventory on order.</p>
+<p><strong>On-order</strong> inventory level is the sum of on-hand inventory and inventory on order.</p>
 <ul>
 <li><span class="math inline">\(R\)</span> = time (in year) between reviews</li>
 <li><span class="math inline">\(J\)</span> = cost of reviewing inventory level</li>
 <li><span class="math inline">\(D_{L+R}\)</span> = (random) demand within during time interval of length <span class="math inline">\(L+R\)</span></li>
 <li><span class="math inline">\(E(D_{L+R}), \sigma_{L+R}\)</span> = mean and standard deviation accordingly</li>
 </ul>
-<p>Every <span class="math inline">\(R\)</span> units of time (e.g. year), we review the inventory level and place an order to bring our <em>on-hand inventory level</em> up to <span class="math inline">\(S\)</span>. Given a value of <span class="math inline">\(R\)</span>, we determine the value of <span class="math inline">\(S\)</span>, the objective function</p>
+<p>Every <span class="math inline">\(R\)</span> units of time (e.g. year), we review the inventory level and place an order to bring our <em>on-hand</em> inventory level up to <span class="math inline">\(S\)</span>. Given a value of <span class="math inline">\(R\)</span>, we determine the value of <span class="math inline">\(S\)</span>, the objective function</p>
 <p><span class="math display">\[
 \begin{aligned}
 \text{objective: }  TC(S) &amp;= \text{reviewing} + \text{ordering} + \text{purchasing}  +\text{holding} + \text{shortage}\\
@@ -331,7 +332,7 @@ invNL &lt;- function(y) uniroot(function(x) NL(x) - y, interval = c(-10,10))$roo
 <p><span class="math display">\[P(D_{L+R} \geq S) = \frac{Rh}{c_B} \qquad \text{ or } \qquad P(D_{L+S} \geq S) \geq \frac{Rh}{Rh+c_{LS}}\]</span></p>
 <p>under differnet shortage result assumptions by setting <span class="math inline">\(\Delta = 1\)</span>.</p>
 <p>The given value of <span class="math inline">\(R\)</span> above can be determined by <span class="math inline">\(R = \dfrac{EOQ}{E(D)}\)</span> with
-<span class="math inline">\(EOQ = \sqrt{\dfrac{(K+J)E(D)}{h}}\)</span>.</p>
+<span class="math inline">\(EOQ = \sqrt{\dfrac{2(K+J)E(D)}{h}}\)</span>.</p>
 </div>
 <div id="abc-classification" class="section level2">
 <h2>6. ABC Classification</h2>
