@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>R on owenqi</title>
-    <link>/tags/r/</link>
-    <description>Recent content in R on owenqi</description>
+    <title>Ggplot2 on owenqi</title>
+    <link>/tags/ggplot2/</link>
+    <description>Recent content in Ggplot2 on owenqi</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Tue, 05 Mar 2019 00:00:00 +0000</lastBuildDate>
     
-	<atom:link href="/tags/r/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="/tags/ggplot2/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
@@ -19,16 +19,6 @@
       <guid>/2019/03/05/plot-area-under-the-curve-with-ggplot2/</guid>
       <description>This is a very short post for a summary of the blog post, I will make a quick function for myself to graph some area under the curve for convenience.
 Create your own functionIf like well-known curve, it is already defined in R such as dnorm, otherwise you can define your own function.For simplicity, I will only use standard normal (dnorm) (may update in the future).</description>
-    </item>
-    
-    <item>
-      <title>Simulation Study in R - in progress</title>
-      <link>/2019/02/28/simulation-study-in-r/</link>
-      <pubDate>Thu, 28 Feb 2019 00:00:00 +0000</pubDate>
-      
-      <guid>/2019/02/28/simulation-study-in-r/</guid>
-      <description>This is a quick note for how to run some simulations in R, using the basic built-in function (or some package) is the easiest and obvious choice, using rstan for simple simulation is worthless but maybe useful when you need to simulate more complicated samples.
-1. Using built-in function from R2. Using from Stan2.1 Using only rstan2.2 Using rstansim</description>
     </item>
     
   </channel>
