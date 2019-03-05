@@ -260,9 +260,11 @@ Let <span class="math inline">\(F(q) = P( D \leq q)\)</span>, then <span class="
 <p><span class="math display">\[
 \begin{aligned}
 \text{objective: }  TC(q, r) &amp;= \text{ordering} + \text{holding} + \text{shortage}\\
-                                  &amp;= KE(D)/q + h/2 \cdot (r-E(X) + r - E(X) + q) + c_BE(B_r)E(D)/q     
+                                  &amp;= KE(D)/q + h/2 \cdot (q+r-E(X) + r - E(X)) + c_BE(B_r)E(D)/q     
 \end{aligned}
-\]</span></p>
+\]</span>
+Using marginal analysis, the increase of holding will reduce shortage, for increment <span class="math inline">\(\Delta\)</span>, which resulted the holding cost go up to <span class="math inline">\(h\Delta = h(q/2+r+\Delta-E(X))-H(Q/2+R-E(X))\)</span> corresponds to <span class="math inline">\(\Delta E(X)c_B P(X\geq r)/q\)</span>, the reduction of shortage cost, it is optimized when increment equals reduction, i.e
+<span class="math inline">\(h\Delta = \Delta E(X)c_BP(X \geq r)/q \Rightarrow\)</span></p>
 <ul>
 <li>If the shortage are <em>backlogged</em>, then <strong>apprximated optimal solution</strong> (detail omitted) is,</li>
 </ul>
@@ -271,7 +273,11 @@ Let <span class="math inline">\(F(q) = P( D \leq q)\)</span>, then <span class="
 <li>If the shortage result in <em>lost sales</em>, then <strong>approximated optimal solution</strong> is,</li>
 </ul>
 <p><span class="math display">\[EOQ = q^\star = \sqrt{\frac{2KE(D)}{h}} \qquad \text{ and } \qquad P(X \geq r^\star) = \frac{hq^\star}{hq^\star + c_{LS}E(D)}\]</span>
-Note: expected inventory in lost sales case = (expected inventory in back-ordered case) + (expected number of shortages per cycle).</p>
+Note:</p>
+<ul>
+<li>We obtain the equation by setting <span class="math inline">\(\Delta = 1\)</span></li>
+<li>expected inventory in lost sales case = (expected inventory in back-ordered case) + (expected number of shortages per cycle).</li>
+</ul>
 </div>
 <div id="determination-of-reorder-point-the-service-level-approach" class="section level2">
 <h2>4. Determination of Reorder Point: The Service Level Approach</h2>

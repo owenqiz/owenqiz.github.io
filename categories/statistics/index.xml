@@ -6,19 +6,19 @@
     <description>Recent content in Statistics on owenqi</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Mon, 18 Feb 2019 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Thu, 28 Feb 2019 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/categories/statistics/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
-      <title>EDA on Bangladesh Groundwater Arsenic Part 2</title>
-      <link>/hidden/eda-2/</link>
-      <pubDate>Mon, 18 Feb 2019 00:00:00 +0000</pubDate>
+      <title>Simulation Study in R - in progress</title>
+      <link>/2019/02/28/simulation-study-in-r/</link>
+      <pubDate>Thu, 28 Feb 2019 00:00:00 +0000</pubDate>
       
-      <guid>/hidden/eda-2/</guid>
-      <description>We have perfrom initial EDA on arsenic level in the early post. From the plots in part 1
-The region being chosen there doesn’t seem to be much spatial correlationIt is hard to interpret this in longitude and latitudeIn this post, R code for simple data transformation and technique use in part 1 will NOT be shown again, we just present the result. Code for new technique will be included.</description>
+      <guid>/2019/02/28/simulation-study-in-r/</guid>
+      <description>This is a quick note for how to run some simulations in R, using the basic built-in function (or some package) is the easiest and obvious choice, using rstan for simple simulation is worthless but maybe useful when you need to simulate more complicated samples.
+1. Using built-in function from R2. Using from Stan2.1 Using only rstan2.2 Using rstansim</description>
     </item>
     
   </channel>

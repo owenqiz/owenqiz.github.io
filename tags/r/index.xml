@@ -6,18 +6,19 @@
     <description>Recent content in R on owenqi</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Tue, 19 Feb 2019 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Thu, 28 Feb 2019 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/tags/r/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
-      <title>Basic Data Manipulations</title>
-      <link>/2019/02/19/basic-data-manipulations/</link>
-      <pubDate>Tue, 19 Feb 2019 00:00:00 +0000</pubDate>
+      <title>Simulation Study in R - in progress</title>
+      <link>/2019/02/28/simulation-study-in-r/</link>
+      <pubDate>Thu, 28 Feb 2019 00:00:00 +0000</pubDate>
       
-      <guid>/2019/02/19/basic-data-manipulations/</guid>
-      <description>Something will be added shortly.</description>
+      <guid>/2019/02/28/simulation-study-in-r/</guid>
+      <description>This is a quick note for how to run some simulations in R, using the basic built-in function (or some package) is the easiest and obvious choice, using rstan for simple simulation is worthless but maybe useful when you need to simulate more complicated samples.
+1. Using built-in function from R2. Using from Stan2.1 Using only rstan2.2 Using rstansim</description>
     </item>
     
   </channel>
