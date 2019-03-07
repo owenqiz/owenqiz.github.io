@@ -230,46 +230,41 @@ $(document).ready(function(){
 </ol>
 <p>If like well-known curve, it is already defined in <code>R</code> such as <code>dnorm</code>, otherwise you can define your own function.
 For simplicity, I will only use standard normal (<code>dnorm</code>) (may update in the future).</p>
-<p>This is a alpha version, some simplification will made in the future,</p>
+<p>I will try to make customized function in the furture.</p>
 <pre class="r"><code>library(ggplot2)
 auc &lt;- function(limit, lower.tail = TRUE, between = TRUE){
+  bound &lt;- c(-3.8, 3.8)
   n &lt;- length(limit)
   if (n == 1){
-  if (lower.tail){
-  p &lt;- ggplot(data = NULL, aes(c(-3.8,3.8))) + theme_bw() + 
-    geom_area(stat = &quot;function&quot;, fun = dnorm, fill = &quot;#386890&quot;, xlim = c(-3.5, limit), alpha = .75) +
-    geom_area(stat = &quot;function&quot;, fun = dnorm, fill = &quot;grey80&quot;, xlim = c(limit, 3.5), alpha = .75) +
-    labs(x = &quot;Z-score&quot;, y = &quot;Density&quot;) + scale_x_continuous(breaks = limit) + 
-    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
-  } else {
-    p &lt;- ggplot(data = NULL, aes(c(-3.8,3.8))) + theme_bw() + 
-      geom_area(stat = &quot;function&quot;, fun = dnorm, fill = &quot;grey80&quot;, xlim = c(-3.5, limit), alpha = .75) +
-      geom_area(stat = &quot;function&quot;, fun = dnorm, fill = &quot;#386890&quot;, xlim = c(limit, 3.5), alpha = .75) +
-      labs(x = &quot;Z-score&quot;, y = &quot;Density&quot;) + scale_x_continuous(breaks = 2) +
-      theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
-  }
-  return(p)
+    if (lower.tail){
+      p &lt;- ggplot(data = NULL, aes(bound)) + 
+        geom_area(stat = &quot;function&quot;, fun = dnorm, fill = &quot;#386890&quot;, xlim = c(-3.5, limit), alpha = .75) +
+        geom_area(stat = &quot;function&quot;, fun = dnorm, fill = &quot;grey80&quot;, xlim = c(limit, 3.5), alpha = .75)
+    } else {
+      p &lt;- ggplot(data = NULL, aes(bound)) + 
+        geom_area(stat = &quot;function&quot;, fun = dnorm, fill = &quot;grey80&quot;, xlim = c(-3.5, limit), alpha = .75) +
+        geom_area(stat = &quot;function&quot;, fun = dnorm, fill = &quot;#386890&quot;, xlim = c(limit, 3.5), alpha = .75)
+    }
   }
   if (n == 2) {
     lower &lt;- limit[1]
     upper &lt;- limit[2]
     if (between){
-      p &lt;- ggplot(data = NULL, aes(c(-3.8,3.8))) + theme_bw() + 
+      p &lt;- ggplot(data = NULL, aes(bound)) + 
         geom_area(stat = &quot;function&quot;, fun = dnorm, fill = &quot;#386890&quot;, xlim = c(lower, upper), alpha = .75) +
         geom_area(stat = &quot;function&quot;, fun = dnorm, fill = &quot;grey80&quot;, xlim = c(-3.5, lower), alpha = .75) +
-        geom_area(stat = &quot;function&quot;, fun = dnorm, fill = &quot;grey80&quot;, xlim = c(upper, 3.5), alpha = .75) +
-        labs(x = &quot;Z-score&quot;, y = &quot;Density&quot;) + scale_x_continuous(breaks = limit) + 
-        theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+        geom_area(stat = &quot;function&quot;, fun = dnorm, fill = &quot;grey80&quot;, xlim = c(upper, 3.5), alpha = .75)
     } else {
-      p &lt;- ggplot(data = NULL, aes(c(-3.8,3.8))) + theme_bw() + 
+      p &lt;- ggplot(data = NULL, aes(bound)) +  
         geom_area(stat = &quot;function&quot;, fun = dnorm, fill = &quot;grey80&quot;, xlim = c(lower, upper), alpha = .75) +
         geom_area(stat = &quot;function&quot;, fun = dnorm, fill = &quot;#386890&quot;, xlim = c(-3.5, lower), alpha = .75) +
-        geom_area(stat = &quot;function&quot;, fun = dnorm, fill = &quot;#386890&quot;, xlim = c(upper, 3.5), alpha = .75) +
-        labs(x = &quot;Z-score&quot;, y = &quot;Density&quot;) + scale_x_continuous(breaks = limit) + 
-        theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+        geom_area(stat = &quot;function&quot;, fun = dnorm, fill = &quot;#386890&quot;, xlim = c(upper, 3.5), alpha = .75)
+        
     }
-  return(p)  
   }
+  p &lt;- p + theme_bw() + labs(x = &quot;Z-score&quot;, y = &quot;Density&quot;) + scale_x_continuous(breaks = limit) + 
+    theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+  return(p)
 }</code></pre>
 <p>Testing our function</p>
 <pre class="r"><code># test
