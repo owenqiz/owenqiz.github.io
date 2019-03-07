@@ -225,11 +225,7 @@ $(document).ready(function(){
 
 
 <p>This is a very short post for a summary of the <a href="https://sebastiansauer.github.io/simple-shading/">blog post</a>, I will make a quick function for myself to graph some area under the curve for convenience.</p>
-<ol style="list-style-type: decimal">
-<li>Create your own function</li>
-</ol>
-<p>If like well-known curve, it is already defined in <code>R</code> such as <code>dnorm</code>, otherwise you can define your own function.
-For simplicity, I will only use standard normal (<code>dnorm</code>) (may update in the future).</p>
+<p>In this post, I will only use standard normal (<code>dnorm</code>) (may update in the future). <code>R</code> script can be found from my <a href="https://github.com/owenqiz/miscellaneous/blob/master/dnorm_auc.R">GitHub</a></p>
 <p>I will try to make customized function in the furture.</p>
 <pre class="r"><code>library(ggplot2)
 auc &lt;- function(limit, lower.tail = TRUE, between = TRUE){
