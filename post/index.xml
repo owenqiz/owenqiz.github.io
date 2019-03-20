@@ -18,9 +18,7 @@
       
       <guid>/2019/03/05/plot-area-under-the-curve-with-ggplot2/</guid>
       <description>This is a very short post for a summary of the blog post, I will make a quick function for myself to graph some area under the curve for convenience.
-In this post, I will only use standard normal (dnorm) (may update in the future). R script can be found from my GitHub
-I will try to make customized function in the furture.
-library(ggplot2)auc &amp;lt;- function(limit, lower.tail = TRUE, between = TRUE){bound &amp;lt;- c(-3.</description>
+Create your own functionIf like well-known curve, it is already defined in R such as dnorm, otherwise you can define your own function.For simplicity, I will only use standard normal (dnorm) (may update in the future).</description>
     </item>
     
     <item>
@@ -30,7 +28,7 @@ library(ggplot2)auc &amp;lt;- function(limit, lower.tail = TRUE, between = TRUE
       
       <guid>/2019/02/28/simulation-study-in-r/</guid>
       <description>This is a quick note for how to run some simulations in R, using the basic built-in function (or some package) is the easiest and obvious choice, using rstan for simple simulation is worthless but maybe useful when you need to simulate more complicated samples.
-1. Using built-in function from R2. Using from Stan2.1 Using only rstan2.2 Using rstansim</description>
+1. Using built-in function from Rplot(hist(rnorm(1000)))2. Using from Stan2.1 Using only rstan2.2 Using rstansim</description>
     </item>
     
     <item>
