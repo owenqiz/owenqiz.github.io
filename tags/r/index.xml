@@ -21,15 +21,5 @@
 Create your own functionIf like well-known curve, it is already defined in R such as dnorm, otherwise you can define your own function.For simplicity, I will only use standard normal (dnorm) (may update in the future).</description>
     </item>
     
-    <item>
-      <title>Simulation Study in R - in progress</title>
-      <link>/2019/02/28/simulation-study-in-r/</link>
-      <pubDate>Thu, 28 Feb 2019 00:00:00 +0000</pubDate>
-      
-      <guid>/2019/02/28/simulation-study-in-r/</guid>
-      <description>This is a quick note for how to run some simulations in R, using the basic built-in function (or some package) is the easiest and obvious choice, using rstan for simple simulation is worthless but maybe useful when you need to simulate more complicated samples.
-1. Using built-in function from Rplot(hist(rnorm(1000)))2. Using from Stan2.1 Using only rstan2.2 Using rstansim</description>
-    </item>
-    
   </channel>
 </rss>

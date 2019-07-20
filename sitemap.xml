@@ -16,11 +16,6 @@
   </url>
   
   <url>
-    <loc>/2019/02/28/simulation-study-in-r/</loc>
-    <lastmod>2019-02-28T00:00:00+00:00</lastmod>
-  </url>
-  
-  <url>
     <loc>/2019/02/22/eoq-probabilistic/</loc>
     <lastmod>2019-02-22T00:00:00+00:00</lastmod>
   </url>
@@ -89,12 +84,6 @@
   <url>
     <loc>/tags/r-markdown/</loc>
     <lastmod>2019-02-07T00:00:00+00:00</lastmod>
-    <priority>0</priority>
-  </url>
-  
-  <url>
-    <loc>/categories/statistics/</loc>
-    <lastmod>2019-02-28T00:00:00+00:00</lastmod>
     <priority>0</priority>
   </url>
   

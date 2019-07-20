@@ -223,17 +223,12 @@ $(document).ready(function(){
 <p>This is a quick note for how to run some simulations in <code>R</code>, using the basic built-in function (or some package) is the easiest and obvious choice, using <code>rstan</code> for simple simulation is worthless but maybe useful when you need to simulate more complicated samples.</p>
 <div id="using-built-in-function-from-r" class="section level3">
 <h3>1. Using built-in function from R</h3>
-<pre class="r"><code>plot(hist(rnorm(1000)))</code></pre>
-<p><img src="/post/2019-02-28-simulation-study-in-r_files/figure-html/unnamed-chunk-1-1.png" width="672" /><img src="/post/2019-02-28-simulation-study-in-r_files/figure-html/unnamed-chunk-1-2.png" width="672" /></p>
+<pre class="r"><code>hist(rnorm(1000))</code></pre>
+<p><img src="/post/2019-02-28-simulation-study-in-r_files/figure-html/unnamed-chunk-1-1.png" width="672" /></p>
 </div>
-<div id="using-from-stan" class="section level3">
-<h3>2. Using from Stan</h3>
-<div id="using-only-rstan" class="section level4">
-<h4>2.1 Using only rstan</h4>
-</div>
-<div id="using-rstansim" class="section level4">
-<h4>2.2 Using rstansim</h4>
-</div>
+<div id="using-from-stan-rstan" class="section level3">
+<h3>2. Using from Stan (rstan)</h3>
+<p>Using <code>rstan</code> looks like a little bit of over kill for such problem, it is. But the purpose is to illustrate how to use <code>rstan</code> to generate data. It will become more realistic when it comes to high-dimensional problems.</p>
 </div>
 </div>
 
