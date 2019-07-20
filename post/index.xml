@@ -6,10 +6,22 @@
     <description>Recent content in Posts on owenqi</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Tue, 05 Mar 2019 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Fri, 05 Jul 2019 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/post/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Bangladesh Ground Arsenic with R</title>
+      <link>/2019/07/05/bangladesh-ground-arsenic-with-r/</link>
+      <pubDate>Fri, 05 Jul 2019 00:00:00 +0000</pubDate>
+      
+      <guid>/2019/07/05/bangladesh-ground-arsenic-with-r/</guid>
+      <description>This post demostrate implements the computation and visualization of CSI (Contamination Severity Index) develop by Dr. P.K Sen in 2016, data obtain from British Geological Survey.
+Map getting from GADM version 2.8
+load(&amp;#39;data.Rda&amp;#39;)thana_map &amp;lt;- readRDS(gzcon(url(&amp;#39;https://biogeo.ucdavis.edu/data/gadm2.8/rds/BGD_adm3.rds&amp;#39;)))1. ExpressionLet \(Y_{(i)}, i = 1,2, \ldots, n\) be the ordered sample from a region (can be division/district/thana), in our case, thana.
+Let \(M\) denote the number of observation less than the threshold \(L\) (given).</description>
+    </item>
     
     <item>
       <title>Plot Area Under the Curve with ggplot2</title>

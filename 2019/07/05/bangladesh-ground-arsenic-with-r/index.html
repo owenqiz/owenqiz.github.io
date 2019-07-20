@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>Posts</title>
+        <title>Bangladesh Ground Arsenic with R</title>
         <style>
 
     html body {
@@ -96,9 +96,6 @@ $(document).ready(function(){
 </script>
  <meta name="generator" content="Hugo 0.54.0" />
         
-        <link href="/post/index.xml" rel="alternate" type="application/rss+xml" title="owenqi" />
-        <link href="/post/index.xml" rel="feed" type="application/rss+xml" title="owenqi" />
-        
         
 
     
@@ -114,7 +111,7 @@ $(document).ready(function(){
     
     
     
-    <meta property="og:title" content="Posts">
+    <meta property="og:title" content="Bangladesh Ground Arsenic with R">
     <meta property="og:type" content="article">
       
       <meta name="twitter:card" content="summary">
@@ -139,7 +136,7 @@ $(document).ready(function(){
         <nav class="navbar navbar-default navbar-fixed-top">
             <div class="container">
                 <div class="navbar-header">
-                    <a class="navbar-brand visible-xs" href="#">Posts</a>
+                    <a class="navbar-brand visible-xs" href="#">Bangladesh Ground Arsenic with R</a>
                     <button class="navbar-toggle" data-target=".navbar-collapse" data-toggle="collapse">
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>
@@ -189,11 +186,8 @@ $(document).ready(function(){
 
 
 <main>
-    <h2>Posts</h2>
 
-    
-        
-           <div class="item">
+    <div class="item">
 
     
     
@@ -207,7 +201,9 @@ $(document).ready(function(){
     <h4><a href="/2019/07/05/bangladesh-ground-arsenic-with-r/">Bangladesh Ground Arsenic with R</a></h4>
     <h5>July 5, 2019 - 3 minutes</h5>
     <h5></h5>
+
     
+
         <a href="/categories/statistics">
         <kbd class="item-cat"> Statistics </kbd>
     </a>
@@ -224,10 +220,133 @@ $(document).ready(function(){
 
 </div>
 
-        
+
+    <br> <div class="text-justify">
+
+
+<p>This post demostrate implements the computation and visualization of CSI (Contamination Severity Index) develop by Dr. P.K Sen in 2016, data obtain from <a href="https://www.bgs.ac.uk/arsenic/bangladesh/">British Geological Survey</a>.</p>
+<p>Map getting from <a href="https://gadm.org/download_country_v2.html">GADM version 2.8</a></p>
+<pre class="r"><code>load(&#39;data.Rda&#39;)
+thana_map &lt;- readRDS(gzcon(url(&#39;https://biogeo.ucdavis.edu/data/gadm2.8/rds/BGD_adm3.rds&#39;)))</code></pre>
+<div id="expression" class="section level2">
+<h2>1. Expression</h2>
+<p>Let <span class="math inline">\(Y_{(i)}, i = 1,2, \ldots, n\)</span> be the ordered sample from a region (can be division/district/thana), in our case, <strong>thana</strong>.</p>
+<ul>
+<li>Let <span class="math inline">\(M\)</span> denote the number of observation less than the threshold <span class="math inline">\(L\)</span> (given).</li>
+<li>Let <span class="math inline">\(F_n(x) = \frac{1}{n}\sum_{i = 1}^{n}I(Y_i \leq x), x \geq 0\)</span>, the empirical distribution be the estimator of true distribution <span class="math inline">\(F(x)\)</span>.</li>
+</ul>
+<p>For arsenic (As) level <span class="math inline">\(Y_{(i)}\)</span>, the corresponding propensity socre, denoted by <span class="math inline">\(C_{ni}, i = 1,2, \ldots,n\)</span> is given by</p>
+<p><span class="math display">\[\begin{align}
+\tag{2.1}
+C_{ni} = \max(0, (1 - L/Y_i)^{\hat{\theta(Y_{(i)})}})
+\end{align}\]</span></p>
+<p>where</p>
+<p><span class="math display">\[\begin{align}
+\tag{2.2}
+\hat{\theta(Y_{(i)})} = \frac{2}{n-M}\sum_{j = M+1}^{n}\frac{\min(Y_{(i)},Y_{(j)})}{Y_{(i)}+ Y_{(j)}}, i = 1,\ldots, n
+\end{align}\]</span></p>
+<p>and finally the CSI is the mean of the propensity score averaged by all <span class="math inline">\(n\)</span> observation.</p>
+<p><span class="math display">\[\begin{align}
+\tag{2.3}
+\hat{C}_E = \frac{1}{n}\sum_{M \leq i \leq n}C_{ni}
+\end{align}\]</span></p>
+<p>Note: For Equation (1), if <span class="math inline">\(Y_{(i)} \leq L\)</span>, then <span class="math inline">\(C_{ni} = 0\)</span>.</p>
+</div>
+<div id="implementation" class="section level2">
+<h2>2. Implementation</h2>
+<pre class="r"><code>propensity_score &lt;-function(x, y_vector, L = 10){
+  # x is argument, i.e. oberservation to be convert
+  # y_vector is a vector of ALL observations in the sub_region
+  
+  n &lt;- length(y_vector)
+  y_truncate &lt;- y_vector[y_vector &gt; L]
+
+  # case that ALL observation less than the threshold
+  if(length(y_truncate) == 0)
+    return(rep(0, n))
+  
+  # when num of y_trancate == 1, then 2/(n-M-1) = infinity
+  if(length(y_truncate) == 1)
+    return(max(0,1-L/x))
     
-        
-           <div class="item">
+  # base of Eq. (1)
+  C_ni &lt;- max(0,1-L/x)
+  
+  # coeff * y_sum is Eq. (2)
+  coeff &lt;- 2/length(y_truncate)
+  y_sum &lt;- sum(pmin(x,y_truncate)/(x + y_truncate))
+  
+  # return value of Eq. (1)
+  return(C_ni^(coeff*y_sum))
+}</code></pre>
+<p>Once we have the CSI score for the thana, CSI is simply the mean of the scores of <strong>all observations</strong>.</p>
+<pre class="r"><code>csi &lt;- function(y_vector){
+  # find propensity score for each observation
+  score &lt;- sapply(y_vector, y_vector = y_vector, propensity_score)
+  # mean of the score is csi
+  return(mean(score))
+}</code></pre>
+</div>
+<div id="result" class="section level2">
+<h2>3. Result</h2>
+<p>We present two type of plot,</p>
+<ul>
+<li>The first one we use the exact <strong>CSI values</strong> value computed from the estimator, it is presented in a <strong>continuous scale</strong>.</li>
+</ul>
+<pre class="r"><code>library(tibble)
+library(ggplot2)
+library(dplyr)
+thana_obs &lt;- split(dataset, dataset$thana_id)
+
+thana_csi &lt;- function(data_list, discrete = FALSE){
+  n &lt;- length(data_list)
+  csi_vector &lt;- rep(NA, n)
+  ids &lt;- names(data_list)
+  for(i in 1: n){
+  csi_vector[i] &lt;- csi(thana_obs[[i]]$as)
+  }
+  cutoff &lt;- seq(0, 1, length.out = 11)
+  if (discrete == TRUE){
+    csi_vector &lt;- cut(csi_vector, breaks = cutoff, include.lowest = TRUE)
+    csi_vector &lt;- factor(csi_vector, levels = rev(levels(csi_vector)))
+    }
+  # can consider rounding to 3 decimals
+  df &lt;- tibble(id = ids, csi = csi_vector)
+  return(df)
+}
+
+# csi in dataframe
+csi_df &lt;- thana_csi(thana_obs)
+# plotting result
+thana_df &lt;- fortify(thana_map)
+# merge result
+plot_csi &lt;- left_join(thana_df, csi_df, by = &#39;id&#39;)
+
+dcsi_df &lt;- thana_csi(thana_obs, discrete = TRUE)
+plot_dcsi &lt;- left_join(thana_df, dcsi_df, by = &#39;id&#39;)</code></pre>
+<p><img src="/post/2019-07-20-gis-working-with-r_files/figure-html/unnamed-chunk-2-1.png" width="150%" /></p>
+<ul>
+<li>The second one we use the exact 10 bins, from which we divide 0 - 1 into 10 categories, it is presented in a <strong>discrete scale</strong>.</li>
+</ul>
+<p><img src="/post/2019-07-20-gis-working-with-r_files/figure-html/unnamed-chunk-3-1.png" width="150%" /></p>
+</div>
+<div id="references" class="section level2">
+<h2>References</h2>
+<ol style="list-style-type: decimal">
+<li><p>Sen, P. K. (2016). Abundant Environmental Arsenic Contamination: Some Statistical Perspectives. Sankhya B, 78(2), 341-361.</p></li>
+<li><p><a href="https://cran.r-project.org/web/packages/viridis/vignettes/intro-to-viridis.html">Viridis Color Scales</a></p></li>
+</ol>
+</div>
+</div>
+
+    
+    
+
+    
+
+        <h4 class="page-header">Related</h4>
+
+         <div class="item">
 
     
     
@@ -241,7 +360,9 @@ $(document).ready(function(){
     <h4><a href="/2019/03/05/plot-area-under-the-curve-with-ggplot2/">Plot Area Under the Curve with ggplot2</a></h4>
     <h5>March 5, 2019 - 2 minutes</h5>
     <h5></h5>
+
     
+
         <a href="/categories/miscellaneous">
         <kbd class="item-cat"> Miscellaneous </kbd>
     </a>
@@ -257,134 +378,13 @@ $(document).ready(function(){
     
 
 </div>
+ 
 
-        
-    
-        
-           <div class="item">
-
-    
-    
     
 
     
-    
-      
-    
 
-    <h4><a href="/2019/02/22/eoq-probabilistic/">Short Summary on EOQ Model (Probabilistic)</a></h4>
-    <h5>February 22, 2019 - 6 minutes</h5>
-    <h5></h5>
-    
-        <a href="/categories/miscellaneous">
-        <kbd class="item-cat"> Miscellaneous </kbd>
-    </a>
-    
-    
-    <a href="/tags/eoq">
-        <kbd class="item-tag"> EOQ </kbd>
-    </a>
-    
-
-</div>
-
-        
-    
-        
-           <div class="item">
-
-    
-    
-    
-
-    
-    
-      
-    
-
-    <h4><a href="/2019/02/19/a-latex-template-for-homework/">A LaTeX Template for Homework</a></h4>
-    <h5>February 19, 2019 - 2 minutes</h5>
-    <h5></h5>
-    
-        <a href="/categories/miscellaneous">
-        <kbd class="item-cat"> Miscellaneous </kbd>
-    </a>
-    
-    
-    <a href="/tags/latex">
-        <kbd class="item-tag"> LaTeX </kbd>
-    </a>
-    
-
-</div>
-
-        
-    
-        
-           <div class="item">
-
-    
-    
-    
-
-    
-    
-      
-    
-
-    <h4><a href="/2019/02/12/some-summary-on-eoq-model/">Short Summary on EOQ Model (Deterministic)</a></h4>
-    <h5>February 12, 2019 - 3 minutes</h5>
-    <h5></h5>
-    
-        <a href="/categories/miscellaneous">
-        <kbd class="item-cat"> Miscellaneous </kbd>
-    </a>
-    
-    
-    <a href="/tags/eoq">
-        <kbd class="item-tag"> EOQ </kbd>
-    </a>
-    
-
-</div>
-
-        
-    
-        
-           <div class="item">
-
-    
-    
-    
-
-    
-    
-      
-    
-
-    <h4><a href="/2019/02/07/rmd-example/">An R Markdown Examples</a></h4>
-    <h5>February 7, 2019 - 7 minutes</h5>
-    <h5></h5>
-    
-        <a href="/categories/miscellaneous">
-        <kbd class="item-cat"> Miscellaneous </kbd>
-    </a>
-    
-    
-    <a href="/tags/r-markdown">
-        <kbd class="item-tag"> R Markdown </kbd>
-    </a>
-    
-
-</div>
-
-        
-    
-    
 </main>
-
-
-
 
         <footer id = "bigfooter">
             <div style = "padding:15px;">
