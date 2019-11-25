@@ -6,10 +6,19 @@
     <description>Recent content in Statistics on owenqi</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Fri, 05 Jul 2019 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Mon, 25 Nov 2019 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/categories/statistics/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Estimating scale and correlation parameters for GEE</title>
+      <link>/2019/11/25/estimating-scale-and-correlation-parameters-for-gee/</link>
+      <pubDate>Mon, 25 Nov 2019 00:00:00 +0000</pubDate>
+      
+      <guid>/2019/11/25/estimating-scale-and-correlation-parameters-for-gee/</guid>
+      <description>This is a recall for some of what I have learned last year, back then the main focus was on Bayesian models, but this time, a friend ask me a question on estimating the parameters related to Generalized Estimating Equation (GEE). In general, this can be comfortably handeled by the R package such as geepack, but she want to know the exact estimation procedures. Hence, I review some of my materials, and a book recommended by my colleague which will be referenced in the end.</description>
+    </item>
     
     <item>
       <title>Bangladesh Ground Arsenic with R</title>
