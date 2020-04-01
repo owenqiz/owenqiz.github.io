@@ -1,25 +1,0 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
-  <channel>
-    <title>Spatial on owenqi</title>
-    <link>/tags/spatial/</link>
-    <description>Recent content in Spatial on owenqi</description>
-    <generator>Hugo -- gohugo.io</generator>
-    <language>en-us</language>
-    <lastBuildDate>Mon, 18 Feb 2019 00:00:00 +0000</lastBuildDate>
-    
-	<atom:link href="/tags/spatial/index.xml" rel="self" type="application/rss+xml" />
-    
-    
-    <item>
-      <title>EDA on Bangladesh Groundwater Arsenic Part 2</title>
-      <link>/hidden/eda-2/</link>
-      <pubDate>Mon, 18 Feb 2019 00:00:00 +0000</pubDate>
-      
-      <guid>/hidden/eda-2/</guid>
-      <description>We have perfrom initial EDA on arsenic level in the early post. From the plots in part 1
-The region being chosen there doesn’t seem to be much spatial correlationIt is hard to interpret this in longitude and latitudeIn this post, R code for simple data transformation and technique use in part 1 will NOT be shown again, we just present the result. Code for new technique will be included.</description>
-    </item>
-    
-  </channel>
-</rss>
