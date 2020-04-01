@@ -330,7 +330,6 @@ cvmtl &lt;- cvmtl %&gt;% select(-NOM)
 mtl &lt;- mtl %&gt;% select(NUM, NOM, TYPE) %&gt;% left_join(cvmtl) %&gt;% select(-NUM)
 
 library(tmap)
-# tmap_mode(&quot;plot&quot;)
 tmap_mode(&quot;view&quot;)
 tm_shape(mtl) +  tm_polygons(&quot;Case&quot;, title = &quot;COVID19 Case&quot;, 
                             style = &quot;fixed&quot;,
