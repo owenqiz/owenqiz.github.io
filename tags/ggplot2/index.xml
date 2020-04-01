@@ -6,19 +6,31 @@
     <description>Recent content in Ggplot2 on owenqi</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sun, 29 Mar 2020 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Tue, 31 Mar 2020 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/tags/ggplot2/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
-      <title>COVID-19 in Quebec</title>
-      <link>/2020/03/29/covid-19-in-quebec/</link>
-      <pubDate>Sun, 29 Mar 2020 00:00:00 +0000</pubDate>
+      <title>COVID 19 in Quebec</title>
+      <link>/2020/03/31/covid-19-in-quebec/</link>
+      <pubDate>Tue, 31 Mar 2020 00:00:00 +0000</pubDate>
       
-      <guid>/2020/03/29/covid-19-in-quebec/</guid>
+      <guid>/2020/03/31/covid-19-in-quebec/</guid>
       <description>As the current COVID-19 situation in Canada, I am also forced to work from home. During the weekend, I try to learn some stuff for fun. This post will illustrate the map reflecting the COVID-19 count in Quebec.
 To obtain the data, we first scrape the information from the goverment’s website Quebec.ca, who provides daily updates upto the Administrative Region level. This time I will use rvest to grab the information.</description>
+    </item>
+    
+    <item>
+      <title>Bangladesh Ground Arsenic with R</title>
+      <link>/2019/07/05/bangladesh-ground-arsenic-with-r/</link>
+      <pubDate>Fri, 05 Jul 2019 00:00:00 +0000</pubDate>
+      
+      <guid>/2019/07/05/bangladesh-ground-arsenic-with-r/</guid>
+      <description>This post demostrate implements the computation and visualization of CSI (Contamination Severity Index) develop by Dr. P.K Sen in 2016, data obtain from British Geological Survey.
+Map getting from GADM version 2.8
+load(&amp;#39;data.Rda&amp;#39;)thana_map &amp;lt;- readRDS(gzcon(url(&amp;#39;https://biogeo.ucdavis.edu/data/gadm2.8/rds/BGD_adm3.rds&amp;#39;)))1. ExpressionLet \(Y_{(i)}, i = 1,2, \ldots, n\) be the ordered sample from a region (can be division/district/thana), in our case, thana.
+Let \(M\) denote the number of observation less than the threshold \(L\) (given).</description>
     </item>
     
     <item>

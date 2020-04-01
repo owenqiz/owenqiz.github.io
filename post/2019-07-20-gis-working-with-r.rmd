@@ -13,7 +13,7 @@ This post demostrate implements the computation and visualization of CSI (Contam
 
 Map getting from [GADM version 2.8](https://gadm.org/download_country_v2.html)
 
-```{r}
+```{r, eval=FALSE}
 load('data.Rda')
 thana_map <- readRDS(gzcon(url('https://biogeo.ucdavis.edu/data/gadm2.8/rds/BGD_adm3.rds')))
 ```
@@ -50,7 +50,7 @@ Note: For Equation (1), if $Y_{(i)} \leq L$, then $C_{ni} = 0$.
 
 ## 2. Implementation
 
-```{r propensity_score}
+```{r propensity_score, eval=FALSE}
 propensity_score <-function(x, y_vector, L = 10){
   # x is argument, i.e. oberservation to be convert
   # y_vector is a vector of ALL observations in the sub_region
@@ -79,7 +79,7 @@ propensity_score <-function(x, y_vector, L = 10){
 ```
 
 Once we have the CSI score for the thana, CSI is simply the mean of the scores of **all observations**.
-```{r csi}
+```{r csi, eval=FALSE}
 csi <- function(y_vector){
   # find propensity score for each observation
   score <- sapply(y_vector, y_vector = y_vector, propensity_score)
@@ -94,7 +94,7 @@ We present two type of plot,
 
 * The first one we use the exact **CSI values** value computed from the estimator, it is presented in a **continuous scale**.
 
-```{r data_merge, message=FALSE, warning=FALSE}
+```{r data_merge, message=FALSE, warning=FALSE, eval=FALSE}
 library(tibble)
 library(ggplot2)
 library(dplyr)
@@ -129,6 +129,10 @@ plot_dcsi <- left_join(thana_df, dcsi_df, by = 'id')
 ```
 
 ```{r, out.width="150%", echo=FALSE, message=FALSE}
+load('data/csi.Rda')
+thana_map <- readRDS('maps/BGD_adm3.Rds')
+library(ggplot2)
+
 p_csi <- ggplot(plot_csi, aes(x = long, y = lat, group = group, fill = csi)) + geom_polygon(color = "white") +
   scale_fill_viridis_c() + 
   coord_map() +  ggtitle("CSI based on Empirical Distribution") +
@@ -141,7 +145,7 @@ p_csi
 * The second one we use the exact 10 bins, from which we divide 0 - 1 into 10 categories, it is presented in a **discrete scale**.
 
 ```{r, out.width="150%", echo=FALSE, message=FALSE}
-p_dcsi <- ggplot(plot_dcsi, aes(x = long, y = lat, group = group, fill = csi)) + geom_polygon(color = "white") +
+p_dcsi <- ggplot(plot_csi, aes(x = long, y = lat, group = group, fill = dcsi)) + geom_polygon(color = "white") +
   scale_fill_viridis_d(direction = -1, na.value = "grey50") + 
   coord_map() +  xlab("Longitude") + ylab("Latitude") +  labs(fill = "CSI") + theme_minimal() +
   ggtitle("CSI based on Empirical Distribution") +
