@@ -94,7 +94,7 @@ $(document).ready(function(){
   })
 });
 </script>
- <meta name="generator" content="Hugo 0.54.0" />
+ <meta name="generator" content="Hugo 0.68.3" />
         
         
 
@@ -220,7 +220,7 @@ $(document).ready(function(){
     <br> <div class="text-justify">
 
 
-<p>This is a recall for some of what I have learned last year (2018). Back then, the main focus was on Bayesian models. A friend asked me a question few days ago on estimating the parameters related to Generalized Estimating Equation (GEE). In general, this can be comfortably handeled by the <code>R</code> package such as <code>geepack</code>, but she wanted to know the exact estimation procedures. Hence, I review some of my materials, and a book recommended by my colleague which will be referenced in the end.</p>
+<p>This is a recall for some of what I have learned last year (2018, Fall). Back then, the main focus was on Bayesian models. A friend asked me a question few days ago on estimating the parameters related to Generalized Estimating Equation (GEE). In general, this can be comfortably handeled by the <code>R</code> package such as <code>geepack</code>, but she wanted to know the exact estimation procedures. Hence, I review some of my materials, and a book recommended by my colleague which will be referenced in the end.</p>
 <p>The estimation is proposed in Liang &amp; Zeger (1986), and I found something not that clear for me in the first place and I consult for a very nice book written by Hardin &amp; Hilbe (2013), which gave a more fridenly explaination.</p>
 <p>I will illustrate this using a seizure data example. Data on seizures were collected on 59 epileptics, i.e. subject <span class="math inline">\(i = \lbrace 1, \ldots, 59 \rbrace\)</span>. For each patient the no. of seizures were recorded during a baseline period of 8 weeks, after which patients were randomized to treatment with the drug progabide or to placebo. The no. of seizures was then recorded in 4 consecutive 2-week periods, i.e. <span class="math inline">\(n_i = 5, \forall i\)</span>. Patient age was also available. Let
 <span class="math display">\[\begin{align*}
