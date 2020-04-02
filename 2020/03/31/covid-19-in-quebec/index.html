@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>COVID 19 in Quebec</title>
+        <title>COVID-19 in Quebec</title>
         <style>
 
     html body {
@@ -111,7 +111,7 @@ $(document).ready(function(){
     
     
     
-    <meta property="og:title" content="COVID 19 in Quebec">
+    <meta property="og:title" content="COVID-19 in Quebec">
     <meta property="og:type" content="article">
       
       <meta name="twitter:card" content="summary">
@@ -136,7 +136,7 @@ $(document).ready(function(){
         <nav class="navbar navbar-default navbar-fixed-top">
             <div class="container">
                 <div class="navbar-header">
-                    <a class="navbar-brand visible-xs" href="#">COVID 19 in Quebec</a>
+                    <a class="navbar-brand visible-xs" href="#">COVID-19 in Quebec</a>
                     <button class="navbar-toggle" data-target=".navbar-collapse" data-toggle="collapse">
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>
@@ -198,7 +198,7 @@ $(document).ready(function(){
       
     
 
-    <h4><a href="/2020/03/31/covid-19-in-quebec/">COVID 19 in Quebec</a></h4>
+    <h4><a href="/2020/03/31/covid-19-in-quebec/">COVID-19 in Quebec</a></h4>
     <h5>March 31, 2020 - 5 minutes</h5>
     <h5></h5>
 
@@ -254,7 +254,7 @@ covid &lt;- read_html(url) %&gt;% html_nodes(&quot;table&quot;) %&gt;%
                             mutate(Case = str_replace_all(Case,&#39; &#39;, &#39;&#39;))%&gt;%
                             # two possible way of spacing according to experience
                             mutate_at(&#39;Case&#39;, as.integer) </code></pre>
-<p>Here the id of Quebec Administrative Region (QAR) I use <code>RES_CO_REG</code> is to accomodate to the map file later on. The shapefile of QAR can be downloaded from <a href="https://mern.gouv.qc.ca/territoire/portrait/portrait-donnees-mille.jsp">Énergie et Ressources naturelles</a> at <strong>Régions administratives</strong>. The Coordinate Reference System (CRS) of this <code>shp</code> file is NAD83, we need to convert it to WGS84 if we have more manipulation other than <code>ggplot2</code> (see below). It is worth noticing that the region of Montreal is quite small in Quebec, one way is to include a map near Montreal or use <a href="https://geocompr.github.io/post/2019/ggplot2-inset-maps/">inset map</a>.</p>
+<p>Here the id of Quebec Administrative Region (QAR) I use <code>RES_CO_REG</code> is to accomodate to the map file later on. The shapefile of QAR can be downloaded from <a href="https://mern.gouv.qc.ca/territoire/portrait/portrait-donnees-mille.jsp">Énergie et Ressources naturelles</a> at <strong>Régions administratives</strong>. The Coordinate Reference System (CRS) of this <code>shp</code> file is <strong>NAD83</strong>, we need to convert it to <strong>WGS84</strong> if we have more manipulation, says calling interactive map (see below). It is worth noticing that the region of Montreal is quite small in Quebec, one way is to include a map near Montreal or use <a href="https://geocompr.github.io/post/2019/ggplot2-inset-maps/">inset map</a>.</p>
 <pre class="r"><code>library(sf)</code></pre>
 <pre><code>## Linking to GEOS 3.6.1, GDAL 2.2.3, PROJ 4.9.3</code></pre>
 <pre class="r"><code>qc &lt;- read_sf(&quot;maps/qc.shp&quot;)
