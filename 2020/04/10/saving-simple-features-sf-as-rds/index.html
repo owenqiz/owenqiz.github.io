@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>Posts</title>
+        <title>Saving Simple Features (sf) as RDS</title>
         <style>
 
     html body {
@@ -96,9 +96,6 @@ $(document).ready(function(){
 </script>
  <meta name="generator" content="Hugo 0.68.3" />
         
-        <link href="/post/index.xml" rel="alternate" type="application/rss+xml" title="owenqi" />
-        <link href="/post/index.xml" rel="feed" type="application/rss+xml" title="owenqi" />
-        
         
 
     
@@ -114,7 +111,7 @@ $(document).ready(function(){
     
     
     
-    <meta property="og:title" content="Posts">
+    <meta property="og:title" content="Saving Simple Features (sf) as RDS">
     <meta property="og:type" content="article">
       
       <meta name="twitter:card" content="summary">
@@ -139,7 +136,7 @@ $(document).ready(function(){
         <nav class="navbar navbar-default navbar-fixed-top">
             <div class="container">
                 <div class="navbar-header">
-                    <a class="navbar-brand visible-xs" href="#">Posts</a>
+                    <a class="navbar-brand visible-xs" href="#">Saving Simple Features (sf) as RDS</a>
                     <button class="navbar-toggle" data-target=".navbar-collapse" data-toggle="collapse">
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>
@@ -189,11 +186,8 @@ $(document).ready(function(){
 
 
 <main>
-    <h2>Posts</h2>
 
-    
-        
-           <div class="item">
+    <div class="item">
 
     
     
@@ -207,7 +201,9 @@ $(document).ready(function(){
     <h4><a href="/2020/04/10/saving-simple-features-sf-as-rds/">Saving Simple Features (sf) as RDS</a></h4>
     <h5>April 10, 2020 - 1 minutes</h5>
     <h5></h5>
+
     
+
         <a href="/categories/miscellaneous">
         <kbd class="item-cat"> Miscellaneous </kbd>
     </a>
@@ -220,10 +216,44 @@ $(document).ready(function(){
 
 </div>
 
-        
+
+    <br> <div class="text-justify">
+
+
+<p>This is a very short note about how to save <a href="https://r-spatial.github.io/sf/index.html">Simple Features</a> or <code>sp</code> file into a <code>Rds</code> file. When downloading a map data, it contains multiple file in a folder such as <code>shp</code>, <code>dbf</code>, <code>prj</code>, <code>shx</code> etc. This is quite messy after you have some manipulations.</p>
+<p>By saving into a single <code>rds</code>, it is easy to read and store. I use <a href="http://donnees.ville.montreal.qc.ca/dataset/polygones-arrondissements">Montreal map</a> as example. All we need is only the <code>sf</code> and <code>dplyr</code> for manipulations and more importantly, <code>readr</code> from <strong>tidyverse</strong> to write and read.</p>
+<pre class="r"><code>library(sf)
+library(dplyr)
+
+mtl &lt;- read_sf(&quot;maps/mtl.shp&quot;)
+
+# some random manipulation
+mtl &lt;- mtl %&gt;% select(NOM, TYPE)
+
+# save as RDS, path can be specified, sometime you may compress to save some space
+readr::write_rds(mtl, path = file.path(&quot;maps/mtl.rds&quot;), compress = &#39;gz&#39;)
+
+# read RDS file
+montreal &lt;- readr::read_rds(&#39;maps/mtl.rds&#39;)
+
+# you may verify that they are the same
+identical(mtl, montreal)</code></pre>
+<div id="reference" class="section level2">
+<h2>Reference</h2>
+<ol style="list-style-type: decimal">
+<li><a href="https://community.rstudio.com/t/saving-shapefiles-with-r-that-can-be-re-read-as-a-shapefile/32644/4" class="uri">https://community.rstudio.com/t/saving-shapefiles-with-r-that-can-be-re-read-as-a-shapefile/32644/4</a></li>
+</ol>
+</div>
+</div>
+
     
-        
-           <div class="item">
+    
+
+    
+
+        <h4 class="page-header">Related</h4>
+
+         <div class="item">
 
     
     
@@ -237,7 +267,9 @@ $(document).ready(function(){
     <h4><a href="/2020/03/31/covid-19-in-quebec/">COVID-19 in Quebec</a></h4>
     <h5>March 31, 2020 - 5 minutes</h5>
     <h5></h5>
+
     
+
         <a href="/categories/statistics">
         <kbd class="item-cat"> Statistics </kbd>
     </a>
@@ -253,11 +285,7 @@ $(document).ready(function(){
     
 
 </div>
-
-        
-    
-        
-           <div class="item">
+  <div class="item">
 
     
     
@@ -271,7 +299,9 @@ $(document).ready(function(){
     <h4><a href="/2019/11/25/estimating-scale-and-correlation-parameters-for-gee/">Estimating scale and correlation parameters for GEE</a></h4>
     <h5>November 25, 2019 - 4 minutes</h5>
     <h5></h5>
+
     
+
         <a href="/categories/statistics">
         <kbd class="item-cat"> Statistics </kbd>
     </a>
@@ -283,11 +313,7 @@ $(document).ready(function(){
     
 
 </div>
-
-        
-    
-        
-           <div class="item">
+  <div class="item">
 
     
     
@@ -301,7 +327,9 @@ $(document).ready(function(){
     <h4><a href="/2019/07/05/bangladesh-ground-arsenic-with-r/">Bangladesh Ground Arsenic with R</a></h4>
     <h5>July 5, 2019 - 3 minutes</h5>
     <h5></h5>
+
     
+
         <a href="/categories/statistics">
         <kbd class="item-cat"> Statistics </kbd>
     </a>
@@ -317,168 +345,13 @@ $(document).ready(function(){
     
 
 </div>
+ 
 
-        
-    
-        
-           <div class="item">
-
-    
-    
     
 
     
-    
-      
-    
 
-    <h4><a href="/2019/03/05/plot-area-under-the-curve-with-ggplot2/">Plot Area Under the Curve with ggplot2</a></h4>
-    <h5>March 5, 2019 - 2 minutes</h5>
-    <h5></h5>
-    
-        <a href="/categories/miscellaneous">
-        <kbd class="item-cat"> Miscellaneous </kbd>
-    </a>
-    
-    
-    <a href="/tags/r">
-        <kbd class="item-tag"> R </kbd>
-    </a>
-    
-    <a href="/tags/ggplot2">
-        <kbd class="item-tag"> ggplot2 </kbd>
-    </a>
-    
-
-</div>
-
-        
-    
-        
-           <div class="item">
-
-    
-    
-    
-
-    
-    
-      
-    
-
-    <h4><a href="/2019/02/22/eoq-probabilistic/">Short Summary on EOQ Model (Probabilistic)</a></h4>
-    <h5>February 22, 2019 - 6 minutes</h5>
-    <h5></h5>
-    
-        <a href="/categories/miscellaneous">
-        <kbd class="item-cat"> Miscellaneous </kbd>
-    </a>
-    
-    
-    <a href="/tags/eoq">
-        <kbd class="item-tag"> EOQ </kbd>
-    </a>
-    
-
-</div>
-
-        
-    
-        
-           <div class="item">
-
-    
-    
-    
-
-    
-    
-      
-    
-
-    <h4><a href="/2019/02/19/a-latex-template-for-homework/">A LaTeX Template for Homework</a></h4>
-    <h5>February 19, 2019 - 2 minutes</h5>
-    <h5></h5>
-    
-        <a href="/categories/miscellaneous">
-        <kbd class="item-cat"> Miscellaneous </kbd>
-    </a>
-    
-    
-    <a href="/tags/latex">
-        <kbd class="item-tag"> LaTeX </kbd>
-    </a>
-    
-
-</div>
-
-        
-    
-        
-           <div class="item">
-
-    
-    
-    
-
-    
-    
-      
-    
-
-    <h4><a href="/2019/02/12/some-summary-on-eoq-model/">Short Summary on EOQ Model (Deterministic)</a></h4>
-    <h5>February 12, 2019 - 3 minutes</h5>
-    <h5></h5>
-    
-        <a href="/categories/miscellaneous">
-        <kbd class="item-cat"> Miscellaneous </kbd>
-    </a>
-    
-    
-    <a href="/tags/eoq">
-        <kbd class="item-tag"> EOQ </kbd>
-    </a>
-    
-
-</div>
-
-        
-    
-        
-           <div class="item">
-
-    
-    
-    
-
-    
-    
-      
-    
-
-    <h4><a href="/2019/02/07/rmd-example/">An R Markdown Examples</a></h4>
-    <h5>February 7, 2019 - 7 minutes</h5>
-    <h5></h5>
-    
-        <a href="/categories/miscellaneous">
-        <kbd class="item-cat"> Miscellaneous </kbd>
-    </a>
-    
-    
-    <a href="/tags/r-markdown">
-        <kbd class="item-tag"> R Markdown </kbd>
-    </a>
-    
-
-</div>
-
-        
-    
-    
 </main>
-
-
-
 
         <footer id = "bigfooter">
             <div style = "padding:15px;">

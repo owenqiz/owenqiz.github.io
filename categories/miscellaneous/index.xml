@@ -6,10 +6,20 @@
     <description>Recent content in Miscellaneous on owenqi</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Tue, 05 Mar 2019 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Fri, 10 Apr 2020 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/categories/miscellaneous/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Saving Simple Features (sf) as RDS</title>
+      <link>/2020/04/10/saving-simple-features-sf-as-rds/</link>
+      <pubDate>Fri, 10 Apr 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/2020/04/10/saving-simple-features-sf-as-rds/</guid>
+      <description>This is a very short note about how to save Simple Features or sp file into a Rds file. When downloading a map data, it contains multiple file in a folder such as shp, dbf, prj, shx etc. This is quite messy after you have some manipulations.
+By saving into a single rds, it is easy to read and store. I use Montreal map as example. All we need is only the sf and dplyr for manipulations and more importantly, readr from tidyverse to write and read.</description>
+    </item>
     
     <item>
       <title>Plot Area Under the Curve with ggplot2</title>
