@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Linear Mixed Models via rstan</title>
+        <style>
+
+    html body {
+        font-family: 'Mina', sans-serif;
+        background-color: #f5f5f5;
+    }
+
+    :root {
+        --accent: #386890;
+        --border-width:  0 ;
+    }
+
+</style>
+
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Mina">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=VT323">
+
+
+ <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css"> 
+
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+
+ 
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/r.min.js"></script>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/python.min.js"></script>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/bash.min.js"></script>
+    
+
+    <script>hljs.initHighlightingOnLoad();</script>
+
+
+
+
+
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+
+<link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
+<script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
+
+
+<script>$(document).on('click', function() { $('.collapse').collapse('hide'); })</script>
+
+
+<script>
+$(document).ready(function(){
+    
+  var input = $('#night-mode-toggle');
+  var container = $('#bigbody');
+  var stat = $('#button-status');
+  
+  container.toggleClass(localStorage.toggled);
+  stat.bootstrapToggle(localStorage.button).change();
+  
+  input.on('click', function() {
+      if (localStorage.toggled != "-nightmode" ) {
+          container.toggleClass("-nightmode", true );
+          localStorage.toggled = "-nightmode";
+          localStorage.button = "on";
+       } else {
+          container.toggleClass("-nightmode", false );
+          localStorage.toggled = "";
+          localStorage.button = "off"
+       }
+  })
+});
+</script>
+ <meta name="generator" content="Hugo 0.74.3" />
+        
+        
+
+    
+    <link rel="apple-touch-icon" sizes="180x180" href="/img/favicon/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/img/favicon/favicon-16x16.png">
+    <link rel="manifest" href="/img/favicon/site.webmanifest">
+    <link rel="mask-icon" href="/img/favicon/safari-pinned-tab.svg" color="#000000">
+    <link rel="shortcut icon" href="/img/favicon/favicon.ico">
+    <meta name="msapplication-TileColor" content="#2b5797">
+    <meta name="msapplication-config" content="/img/favicon/browserconfig.xml">
+    <meta name="theme-color" content="#ffffff">
+    
+    
+    
+    <meta property="og:title" content="Linear Mixed Models via rstan">
+    <meta property="og:type" content="article">
+      
+      <meta name="twitter:card" content="summary">
+      <meta name="twitter:image" content="/favicon/android-chrome-192x192.png" >
+      
+    <meta property="description" content="">
+    <meta property="og:description" content="">
+    
+    <meta name="twitter:creator" content="">
+    <meta name="twitter:site" content="">
+    
+    </head>
+
+    
+    
+    <script type="text/javascript" async
+      src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+    </script>
+    
+
+    <body id = "bigbody">
+        <nav class="navbar navbar-default navbar-fixed-top">
+            <div class="container">
+                <div class="navbar-header">
+                    <a class="navbar-brand visible-xs" href="#">Linear Mixed Models via rstan</a>
+                    <button class="navbar-toggle" data-target=".navbar-collapse" data-toggle="collapse">
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                </div>
+                <div class="collapse navbar-collapse">
+                    
+                        <ul class="nav navbar-nav">
+                            
+                                <li><a href="/">Home</a></li>
+                            
+                                <li><a href="/post/">Blog</a></li>
+                            
+                                <li><a href="/tags/">Tags</a></li>
+                            
+                        </ul>
+                    
+                    
+                        <ul class="nav navbar-nav navbar-right">
+                            
+                                <li class="navbar-icon"><a href="https://github.com/owenqiz"><i class="fa fa-github"></i></a></li>
+                            
+                                <li class="navbar-icon"><a href="https://gitlab.com/owenqi"><i class="fa fa-gitlab"></i></a></li>
+                            
+                                <li class="navbar-icon"><a href="https://www.facebook.com/owenqiz"><i class="fa fa-facebook-f"></i></a></li>
+                            
+                                <li class="navbar-icon"><a href="https://www.linkedin.com/in/qi-zhang-10309993/"><i class="fa fa-linkedin"></i></a></li>
+                            
+                                <li class="navbar-icon"><a href="https://www.weibo.com/owenqi"><i class="fa fa-weibo"></i></a></li>
+                            
+                            <li id="night-mode-toggle">
+    <input type="checkbox" id = "button-status"
+        data-toggle="toggle"
+        data-width = "10"
+        data-height = "1"
+        data-on="<i class='fa fa-moon-o fa-lg' style='vertical-align:25%'></i>"
+        data-off= "<i class='fa fa-sun-o fa-lg' style='vertical-align:25%'></i>"
+        data-style="ios"
+        data-onstyle = "default">
+</li>
+                        </ul>
+                    
+                </div>
+            </div>
+        </nav>
+
+
+<main>
+
+    <div class="item">
+
+    
+    
+    
+
+    
+    
+      
+    
+
+    <h4><a href="/2020/08/30/linear-mixed-models-via-rstan/">Linear Mixed Models via rstan</a></h4>
+    <h5>August 30, 2020 - 6 minutes</h5>
+    <h5></h5>
+
+    
+
+        <a href="/categories/statistics">
+        <kbd class="item-cat"> Statistics </kbd>
+    </a>
+    
+    
+    <a href="/tags/r">
+        <kbd class="item-tag"> R </kbd>
+    </a>
+    
+
+</div>
+
+
+    <br> <div class="text-justify">
+
+
+
+<p>This post is a demonstration of fitting a Linear Mixed model (LMM) under Bayesian paradiagm. Linear mixed models are an extension of simple linear models to allow both fixed and random effects, and are particularly used when there is non independence in the data, such as longitudinal data.</p>
+<div id="prelimineray" class="section level2">
+<h2>1. Prelimineray</h2>
+<div id="formulation" class="section level3">
+<h3>Formulation</h3>
+<p>In simple linear model of <span class="math inline">\(n\)</span> observations, we have</p>
+<p><span class="math display">\[\begin{align}
+\boldsymbol{y}&amp;= \boldsymbol{X}\boldsymbol{\beta}+ \boldsymbol{\varepsilon}\\
+\boldsymbol{\varepsilon}&amp; \sim N(\boldsymbol{0}, \sigma^2 \boldsymbol{I})
+\end{align}\]</span></p>
+<p>where</p>
+<ul>
+<li><p><span class="math inline">\(\boldsymbol{y}= (y_1, \ldots, y_n)&#39;\)</span> is the response vector of <span class="math inline">\(n \times 1\)</span>;</p></li>
+<li><p><span class="math inline">\(\boldsymbol{X}\)</span> is the model matrix, with typical row <span class="math inline">\(\boldsymbol{x}_i = (x_{1i}, \ldots, x_{pi})\)</span> of <span class="math inline">\(n \times p\)</span> ;</p></li>
+<li><p><span class="math inline">\(\boldsymbol{\beta}= (\beta_1, \ldots, \beta_p)\)</span> is the vector of regression coefficients of <span class="math inline">\(p \times 1\)</span>;</p></li>
+<li><p><span class="math inline">\(\boldsymbol{\varepsilon}= (\varepsilon_1, \ldots, \varepsilon_n)\)</span> is the vector of errors of <span class="math inline">\(n \times 1\)</span>;</p></li>
+<li><p><span class="math inline">\(\boldsymbol{0}\)</span> is zero vector and <span class="math inline">\(\boldsymbol{I}\)</span> is the identity matrix dimension <span class="math inline">\(n\)</span>.</p></li>
+</ul>
+<p>In linear mixed models, we relaxes the constrain of independence and allow the so-called ``random effects’’ among subjects, and observations is a mixed of fixed and random effect. Hence the model becomes</p>
+<p><span class="math display">\[\begin{align}
+\boldsymbol{y}_i &amp;= \boldsymbol{X}_i\boldsymbol{\beta}+ \boldsymbol{Z}_i\boldsymbol{b}_i + \boldsymbol{\varepsilon}_i \\
+\boldsymbol{b}_i &amp;\sim N(\boldsymbol{0}, \boldsymbol{\Psi})\\
+\boldsymbol{\varepsilon}_i &amp; \sim N(\boldsymbol{0}, \sigma^2 \boldsymbol{\Lambda}_i)
+\end{align}\]</span></p>
+<p>where <span class="math inline">\(n_i\)</span> is the number of observation in subject (group) <span class="math inline">\(i\)</span> and <span class="math inline">\(J\)</span> is the number of distinct subjects,</p>
+<ul>
+<li><p><span class="math inline">\(\boldsymbol{y}_i\)</span> is the <span class="math inline">\(n_i \times 1\)</span> response vector for observations in the <span class="math inline">\(i\)</span> th subject.</p></li>
+<li><p><span class="math inline">\(\boldsymbol{X}_i\)</span> is the <span class="math inline">\(n_i \times p\)</span> model matrix for the fixed effects for observations in subject <span class="math inline">\(i\)</span>.</p></li>
+<li><p><span class="math inline">\(\beta\)</span> is the <span class="math inline">\(p \times 1\)</span> vector of fixed-effect coefficients.</p></li>
+<li><p><span class="math inline">\(\boldsymbol{Z}_i\)</span> is the <span class="math inline">\(n_i \times q\)</span> model matrix for the random effects for observations in subject <span class="math inline">\(i\)</span>.</p></li>
+<li><p><span class="math inline">\(b_i\)</span> is the <span class="math inline">\(J \times 1\)</span> vector of random-effect coefficients for subject <span class="math inline">\(i\)</span>.</p></li>
+<li><p><span class="math inline">\(\boldsymbol{\varepsilon}_i\)</span> is the <span class="math inline">\(n_i × 1\)</span> vector of errors for observations in subject <span class="math inline">\(i\)</span>.</p></li>
+<li><p><span class="math inline">\(\boldsymbol{\Psi}\)</span> is the <span class="math inline">\(J \times J\)</span> covariance matrix for the random effects.</p></li>
+<li><p><span class="math inline">\(\sigma^2\boldsymbol{\Lambda}_i\)</span> is the <span class="math inline">\(n_i \times n_i\)</span> covariance matrix for the errors in subject <span class="math inline">\(i\)</span>.</p></li>
+</ul>
+<p>In general, there are three common ways to estimate parameters,</p>
+<ol style="list-style-type: decimal">
+<li><p>Likelihood method, which may involved Restricted Maximum Likelihood for estimating the variance components. <code>lmer</code> package is used commonly.</p></li>
+<li><p>Generalized Estimating Equation which does NOT assume distribution of the response, <code>geepack</code> is prefered in general.</p></li>
+<li><p>Under Bayesian paradigm, it is easier to see LMM as a hierachical model structure, suppose for a varying-intercept, varying-slope model can be written as</p>
+<p><span class="math display">\[\begin{align}
+ Y_{ij} &amp;\sim N(\alpha_j + \beta_{j} \cdot x_{ij}, \sigma_y^2)\\
+ \alpha_j &amp;\sim N(\mu_\alpha, \sigma^2_{\alpha})\\
+ \beta_j &amp;\sim N(\mu_\beta, \sigma^2_{\beta})
+ \end{align}\]</span></p></li>
+</ol>
+</div>
+<div id="missing-data-and-rstan" class="section level3">
+<h3>Missing data and <code>rstan</code></h3>
+<p>There are many packages in <code>R</code> that are capable of performing Bayesian inferences. Traditionally, people prefer using <code>OpenBUG</code> or <code>JAGS</code>, which mainly use Gibss sampler for obtaining samples. However, for the growing size of the data and complexity of the model structure, Gibss sampler may not be that efficient. People nowdays pay more attention on a more effictive sampling technique called Hamiltonian Monte Carlo (HMC), <code>rstan</code> are able to perform HMC, but the default sampler is known as “No-U-Turn Sampler’’”, according to Hoffman and Gelman (2014), it is a upgraded method of HMC which “Adaptively Setting Path Lengths in HMC”.</p>
+<p>One advantage of <code>JAGS</code> over <code>rstan</code> is that <code>JAGS</code> can read <code>NA</code> value in input data and treat them as missing data automatically. But consider the performance between two different sampling methods, it may be worth exploring a little of handling missing data in <code>rstan</code>.</p>
+</div>
+</div>
+<div id="example-on-cd4" class="section level2">
+<h2>Example on CD4</h2>
+<p>In the following example, I will demonstrate fitting a LMM with missing data via <code>rstan</code> the data is obtaining from <a href="https://myweb.uiowa.edu/pbreheny/uk/teaching/701/data.html">Dr. Patrick Breheny’s Bayesian Modeling in Biostatistics</a>, according to the description, the data set contains repeated measurements on a sample of 251 children, each followed up for a period of one and a half years. In addition to CD4Pct, the data set also contains the following variables (I only include those I will use in the model):</p>
+<ul>
+<li><p><span class="math inline">\(\texttt{CD4Pct}\)</span>: The concentration CD4 Cells.</p></li>
+<li><p><span class="math inline">\(\texttt{ID}\)</span>: Each patient is assigned a unique ID. Note that there are several observations (rows)
+per patient.</p></li>
+<li><p><span class="math inline">\(\texttt{Visit}\)</span>: Ideally, patients were supposed to have visits at 1, 4, 7, 10, 13, 16, and 19 months,
+with 1 month being the initial visit. As is always the case in hospital data like this, the
+“16-month” visit did not take place exactly 15 months after the “1-month” visit, but
+Visit provides a rough approximation to the elapsed time between visits. Note that not
+all patients have an observation for each visit.</p></li>
+</ul>
+<p>According to the EDA, we find that the <span class="math inline">\(\texttt{CD4Pct}\)</span> itself does NOT follow a normal distrubtion but the square root transformation will be solving this problem, hence we will use <span class="math inline">\(Y_{ij} = \sqrt{\texttt{CD4Pct}_{ij}}\)</span> be response.</p>
+<p>First we read and manipulate the data</p>
+<pre class="r"><code>library(dplyr)
+
+cd4 &lt;- read.delim(&quot;data/cd4.txt&quot;, header = TRUE)
+n_obs &lt;- nrow(cd4)
+
+J &lt;- max(cd4$ID)
+x &lt;- seq(from = 1, by = 3, length.out = 7)
+df &lt;- tibble(id = rep(1:J, each = 7), visit = rep(x, J))
+
+cd4 &lt;- cd4 %&gt;% select(id = ID, visit = Visit, CD4Pct) %&gt;% 
+               right_join(df, by = c(&#39;id&#39;, &#39;visit&#39;)) %&gt;% 
+               mutate(y = sqrt(CD4Pct))
+
+n &lt;- nrow(cd4)                  
+
+cd4_data &lt;- list(N = n, N_obs = n_obs, y_obs = cd4$y[1:n_obs], visit = cd4$visit, id = cd4$id, J = J)</code></pre>
+<p>We consider a varying-intercept varying-slope model, we save the model in a <code>stan</code> file named <code>cd4.stan</code>, detail of the model is as follows,</p>
+<pre class="stan"><code>data {
+  int&lt;lower=0&gt; N;
+  int&lt;lower=0&gt; N_obs;
+  int&lt;lower=0&gt; J;
+  vector[N_obs] y_obs;
+  int visit[N];
+  int&lt;lower=1, upper=J&gt; id[N];
+}
+
+transformed data{
+  int N_miss = N - N_obs;
+}
+
+parameters {
+  vector[N_miss] y_miss;
+  
+  vector[J] alpha;
+  vector[J] beta;
+  
+  real&lt;lower=0&gt; sigma_y;
+  real&lt;lower=0&gt; sigma_a;
+  real&lt;lower=0&gt; sigma_b;
+  
+  real mu_a;
+  real mu_b;
+}
+
+transformed parameters{
+  vector[N] mu;
+  vector[N_obs] mu_obs;
+  vector[N_miss] mu_miss;
+  
+  for(i in 1:N)
+    mu[i] = alpha[id[i]] + beta[id[i]] * visit[i];
+  
+  mu_obs = head(mu, N_obs);
+  mu_miss = tail(mu, N_miss); 
+}
+
+model {
+  mu_a ~ normal(0, 100);
+  mu_b ~ normal(0, 100);
+  
+  sigma_y ~ uniform(0, 100);
+  sigma_a ~ uniform(0, 100);
+  sigma_b ~ uniform(0, 100);
+  
+  for(j in 1:J){
+    alpha[j] ~ normal(mu_a, sigma_a);
+    beta[j] ~ normal(mu_b, sigma_b);
+  }
+  
+  y_obs ~ normal(mu_obs, sigma_y);
+  y_miss ~ normal(mu_miss, sigma_y);
+}
+</code></pre>
+<pre class="r"><code>library(rstan)
+# allow mutli core running at the same time to accerlate fitting process
+options(mc.cores = 3)
+
+fit &lt;- stan(file=&#39;cd4.stan&#39;, data = cd4_data, chains = 3,
+           iter = 2500, warmup = 2000, refresh = 1000, save_warmup = FALSE)</code></pre>
+<p>This will takes some time to compile the model and fitting MCMCs. This example takes about 45 second on my desktop. Once the fitting is done, we may extract the posterior samples and performing related analyses.</p>
+<p>For example, we want to see the the prediction of missing response for <code>ID = 18</code>, also, we want to see the posterior distribution of the variance parameter <span class="math inline">\(\lbrace \sigma_y, \sigma_a, \sigma_b \rbrace\)</span> by difference chains. The result can be plotted either by some built-in <code>rstan</code> function or a more flexible package called <code>bayesplot</code>.</p>
+<pre class="r"><code>idx &lt;- which(cd4_data$id == 18)
+idx[idx &gt; cd4_data$N_obs] - cd4_data$N_obs
+
+# position of y_miss for ID = 18
+y18 &lt;- extract(fit, pars = c(&#39;y_miss[38]&#39;, &#39;y_miss[39]&#39;))
+# permuted = FALSE, then will save data by chain
+sigmas &lt;- extract(fit, pars = c(&#39;sigma_y&#39;, &#39;sigma_a&#39;, &#39;sigma_b&#39;), permuted = FALSE)
+
+id18 &lt;- tibble(t16 = post_param$`y_miss[38]`, t19 = post_param$`y_miss[39]`)
+id18 &lt;- id18 %&gt;% mutate(cd4t16 = t16^2, cd4t19 = t19^2)</code></pre>
+<pre class="r"><code>library(bayesplot)
+
+mcmc_areas(id18, 
+  pars = c(&#39;cd4t16&#39;, &#39;cd4t19&#39;),
+  prob = 0.9, # 90% intervals
+  prob_outer = 0.95, # 99%
+  point_est = &quot;mean&quot;
+)</code></pre>
+<p><img src="/post/2020-08-30-linear-mixed-models-via-rstan_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
+<pre class="r"><code>mcmc_dens_overlay(sigmas, pars = c(&#39;sigma_y&#39;, &#39;sigma_a&#39;, &#39;sigma_b&#39;))</code></pre>
+<p><img src="/post/2020-08-30-linear-mixed-models-via-rstan_files/figure-html/unnamed-chunk-6-2.png" width="672" /></p>
+</div>
+<div id="references" class="section level2">
+<h2>References:</h2>
+<ol style="list-style-type: decimal">
+<li><p>Hoffman, M. D., &amp; Gelman, A. (2014). The No-U-Turn sampler: adaptively setting path lengths in Hamiltonian Monte Carlo. J. Mach. Learn. Res., 15(1), 1593-1623.</p></li>
+<li><p><a href="https://mc-stan.org/docs/2_24/stan-users-guide/missing-data.html">Stan User Guide</a></p></li>
+<li><p><a href="https://mc-stan.org/bayesplot/">bayesplot documentation</a></p></li>
+</ol>
+</div>
+</div>
+
+    
+    
+
+    
+
+        <h4 class="page-header">Related</h4>
+
+         <div class="item">
+
+    
+    
+    
+
+    
+    
+      
+    
+
+    <h4><a href="/2020/04/10/saving-simple-features-sf-as-rds/">Saving Simple Features (sf) as RDS</a></h4>
+    <h5>April 10, 2020 - 1 minutes</h5>
+    <h5></h5>
+
+    
+
+        <a href="/categories/miscellaneous">
+        <kbd class="item-cat"> Miscellaneous </kbd>
+    </a>
+    
+    
+    <a href="/tags/r">
+        <kbd class="item-tag"> R </kbd>
+    </a>
+    
+
+</div>
+  <div class="item">
+
+    
+    
+    
+
+    
+    
+      
+    
+
+    <h4><a href="/2020/03/31/covid-19-in-quebec/">COVID-19 in Quebec</a></h4>
+    <h5>March 31, 2020 - 7 minutes</h5>
+    <h5></h5>
+
+    
+
+        <a href="/categories/statistics">
+        <kbd class="item-cat"> Statistics </kbd>
+    </a>
+    
+    
+    <a href="/tags/r">
+        <kbd class="item-tag"> R </kbd>
+    </a>
+    
+    <a href="/tags/ggplot2">
+        <kbd class="item-tag"> ggplot2 </kbd>
+    </a>
+    
+
+</div>
+  <div class="item">
+
+    
+    
+    
+
+    
+    
+      
+    
+
+    <h4><a href="/2019/11/25/estimating-scale-and-correlation-parameters-for-gee/">Estimating scale and correlation parameters for GEE</a></h4>
+    <h5>November 25, 2019 - 4 minutes</h5>
+    <h5></h5>
+
+    
+
+        <a href="/categories/statistics">
+        <kbd class="item-cat"> Statistics </kbd>
+    </a>
+    
+    
+    <a href="/tags/r">
+        <kbd class="item-tag"> R </kbd>
+    </a>
+    
+
+</div>
+ 
+
+    
+
+    
+
+</main>
+
+        <footer id = "bigfooter">
+            <div style = "padding:15px;">
+                <p>&copy owenqi 2020 </p>
+                <p>Powered by <a href="https://gohugo.io">Hugo</a>. Themed by <a href="https://github.com/nathancday/min_night">min_night</a>.
+                </p>
+                <a rel="license" href="https://creativecommons.org/licenses/by/4.0/"
+                title="Creative Commons Attribution 4.0 International license">
+                <i class="fa fa-creative-commons" aria-hidden="true"></i> Attribution 4.0 International license
+                </a>
+            </div>
+        </footer>
+        
+        <script async src="https://www.googletagmanager.com/gtag/js?id="></script>
+        <script>
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments)};
+          gtag('js', new Date());
+          gtag('config', '');
+        </script>
+       
+    </body>
+
+</html>
+

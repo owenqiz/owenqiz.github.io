@@ -6,7 +6,7 @@
     <description>Recent content on owenqi</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Fri, 10 Apr 2020 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Sun, 30 Aug 2020 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/index.xml" rel="self" type="application/rss+xml" />
     
@@ -30,6 +30,17 @@
     </item>
     
     <item>
+      <title>Linear Mixed Models via rstan</title>
+      <link>/2020/08/30/linear-mixed-models-via-rstan/</link>
+      <pubDate>Sun, 30 Aug 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/2020/08/30/linear-mixed-models-via-rstan/</guid>
+      <description>This post is a demonstration of fitting a Linear Mixed model (LMM) under Bayesian paradiagm. Linear mixed models are an extension of simple linear models to allow both fixed and random effects, and are particularly used when there is non independence in the data, such as longitudinal data.
+1. PreliminerayFormulationIn simple linear model of \(n\) observations, we have
+\[\begin{align}\boldsymbol{y}&amp;amp;= \boldsymbol{X}\boldsymbol{\beta}+ \boldsymbol{\varepsilon}\\\boldsymbol{\varepsilon}&amp;amp; \sim N(\boldsymbol{0}, \sigma^2 \boldsymbol{I})\end{align}\]</description>
+    </item>
+    
+    <item>
       <title>Saving Simple Features (sf) as RDS</title>
       <link>/2020/04/10/saving-simple-features-sf-as-rds/</link>
       <pubDate>Fri, 10 Apr 2020 00:00:00 +0000</pubDate>
@@ -45,8 +56,8 @@ By saving into a single rds, it is easy to read and store. I use Montreal map as
       <pubDate>Tue, 31 Mar 2020 00:00:00 +0000</pubDate>
       
       <guid>/2020/03/31/covid-19-in-quebec/</guid>
-      <description>As the current COVID-19 situation in Canada, I am also forced to work from home. During the weekend, I try to learn some stuff for fun. This post will illustrate the map reflecting the COVID-19 count in Quebec.
-To obtain the data, we first scrape the information from the goverment’s website Quebec.ca, who provides daily updates upto the Administrative Region level. This time I will use rvest to grab the information.</description>
+      <description>Part 1, Written in MarchDue to my inexperience in maintaining Blogs via Github pages, each time I post a new post, the whole site will be rendered completely, some of my functions are not longer working due to the update format of the website, but I still leave this post as a note for my studies.
+As the current COVID-19 situation in Canada, I am also forced to work from home.</description>
     </item>
     
     <item>

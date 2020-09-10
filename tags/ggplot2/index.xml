@@ -17,8 +17,8 @@
       <pubDate>Tue, 31 Mar 2020 00:00:00 +0000</pubDate>
       
       <guid>/2020/03/31/covid-19-in-quebec/</guid>
-      <description>As the current COVID-19 situation in Canada, I am also forced to work from home. During the weekend, I try to learn some stuff for fun. This post will illustrate the map reflecting the COVID-19 count in Quebec.
-To obtain the data, we first scrape the information from the goverment’s website Quebec.ca, who provides daily updates upto the Administrative Region level. This time I will use rvest to grab the information.</description>
+      <description>Part 1, Written in MarchDue to my inexperience in maintaining Blogs via Github pages, each time I post a new post, the whole site will be rendered completely, some of my functions are not longer working due to the update format of the website, but I still leave this post as a note for my studies.
+As the current COVID-19 situation in Canada, I am also forced to work from home.</description>
     </item>
     
     <item>

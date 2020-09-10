@@ -94,7 +94,7 @@ $(document).ready(function(){
   })
 });
 </script>
- <meta name="generator" content="Hugo 0.68.3" />
+ <meta name="generator" content="Hugo 0.74.3" />
         
         
 
@@ -239,13 +239,13 @@ with <span class="math inline">\(t_{ij} = 8\)</span> if <span class="math inline
 \alpha &amp; \alpha &amp; \alpha &amp; 1 &amp; \alpha\\
 \alpha &amp; \alpha &amp; \alpha &amp; \alpha &amp; 1\\
 \end{array}\end{bmatrix}\]</span></p>
-<p>And we consider <span class="math inline">\(p = 2\)</span> covariates,</p>
 <pre class="r"><code>library(MASS)
 library(geepack)
 
 seizure &lt;- read.csv(&quot;data/seizure.csv&quot;,header=T)
 
 new_id &lt;- c(1,diff(seizure$subject))
+seizure$trt &lt;- as.numeric(as.factor(seizure$trt))
 
 y &lt;- num_of_seizure &lt;- c(seizure$base[new_id==1],seizure$y)
 id &lt;- c(unique(seizure$subject),seizure$subject)
@@ -320,7 +320,7 @@ tmp &lt;- seizure %&gt;% group_by(id) %&gt;% summarize(num = sum(outer(res, res)
 (alpha &lt;- sum(tmp$num)/sum(tmp$den)/phi)</code></pre>
 <pre><code>## [1] 0.7765117</code></pre>
 <p>The output is the same as the <code>geese</code> function from <code>geepack</code> package.</p>
-<p>However, there is only one thing I am not sure, in this case <span class="math inline">\(p = 2\)</span>. However, the result I got is setting <span class="math inline">\(p = 0\)</span>.</p>
+<p>One thing is that although we have <span class="math inline">\(x_1, x_2\)</span>, because of the formation, we may treated <span class="math inline">\(p = 0\)</span>.</p>
 <div id="reference" class="section level2">
 <h2>Reference</h2>
 <ol style="list-style-type: decimal">
@@ -338,6 +338,34 @@ tmp &lt;- seizure %&gt;% group_by(id) %&gt;% summarize(num = sum(outer(res, res)
         <h4 class="page-header">Related</h4>
 
          <div class="item">
+
+    
+    
+    
+
+    
+    
+      
+    
+
+    <h4><a href="/2020/08/30/linear-mixed-models-via-rstan/">Linear Mixed Models via rstan</a></h4>
+    <h5>August 30, 2020 - 6 minutes</h5>
+    <h5></h5>
+
+    
+
+        <a href="/categories/statistics">
+        <kbd class="item-cat"> Statistics </kbd>
+    </a>
+    
+    
+    <a href="/tags/r">
+        <kbd class="item-tag"> R </kbd>
+    </a>
+    
+
+</div>
+  <div class="item">
 
     
     
@@ -377,39 +405,7 @@ tmp &lt;- seizure %&gt;% group_by(id) %&gt;% summarize(num = sum(outer(res, res)
     
 
     <h4><a href="/2020/03/31/covid-19-in-quebec/">COVID-19 in Quebec</a></h4>
-    <h5>March 31, 2020 - 5 minutes</h5>
-    <h5></h5>
-
-    
-
-        <a href="/categories/statistics">
-        <kbd class="item-cat"> Statistics </kbd>
-    </a>
-    
-    
-    <a href="/tags/r">
-        <kbd class="item-tag"> R </kbd>
-    </a>
-    
-    <a href="/tags/ggplot2">
-        <kbd class="item-tag"> ggplot2 </kbd>
-    </a>
-    
-
-</div>
-  <div class="item">
-
-    
-    
-    
-
-    
-    
-      
-    
-
-    <h4><a href="/2019/07/05/bangladesh-ground-arsenic-with-r/">Bangladesh Ground Arsenic with R</a></h4>
-    <h5>July 5, 2019 - 3 minutes</h5>
+    <h5>March 31, 2020 - 7 minutes</h5>
     <h5></h5>
 
     
