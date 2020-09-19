@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>Estimating scale and correlation parameters for GEE</title>
+        <title>COVID-19 in Montreal</title>
         <style>
 
     html body {
@@ -111,7 +111,7 @@ $(document).ready(function(){
     
     
     
-    <meta property="og:title" content="Estimating scale and correlation parameters for GEE">
+    <meta property="og:title" content="COVID-19 in Montreal">
     <meta property="og:type" content="article">
       
       <meta name="twitter:card" content="summary">
@@ -136,7 +136,7 @@ $(document).ready(function(){
         <nav class="navbar navbar-default navbar-fixed-top">
             <div class="container">
                 <div class="navbar-header">
-                    <a class="navbar-brand visible-xs" href="#">Estimating scale and correlation parameters for GEE</a>
+                    <a class="navbar-brand visible-xs" href="#">COVID-19 in Montreal</a>
                     <button class="navbar-toggle" data-target=".navbar-collapse" data-toggle="collapse">
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>
@@ -198,8 +198,8 @@ $(document).ready(function(){
       
     
 
-    <h4><a href="/2019/11/25/estimating-scale-and-correlation-parameters-for-gee/">Estimating scale and correlation parameters for GEE</a></h4>
-    <h5>November 25, 2019 - 4 minutes</h5>
+    <h4><a href="/2020/09/19/covid-19-in-montreal/">COVID-19 in Montreal</a></h4>
+    <h5>September 19, 2020 - 3 minutes</h5>
     <h5></h5>
 
     
@@ -220,114 +220,134 @@ $(document).ready(function(){
     <br> <div class="text-justify">
 
 
-<p>This is a recall for some of what I have learned in 2018, Fall. Back then, the main focus was on Bayesian models. A friend asked me a question few days ago on estimating the parameters related to Generalized Estimating Equation (GEE). In general, this can be comfortably handeled by the <code>R</code> package such as <code>geepack</code>, but she wanted to know the exact estimation procedures. Hence, I review some of my materials, and a book recommended by my colleague which will be referenced in the end.</p>
-<p>The estimation is proposed in Liang &amp; Zeger (1986), and I found something not that clear for me in the first place and I consult for a very nice book written by Hardin &amp; Hilbe (2013), which gave a more fridenly explaination.</p>
-<p>I will illustrate this using a seizure data example. Data on seizures were collected on 59 epileptics, i.e. subject <span class="math inline">\(i = \lbrace 1, \ldots, 59 \rbrace\)</span>. For each patient the no. of seizures were recorded during a baseline period of 8 weeks, after which patients were randomized to treatment with the drug progabide or to placebo. The no. of seizures was then recorded in 4 consecutive 2-week periods, i.e. <span class="math inline">\(n_i = 5, \forall i\)</span>. Patient age was also available. Let
-<span class="math display">\[\begin{align*}
-Y_{ij} &amp;= \text{number of seizuires on patitent } i \text{ at occation }j\\
-t_{ij} &amp;= \text{length of observation period on patient } i \text{ at occation } j\\ 
-x_{i1} &amp;= 0/1 \text{ if patient } i \text{ was assigned placebo/progabibe}\\
-x_{ij2} &amp;= 0/1 \text{ if } j = 0/1,2,3,4
-\end{align*}\]</span>
-with <span class="math inline">\(t_{ij} = 8\)</span> if <span class="math inline">\(j = 0\)</span> and <span class="math inline">\(t_{ij} =2\)</span> if <span class="math inline">\(j \geq 1, \forall i\)</span>. The total number of observation is <span class="math inline">\(N = 59 \times 5 = 295\)</span>.</p>
-<p>For this data, we have</p>
-<p>The standard way as mentioned previously is to use the <code>geepack</code> package to run the model given data. Here we assume a exchangeable correlation structures, i.e.</p>
-<p><span class="math display">\[R(\alpha) = \begin{bmatrix}\begin{array}{ccccc}
-1 &amp; \alpha &amp; \alpha &amp; \alpha &amp; \alpha\\
-\alpha &amp; 1 &amp; \alpha &amp; \alpha &amp; \alpha\\
-\alpha &amp; \alpha &amp; 1&amp; \alpha &amp; \alpha\\
-\alpha &amp; \alpha &amp; \alpha &amp; 1 &amp; \alpha\\
-\alpha &amp; \alpha &amp; \alpha &amp; \alpha &amp; 1\\
-\end{array}\end{bmatrix}\]</span></p>
-<pre class="r"><code>library(MASS)
-library(geepack)
+<p>This post is an analysis of the COVID-19 situation in Montreal demonstrated in Shiny Apps.</p>
+<p>Historical data are downloaded from <a href="https://github.com/fredericharnois/covid19-par-arrondissements-montreal/tree/master/data">Frederic Harnois’s Github repository</a>.</p>
+<iframe height="800" width="100%" frameborder="no" src="https://owenqi.shinyapps.io/cvmtl_wk/">
+</iframe>
+<p>The new data can either downloaded from his Github repo or scraping from <a href="https://santemontreal.qc.ca/population/coronavirus-covid-19/situation-du-coronavirus-covid-19-a-montreal/">Santé Montréal</a>. An example code is as follows,</p>
+<pre class="r"><code>library(rvest)
+library(dplyr)
+library(stringr)
 
-seizure &lt;- read.csv(&quot;data/seizure.csv&quot;,header=T)
+url &lt;- &#39;https://santemontreal.qc.ca/population/coronavirus-covid-19/situation-du-coronavirus-covid-19-a-montreal/&#39;
 
-new_id &lt;- c(1,diff(seizure$subject))
-seizure$trt &lt;- as.numeric(as.factor(seizure$trt))
+file_name &lt;- paste0(&#39;data/&#39;, Sys.Date() - 1, &#39;.csv&#39;)
 
-y &lt;- num_of_seizure &lt;- c(seizure$base[new_id==1],seizure$y)
-id &lt;- c(unique(seizure$subject),seizure$subject)
-t &lt;- c(rep(8,length(unique(seizure$subject))),rep(2,length(seizure$subject)))
-x1 &lt;- c(seizure$trt[new_id==1],seizure$trt)-1
-x2 &lt;- c(rep(0,sum(new_id)),rep(1,59*4))
+tbl &lt;- read_html(url) %&gt;% 
+       html_nodes(&quot;table&quot;) %&gt;%
+       html_table() %&gt;%
+       .[[4]] %&gt;%
+       select(1:2) %&gt;%
+       rename(&#39;Arrondissements&#39; = 1, &#39;Cas Confirmés&#39; = 2) %&gt;%
+       mutate(&#39;Cas Confirmés&#39; = str_replace_all(.[[2]], &#39; &#39;, &#39;&#39;))
 
-seizure &lt;- data.frame(id=id,y=y,x1=x1,x2=x2,t=t)
-seizure &lt;- seizure[order(seizure$id),]  
+tbl[34, 1] &lt;- &#39;Territoire à confirmer&#39;
 
-fit &lt;- geese(y~x1*x2+offset(log(t)),id=id,
-             corstr=&quot;exchangeable&quot;,
-             family=&quot;poisson&quot;,data=seizure)
+readr::write_csv(tbl, path = file_name)</code></pre>
+<p>The data contains the name of the sub-regions (Arrondissements) and confirmed cases, the file name is the date of the data. To show the weekly cases, we first have to manipulated the data. We first merge the data by date then subtract daily confirmed cases to the previous day, which will turn into daily increase cases. And finally, we aggregated them by weeks.</p>
+<p>One thing may be notice that, after making subtractions, for some date, the increase is negative, I assume that this is some mis-reporting of the previous day. To simplify this, I just make negative cases into 0. But the real problem of negative cases should go further investigate.</p>
+<pre class="r"><code>library(readr)
+library(purrr)
+library(dplyr)
+library(tibble)
+library(tidyr)
+library(fs)
 
-summary(fit)</code></pre>
-<pre><code>## 
-## Call:
-## geese(formula = y ~ x1 * x2 + offset(log(t)), id = id, data = seizure, 
-##     family = &quot;poisson&quot;, corstr = &quot;exchangeable&quot;)
-## 
-## Mean Model:
-##  Mean Link:                 log 
-##  Variance to Mean Relation: poisson 
-## 
-##  Coefficients:
-##                estimate    san.se        wald         p
-## (Intercept)  1.34760922 0.1573571 73.34238067 0.0000000
-## x1           0.02651461 0.2218539  0.01428355 0.9048683
-## x2           0.10871914 0.1156491  0.88374536 0.3471779
-## x1:x2       -0.10160167 0.2133655  0.22675324 0.6339418
-## 
-## Scale Model:
-##  Scale Link:                identity 
-## 
-##  Estimated Scale Parameters:
-##             estimate   san.se     wald          p
-## (Intercept) 19.42418 8.699135 4.985779 0.02555648
-## 
-## Correlation Model:
-##  Correlation Structure:     exchangeable 
-##  Correlation Link:          identity 
-## 
-##  Estimated Correlation Parameters:
-##        estimate     san.se     wald p
-## alpha 0.7765117 0.07534162 106.2248 0
-## 
-## Returned Error Value:    0 
-## Number of clusters:   59   Maximum cluster size: 5</code></pre>
-<p>Now you can see that the point estimate of scale parameter <span class="math inline">\(\hat{\phi} = 19.424\)</span> and the correlation parameter <span class="math inline">\(\hat{\alpha} = 0.777\)</span>.</p>
-<p>According to Liang &amp; Zeger (1986) and Hardin and Hilbe (2013). A GEE with an exchageable correlation structure uses the estimated Pearson residuals (<span class="math inline">\(\hat{r}_{ij}\)</span>) from the current fit of the model to estimate the parameters <span class="math inline">\(\phi, \alpha\)</span>, where</p>
-<p><span class="math display">\[\begin{align}
-\hat{r}_{ij} &amp; = \dfrac{Y_{ij} - \hat{\mu}_{ij}}{\sqrt{\mathrm{Var}(\hat{\mu}_{ij})}} \\
+data_dir &lt;- &quot;mtl_data&quot;      # path to folder that holds multiple .csv files
+csv_files &lt;- dir_ls(data_dir, regexp = &quot;\\.csv$&quot;)
 
-\hat{\phi} &amp;= \dfrac{1}{N-p}\sum_{i = 1}^{K}\sum_{j = 1}^{n_i}\hat{r}_{ij}^2\\
+data &lt;- list()
 
-\hat{\alpha} &amp;= \dfrac{1}{\hat{\phi}}\sum_{i = 1}^{K}\left(\dfrac{\sum_{j = 1}^{n_i}\sum_{k = 1}^{n_i}\hat{r}_{ij}\hat{r}_{ik} - \sum_{j = 1}^{n_i}\hat{r}_{ij}^2}{n_i(n_i-1)}\right) 
-\end{align}\]</span></p>
-<p>To compute these two parameters esitmates, first, we have to obtain the Pearson’s residuals under Poisson model. Recall that for the Poisson model, mean and variance are equal, hence the Pearson residuals can be re-written as</p>
-<p><span class="math display">\[\hat{r}_{ij}  = \dfrac{Y_{ij} - \hat{\mu}_{ij}}{\sqrt{\mathrm{Var}(\hat{\mu}_{ij})}} = \dfrac{Y_{ij} - \hat{\mu}_{ij}}{\sqrt{\hat{\mu}_{ij}}}\]</span>
-And the rest is straightfoward, not that since <span class="math inline">\(n_i = 5, \forall i \Rightarrow n_i(n_i-1) = 20, \forall i\)</span> as well.</p>
-<pre class="r"><code>fit2 &lt;- glm(y~x1*x2+offset(log(t)), family = &#39;poisson&#39;, data = seizure)
+for(i in 1:length(csv_files))
+  data[[i]] &lt;- read_csv(csv_files[i])
 
-N &lt;- nrow(seizure)
+name &lt;- tibble(data[[1]][,1]) %&gt;% slice(-(n()-1), -n())
 
-# Pearson residuals under Poisson model
-seizure$res &lt;- (seizure$y - fit2$fitted.values)/sqrt(fit2$fitted.values)
-(phi &lt;- sum(seizure$res^2)/N)</code></pre>
-<pre><code>## [1] 19.42418</code></pre>
+# extract data and convert to numeric
+data &lt;- map(data, 2) %&gt;% 
+        bind_cols() %&gt;% 
+        mutate_all( ~ stringr::str_replace(., &quot;&lt;&quot;, &quot;&quot;)) %&gt;%
+        mutate_all(as.numeric) %&gt;% 
+        slice(-(n()-1), -n())
+
+# convert cumulated data to daily increase
+daily_inc &lt;- t(apply(data, 1, &#39;diff&#39;))
+daily_inc[daily_inc &lt; 0] &lt;- 0
+daily_inc &lt;- cbind(data[,1], daily_inc)
+
+date &lt;- c(stringr::str_remove_all(csv_files, pattern = c(&#39;mtl_data/|.csv&#39;)))
+week &lt;- format(as.Date(date, format = &#39;%Y-%m-%d&#39;), format=&quot;%W&quot;)
+
+# merge daily data and rename column
+cvmtl_inc &lt;- bind_cols(name, daily_inc)
+colnames(cvmtl_inc) &lt;- c(&#39;name&#39;, date)
+
+# aggregation by week
+date_week &lt;- tibble(date, week)
+
+# map_idx
+NUM &lt;- c(24, 9, 71, 7, 27, 72, 11, 1, 10, 3,
+         17, 18, 6, 23, 74, 16, 75, 2, 5, 13,
+         22, 8, 19, 25, 76, 15, 14, 77, 21, 12,
+         20, 26, 4)
+
+cvmtl_week &lt;- cvmtl_inc %&gt;% 
+              pivot_longer(starts_with(&#39;2020&#39;), names_to = &#39;date&#39;, values_to = &#39;cases&#39;) %&gt;%
+              left_join(date_week) %&gt;% 
+              group_by(name, week) %&gt;% 
+              summarise(total = sum(cases)) %&gt;%
+              pivot_wider(names_from = &#39;week&#39;, values_from = &#39;total&#39;) %&gt;% 
+              add_column(NUM, .after = &#39;name&#39;) %&gt;%
+              add_column(&#39;30&#39; = NA, .after = &#39;29&#39;)  # no data in week 30</code></pre>
+<p>In terms of the demonstration in Shiny Apps, there are three components, User Interface (UI), Server and shinyApp, for simplicity I put all three in one file. This may be improve by reactive function in the future.</p>
 <pre class="r"><code>library(dplyr)
+library(sf)
+library(tmap)
 
-tmp &lt;- seizure %&gt;% group_by(id) %&gt;% summarize(num = sum(outer(res, res)) - sum(res^2), den = 20)
-(alpha &lt;- sum(tmp$num)/sum(tmp$den)/phi)</code></pre>
-<pre><code>## [1] 0.7765117</code></pre>
-<p>The output is the same as the <code>geese</code> function from <code>geepack</code> package.</p>
-<p>One thing is that although we have <span class="math inline">\(x_1, x_2\)</span>, because of the formation, we may treated <span class="math inline">\(p = 0\)</span>.</p>
-<div id="reference" class="section level2">
-<h2>Reference</h2>
-<ol style="list-style-type: decimal">
-<li><p>Liang, K. Y., &amp; Zeger, S. L. (1986). Longitudinal data analysis using generalized linear models. Biometrika, 73(1), 13-22.</p></li>
-<li><p>Hardin, J., &amp; Hilbe, J. (2013). Generalized Estimating Equations (Second).</p></li>
-</ol>
-</div>
+load(&#39;cvmtl_week.rda&#39;)
+mtl &lt;- read_sf(&quot;mtl.rds&quot;)
+mtl &lt;- mtl %&gt;% select(NUM) %&gt;% left_join(cvmtl_week) %&gt;% select(-NUM)
+week_range &lt;- range(as.numeric(colnames(cvmtl_week[,-c(1,2)])))
+
+ui &lt;- fluidPage(
+  
+  titlePanel(&quot;COVID-19 in Montreal by Weeks&quot;),
+  
+  sidebarLayout(
+    
+    sidebarPanel(
+      
+      sliderInput(inputId = &#39;week&#39;, 
+                  label = h3(&quot;Weeks&quot;), 
+                  min = week_range[1], 
+                  max = week_range[2],
+                  value = week_range[2], 
+                  animate = TRUE),
+      
+      hr(),
+      helpText(paste(&#39;Starting from lastest data availabe: 2020-09-17 (Week 37)&#39;))
+    ),
+    
+    mainPanel(
+      tmapOutput(&quot;cvmtl_map&quot;)
+    )
+  )
+  
+)
+
+server&lt;-function(input, output) {
+  
+  output$cvmtl_map &lt;- renderTmap({
+    tm_shape(mtl) +  tm_polygons(as.character(input$week), title = &quot;Cases&quot;, 
+                                   style = &quot;pretty&quot;,
+                                   legend.reverse = TRUE,
+    ) +
+      tm_layout(aes.palette = list(seq = &quot;-viridis&quot;))
+  }) 
+}
+
+shinyApp(ui = ui, server = server)</code></pre>
+<p>I use a free ShinyApps account, active hour may be limited to 25 hours per month.</p>
 </div>
 
     
@@ -338,34 +358,6 @@ tmp &lt;- seizure %&gt;% group_by(id) %&gt;% summarize(num = sum(outer(res, res)
         <h4 class="page-header">Related</h4>
 
          <div class="item">
-
-    
-    
-    
-
-    
-    
-      
-    
-
-    <h4><a href="/2020/09/19/covid-19-in-montreal/">COVID-19 in Montreal</a></h4>
-    <h5>September 19, 2020 - 3 minutes</h5>
-    <h5></h5>
-
-    
-
-        <a href="/categories/statistics">
-        <kbd class="item-cat"> Statistics </kbd>
-    </a>
-    
-    
-    <a href="/tags/r">
-        <kbd class="item-tag"> R </kbd>
-    </a>
-    
-
-</div>
-  <div class="item">
 
     
     
@@ -417,6 +409,38 @@ tmp &lt;- seizure %&gt;% group_by(id) %&gt;% summarize(num = sum(outer(res, res)
     
     <a href="/tags/r">
         <kbd class="item-tag"> R </kbd>
+    </a>
+    
+
+</div>
+  <div class="item">
+
+    
+    
+    
+
+    
+    
+      
+    
+
+    <h4><a href="/2020/03/31/covid-19-in-quebec/">COVID-19 in Quebec</a></h4>
+    <h5>March 31, 2020 - 7 minutes</h5>
+    <h5></h5>
+
+    
+
+        <a href="/categories/statistics">
+        <kbd class="item-cat"> Statistics </kbd>
+    </a>
+    
+    
+    <a href="/tags/r">
+        <kbd class="item-tag"> R </kbd>
+    </a>
+    
+    <a href="/tags/ggplot2">
+        <kbd class="item-tag"> ggplot2 </kbd>
     </a>
     
 

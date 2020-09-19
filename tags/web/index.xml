@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Web on owenqi</title>
+    <link>/tags/web/</link>
+    <description>Recent content in Web on owenqi</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Tue, 07 Jan 2020 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="/tags/web/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>How to embed a Shiny app in blogdown</title>
+      <link>/2020/01/07/how-to-embed-a-shiny-app-in-blogdown/</link>
+      <pubDate>Tue, 07 Jan 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/2020/01/07/how-to-embed-a-shiny-app-in-blogdown/</guid>
+      <description>Photo by Émile Perron
+If you have developed and deployed a Shiny app and would like to embed it in blogdown, follow these steps:
+create a new post as usualadd runtime: shiny (and output: html_document if it is not already included) in the YAML metadatainsert the following HTML code in the body of the post:&amp;lt;iframe height=&amp;quot;800&amp;quot; width=&amp;quot;100%&amp;quot; frameborder=&amp;quot;no&amp;quot; src=&amp;quot;https://antoinesoetewey.shinyapps.io/statistics-201/&amp;quot;&amp;gt; &amp;lt;/iframe&amp;gt;You should change the URL with the URL of your deployed Shiny app (after src=, do not forget that the URL should start with http:// or https:// and should be surrounded by &#34;</description>
+    </item>
+    
+  </channel>
+</rss>

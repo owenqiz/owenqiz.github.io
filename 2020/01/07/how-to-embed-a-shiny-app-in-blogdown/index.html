@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>Categories</title>
+        <title>How to embed a Shiny app in blogdown</title>
         <style>
 
     html body {
@@ -96,9 +96,6 @@ $(document).ready(function(){
 </script>
  <meta name="generator" content="Hugo 0.74.3" />
         
-        <link href="/categories/index.xml" rel="alternate" type="application/rss+xml" title="owenqi" />
-        <link href="/categories/index.xml" rel="feed" type="application/rss+xml" title="owenqi" />
-        
         
 
     
@@ -114,7 +111,7 @@ $(document).ready(function(){
     
     
     
-    <meta property="og:title" content="Categories">
+    <meta property="og:title" content="How to embed a Shiny app in blogdown">
     <meta property="og:type" content="article">
       
       <meta name="twitter:card" content="summary">
@@ -139,7 +136,7 @@ $(document).ready(function(){
         <nav class="navbar navbar-default navbar-fixed-top">
             <div class="container">
                 <div class="navbar-header">
-                    <a class="navbar-brand visible-xs" href="#">Categories</a>
+                    <a class="navbar-brand visible-xs" href="#">How to embed a Shiny app in blogdown</a>
                     <button class="navbar-toggle" data-target=".navbar-collapse" data-toggle="collapse">
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>
@@ -189,31 +186,71 @@ $(document).ready(function(){
 
 
 <main>
+
+    <div class="item">
+
     
-    <div>
-      <h2>Categories</h2>
     
-      <ul class="terms">
-          
-          <li>
-            <a href='/categories/miscellaneous'>
-              miscellaneous
-            </a>
-            (6)
-          </li>
-          
-          <li>
-            <a href='/categories/statistics'>
-              statistics
-            </a>
-            (5)
-          </li>
-          
-        </ul>
-    </div>
+    
+
+    
+    
+      
+    
+
+    <h4><a href="/2020/01/07/how-to-embed-a-shiny-app-in-blogdown/">How to embed a Shiny app in blogdown</a></h4>
+    <h5>January 7, 2020 - 2 minutes</h5>
+    <h5></h5>
+
+    
+    
+    <a href="/tags/shiny">
+        <kbd class="item-tag"> Shiny </kbd>
+    </a>
+    
+    <a href="/tags/web">
+        <kbd class="item-tag"> Web </kbd>
+    </a>
+    
+
+</div>
+
+
+    <br> <div class="text-justify">
+
+
+<div class="figure">
+<img src="/blog/how-to-embed-a-shiny-app-in-a-r-markdown-document_files/shiny-app-in-blogdown.jpeg" alt="Photo by Émile Perron" style="width:100.0%" />
+<p class="caption">Photo by Émile Perron</p>
+</div>
+<p>If you have developed and deployed a Shiny app and would like to embed it in blogdown, follow these steps:</p>
+<ol style="list-style-type: decimal">
+<li>create a new post as usual</li>
+<li>add <code>runtime: shiny</code> (and <code>output: html_document</code> if it is not already included) in the YAML metadata</li>
+<li>insert the following HTML code in the body of the post:</li>
+</ol>
+<pre><code>&lt;iframe height=&quot;800&quot; width=&quot;100%&quot; frameborder=&quot;no&quot; src=&quot;https://antoinesoetewey.shinyapps.io/statistics-201/&quot;&gt; &lt;/iframe&gt;</code></pre>
+<p>You should change the URL with the URL of your deployed Shiny app (after <code>src=</code>, do not forget that the URL should start with <code>http://</code> or <code>https://</code> and should be surrounded by <code>"</code>). Moreover, you can modify the height, the width and include or not a frame border with the corresponding tags.</p>
+<p>Here is an example of the result with one of my Shiny app (<a href="https://antoinesoetewey.shinyapps.io/statistics-201/">link</a> to the app):</p>
+<iframe height="800" width="100%" frameborder="no" src="https://antoinesoetewey.shinyapps.io/statistics-201/">
+</iframe>
+<p><br></p>
+<p><em>Note that the app may not work if it has hit the monthly usage limit. Try again later if that is the case.</em></p>
+<p>The code of this article can be found on <a href="https://github.com/AntoineSoetewey/statsandr/blob/master/content/blog/how-to-embed-a-shiny-app-in-a-r-markdown-document.Rmd">GitHub</a>.</p>
+<p>If you encounter an issue, try loading the following packages in the body of your new post: <code>shiny</code>, <code>widgetframe</code> (you can load a package with the command <code>library(widgetframe)</code>). If one of the package is not installed yet, you can do it with the command <code>install.packages("widgetframe")</code>.</p>
+<p>I hope this article helped you to embed a Shiny app in your blogdown website.</p>
+<p>As always, if you have a question or a suggestion related to the topic covered in this article, please add it as a comment so other readers can benefit from the discussion. If you find a mistake or bug, you can inform me by <a href="https://github.com/AntoineSoetewey/statsandr/issues" target="_blank" rel="noopener">raising an issue on GitHub</a>. For all other requests, you can contact me <a href="/contact/">here</a>.</p>
+<p>Get updates every time a new article is published by <a href="/subscribe/">subscribing to this blog</a>.</p>
+</div>
+
+    
+    
+
+    
+
+    
 
 </main>
-  
 
         <footer id = "bigfooter">
             <div style = "padding:15px;">

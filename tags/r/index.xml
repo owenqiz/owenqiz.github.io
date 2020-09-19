@@ -6,10 +6,22 @@
     <description>Recent content in R on owenqi</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sun, 30 Aug 2020 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Sat, 19 Sep 2020 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/tags/r/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>COVID-19 in Montreal</title>
+      <link>/2020/09/19/covid-19-in-montreal/</link>
+      <pubDate>Sat, 19 Sep 2020 00:00:00 +0000</pubDate>
+      
+      <guid>/2020/09/19/covid-19-in-montreal/</guid>
+      <description>This post is an analysis of the COVID-19 situation in Montreal demonstrated in Shiny Apps.
+Historical data are downloaded from Frederic Harnois’s Github repository.
+The new data can either downloaded from his Github repo or scraping from Santé Montréal. An example code is as follows,
+library(rvest)library(dplyr)library(stringr)url &amp;lt;- &amp;#39;https://santemontreal.qc.ca/population/coronavirus-covid-19/situation-du-coronavirus-covid-19-a-montreal/&amp;#39;file_name &amp;lt;- paste0(&amp;#39;data/&amp;#39;, Sys.Date() - 1, &amp;#39;.csv&amp;#39;)tbl &amp;lt;- read_html(url) %&amp;gt;% html_nodes(&amp;quot;table&amp;quot;) %&amp;gt;%html_table() %&amp;gt;%.[[4]] %&amp;gt;%select(1:2) %&amp;gt;%rename(&amp;#39;Arrondissements&amp;#39; = 1, &amp;#39;Cas Confirmés&amp;#39; = 2) %&amp;gt;%mutate(&amp;#39;Cas Confirmés&amp;#39; = str_replace_all(.</description>
+    </item>
     
     <item>
       <title>Linear Mixed Models via rstan</title>
