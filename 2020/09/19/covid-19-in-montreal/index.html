@@ -246,25 +246,19 @@ tbl[34, 1] &lt;- &#39;Territoire à confirmer&#39;
 readr::write_csv(tbl, path = file_name)</code></pre>
 <p>The data contains the name of the sub-regions (Arrondissements) and confirmed cases, the file name is the date of the data. To show the weekly cases, we first have to manipulated the data. We first merge the data by date then subtract daily confirmed cases to the previous day, which will turn into daily increase cases. And finally, we aggregated them by weeks.</p>
 <p>One thing may be notice that, after making subtractions, for some date, the increase is negative, I assume that this is some mis-reporting of the previous day. To simplify this, I just make negative cases into 0. But the real problem of negative cases should go further investigate.</p>
-<pre class="r"><code>library(readr)
-library(purrr)
-library(dplyr)
+<pre class="r"><code>library(dplyr)
 library(tibble)
 library(tidyr)
-library(fs)
 
 data_dir &lt;- &quot;mtl_data&quot;      # path to folder that holds multiple .csv files
-csv_files &lt;- dir_ls(data_dir, regexp = &quot;\\.csv$&quot;)
+csv_files &lt;- fs::dir_ls(data_dir, regexp = &quot;\\.csv$&quot;)
 
-data &lt;- list()
-
-for(i in 1:length(csv_files))
-  data[[i]] &lt;- read_csv(csv_files[i])
+data &lt;- lapply(csv_files, readr::read_csv)
 
 name &lt;- tibble(data[[1]][,1]) %&gt;% slice(-(n()-1), -n())
 
 # extract data and convert to numeric
-data &lt;- map(data, 2) %&gt;% 
+data &lt;- purrr::map(data, 2) %&gt;% 
         bind_cols() %&gt;% 
         mutate_all( ~ stringr::str_replace(., &quot;&lt;&quot;, &quot;&quot;)) %&gt;%
         mutate_all(as.numeric) %&gt;% 
@@ -300,14 +294,10 @@ cvmtl_week &lt;- cvmtl_inc %&gt;%
               add_column(NUM, .after = &#39;name&#39;) %&gt;%
               add_column(&#39;30&#39; = NA, .after = &#39;29&#39;)  # no data in week 30</code></pre>
 <p>In terms of the demonstration in Shiny Apps, there are three components, User Interface (UI), Server and shinyApp, for simplicity I put all three in one file. This may be improve by reactive function in the future.</p>
-<pre class="r"><code>library(dplyr)
-library(sf)
-library(tmap)
-
-load(&#39;cvmtl_week.rda&#39;)
-mtl &lt;- read_sf(&quot;mtl.rds&quot;)
+<pre class="r"><code>load(&#39;cvmtl_week.rda&#39;)
+mtl &lt;- read_sf(&quot;mtl.shp&quot;)
 mtl &lt;- mtl %&gt;% select(NUM) %&gt;% left_join(cvmtl_week) %&gt;% select(-NUM)
-week_range &lt;- range(as.numeric(colnames(cvmtl_week[,-c(1,2)])))
+week_range &lt;- range(as.numeric(stringr::str_remove(colnames(cvmtl_week[,-c(1,2)]), &#39;Week-&#39;)))
 
 ui &lt;- fluidPage(
   
@@ -338,7 +328,7 @@ ui &lt;- fluidPage(
 server&lt;-function(input, output) {
   
   output$cvmtl_map &lt;- renderTmap({
-    tm_shape(mtl) +  tm_polygons(as.character(input$week), title = &quot;Cases&quot;, 
+    tm_shape(mtl) +  tm_polygons(paste0(&#39;Week-&#39;,as.character(input$week)), title = &quot;Cases&quot;, 
                                    style = &quot;pretty&quot;,
                                    legend.reverse = TRUE,
     ) +
