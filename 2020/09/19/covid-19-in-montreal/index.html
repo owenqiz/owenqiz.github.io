@@ -213,6 +213,10 @@ $(document).ready(function(){
         <kbd class="item-tag"> R </kbd>
     </a>
     
+    <a href="/tags/shiny">
+        <kbd class="item-tag"> Shiny </kbd>
+    </a>
+    
 
 </div>
 
@@ -295,7 +299,7 @@ cvmtl_week &lt;- cvmtl_inc %&gt;%
               add_column(&#39;30&#39; = NA, .after = &#39;29&#39;)  # no data in week 30</code></pre>
 <p>In terms of the demonstration in Shiny Apps, there are three components, User Interface (UI), Server and shinyApp, for simplicity I put all three in one file. This may be improve by reactive function in the future.</p>
 <pre class="r"><code>load(&#39;cvmtl_week.rda&#39;)
-mtl &lt;- read_sf(&quot;mtl.shp&quot;)
+mtl &lt;- read_sf(&quot;mtl.rds&quot;)
 mtl &lt;- mtl %&gt;% select(NUM) %&gt;% left_join(cvmtl_week) %&gt;% select(-NUM)
 week_range &lt;- range(as.numeric(stringr::str_remove(colnames(cvmtl_week[,-c(1,2)]), &#39;Week-&#39;)))
 

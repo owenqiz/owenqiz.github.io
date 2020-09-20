@@ -6,20 +6,21 @@
     <description>Recent content in Shiny on owenqi</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Tue, 07 Jan 2020 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Sat, 19 Sep 2020 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/tags/shiny/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
-      <title>How to embed a Shiny app in blogdown</title>
-      <link>/2020/01/07/how-to-embed-a-shiny-app-in-blogdown/</link>
-      <pubDate>Tue, 07 Jan 2020 00:00:00 +0000</pubDate>
+      <title>COVID-19 in Montreal</title>
+      <link>/2020/09/19/covid-19-in-montreal/</link>
+      <pubDate>Sat, 19 Sep 2020 00:00:00 +0000</pubDate>
       
-      <guid>/2020/01/07/how-to-embed-a-shiny-app-in-blogdown/</guid>
-      <description>Photo by Émile Perron
-If you have developed and deployed a Shiny app and would like to embed it in blogdown, follow these steps:
-create a new post as usualadd runtime: shiny (and output: html_document if it is not already included) in the YAML metadatainsert the following HTML code in the body of the post:&amp;lt;iframe height=&amp;quot;800&amp;quot; width=&amp;quot;100%&amp;quot; frameborder=&amp;quot;no&amp;quot; src=&amp;quot;https://antoinesoetewey.shinyapps.io/statistics-201/&amp;quot;&amp;gt; &amp;lt;/iframe&amp;gt;You should change the URL with the URL of your deployed Shiny app (after src=, do not forget that the URL should start with http:// or https:// and should be surrounded by &#34;</description>
+      <guid>/2020/09/19/covid-19-in-montreal/</guid>
+      <description>This post is an analysis of the COVID-19 situation in Montreal demonstrated in Shiny Apps.
+Historical data are downloaded from Frederic Harnois’s Github repository.
+The new data can either downloaded from his Github repo or scraping from Santé Montréal. An example code is as follows,
+library(rvest)library(dplyr)library(stringr)url &amp;lt;- &amp;#39;https://santemontreal.qc.ca/population/coronavirus-covid-19/situation-du-coronavirus-covid-19-a-montreal/&amp;#39;file_name &amp;lt;- paste0(&amp;#39;data/&amp;#39;, Sys.Date() - 1, &amp;#39;.csv&amp;#39;)tbl &amp;lt;- read_html(url) %&amp;gt;% html_nodes(&amp;quot;table&amp;quot;) %&amp;gt;%html_table() %&amp;gt;%.[[4]] %&amp;gt;%select(1:2) %&amp;gt;%rename(&amp;#39;Arrondissements&amp;#39; = 1, &amp;#39;Cas Confirmés&amp;#39; = 2) %&amp;gt;%mutate(&amp;#39;Cas Confirmés&amp;#39; = str_replace_all(.</description>
     </item>
     
   </channel>
