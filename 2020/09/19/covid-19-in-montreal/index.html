@@ -199,7 +199,7 @@ $(document).ready(function(){
     
 
     <h4><a href="/2020/09/19/covid-19-in-montreal/">COVID-19 in Montreal</a></h4>
-    <h5>September 19, 2020 - 3 minutes</h5>
+    <h5>September 19, 2020 - 4 minutes</h5>
     <h5></h5>
 
     
@@ -226,7 +226,7 @@ $(document).ready(function(){
 
 <p>This post is an analysis of the COVID-19 situation in Montreal demonstrated in Shiny Apps.</p>
 <p>Historical data are downloaded from <a href="https://github.com/fredericharnois/covid19-par-arrondissements-montreal/tree/master/data">Frederic Harnois’s Github repository</a>.</p>
-<iframe height="800" width="100%" frameborder="no" src="https://owenqi.shinyapps.io/cvmtl_wk/">
+<iframe height="1000" width="100%" frameborder="no" src="https://owenqi.shinyapps.io/cvmtl_wk/">
 </iframe>
 <p>The new data can either downloaded from his Github repo or scraping from <a href="https://santemontreal.qc.ca/population/coronavirus-covid-19/situation-du-coronavirus-covid-19-a-montreal/">Santé Montréal</a>. An example code is as follows,</p>
 <pre class="r"><code>library(rvest)
@@ -249,10 +249,12 @@ tbl[34, 1] &lt;- &#39;Territoire à confirmer&#39;
 
 readr::write_csv(tbl, path = file_name)</code></pre>
 <p>The data contains the name of the sub-regions (Arrondissements) and confirmed cases, the file name is the date of the data. To show the weekly cases, we first have to manipulated the data. We first merge the data by date then subtract daily confirmed cases to the previous day, which will turn into daily increase cases. And finally, we aggregated them by weeks.</p>
+<p>To obtained the the weekly adjusted cases to the population, we obtain the population from the report on <a href="http://ville.montreal.qc.ca/pls/portal/docs/PAGE/MTL_STATS_FR/MEDIA/DOCUMENTS/POPULATION%20ET%20D%C9MOGRAPHIE_8FEV2017_2.PDF">Ville de Montréal</a> about demography.</p>
 <p>One thing may be notice that, after making subtractions, for some date, the increase is negative, I assume that this is some mis-reporting of the previous day. To simplify this, I just make negative cases into 0. But the real problem of negative cases should go further investigate.</p>
 <pre class="r"><code>library(dplyr)
 library(tibble)
 library(tidyr)
+
 
 data_dir &lt;- &quot;mtl_data&quot;      # path to folder that holds multiple .csv files
 csv_files &lt;- fs::dir_ls(data_dir, regexp = &quot;\\.csv$&quot;)
@@ -276,32 +278,44 @@ daily_inc &lt;- cbind(data[,1], daily_inc)
 date &lt;- c(stringr::str_remove_all(csv_files, pattern = c(&#39;mtl_data/|.csv&#39;)))
 week &lt;- format(as.Date(date, format = &#39;%Y-%m-%d&#39;), format=&quot;%W&quot;)
 
-# merge daily data and rename column
+# merge data
 cvmtl_inc &lt;- bind_cols(name, daily_inc)
 colnames(cvmtl_inc) &lt;- c(&#39;name&#39;, date)
 
-# aggregation by week
+# view by week
 date_week &lt;- tibble(date, week)
 
 # map_idx
 NUM &lt;- c(24, 9, 71, 7, 27, 72, 11, 1, 10, 3,
-         17, 18, 6, 23, 74, 16, 75, 2, 5, 13,
-         22, 8, 19, 25, 76, 15, 14, 77, 21, 12,
+         6, 17, 18, 23, 2, 74, 16, 75, 5, 13,
+         22, 8, 19, 25, 15, 14, 76, 77, 21, 12,
          20, 26, 4)
 
-cvmtl_week &lt;- cvmtl_inc %&gt;% 
-              pivot_longer(starts_with(&#39;2020&#39;), names_to = &#39;date&#39;, values_to = &#39;cases&#39;) %&gt;%
-              left_join(date_week) %&gt;% 
-              group_by(name, week) %&gt;% 
-              summarise(total = sum(cases)) %&gt;%
-              pivot_wider(names_from = &#39;week&#39;, values_from = &#39;total&#39;) %&gt;% 
-              add_column(NUM, .after = &#39;name&#39;) %&gt;%
-              add_column(&#39;30&#39; = NA, .after = &#39;29&#39;)  # no data in week 30</code></pre>
+pop &lt;- c(134245, 42796, 3823, 19324, 166520, 32448, 48899,
+         18980, 6973, 20151, 18413, 44489, 76853, 136024, 20276,
+         3850, 84234, 5050, 23954, 69297, 104000, 31380, 106743, 
+         139590, 98828, 78305, 4958, 921, 78151, 69229, 89170, 143853, 20312)
+
+cvmtl_wk &lt;- cvmtl_inc %&gt;% 
+  pivot_longer(starts_with(&#39;2020&#39;), names_to = &#39;date&#39;, values_to = &#39;cases&#39;) %&gt;%
+  left_join(date_week) %&gt;% 
+  group_by(name, week) %&gt;% 
+  summarise(total = sum(cases)) %&gt;%
+  pivot_wider(names_from = &#39;week&#39;, values_from = &#39;total&#39;) %&gt;% 
+  add_column(&#39;30&#39; = NA, .after = &#39;29&#39;) %&gt;% # no data for week 30
+  add_column(NUM, .after = &#39;name&#39;) %&gt;% 
+  add_column(pop, .after = &#39;NUM&#39;) %&gt;% 
+  pivot_longer(4:ncol(.), names_to = &#39;week&#39;, values_to = &#39;case&#39;) %&gt;% 
+  mutate(adj = round(case/pop*10^5, 2))</code></pre>
 <p>In terms of the demonstration in Shiny Apps, there are three components, User Interface (UI), Server and shinyApp, for simplicity I put all three in one file. This may be improve by reactive function in the future.</p>
-<pre class="r"><code>load(&#39;cvmtl_week.rda&#39;)
-mtl &lt;- read_sf(&quot;mtl.rds&quot;)
-mtl &lt;- mtl %&gt;% select(NUM) %&gt;% left_join(cvmtl_week) %&gt;% select(-NUM)
-week_range &lt;- range(as.numeric(stringr::str_remove(colnames(cvmtl_week[,-c(1,2)]), &#39;Week-&#39;)))
+<pre class="r"><code>library(tmap)
+library(sf)
+library(dplyr)
+
+load(&#39;cvmtl_wk.rda&#39;)
+mtl &lt;- read_sf(&quot;mtl.shp&quot;)
+week_range &lt;- range(cvmtl_wk$week)
+cvmtl &lt;- mtl %&gt;% select(NUM) %&gt;% left_join(cvmtl_wk) %&gt;% select(-NUM)
 
 ui &lt;- fluidPage(
   
@@ -311,15 +325,24 @@ ui &lt;- fluidPage(
     
     sidebarPanel(
       
+      selectInput(&quot;select&quot;, label = h3(&quot;Legend Style&quot;), 
+                  choices = list(&quot;Fixed&quot; = &#39;fixed&#39;, &quot;Flexible&quot; = &#39;pretty&#39;), 
+                  selected = &#39;fixed&#39;),
+      
       sliderInput(inputId = &#39;week&#39;, 
                   label = h3(&quot;Weeks&quot;), 
                   min = week_range[1], 
                   max = week_range[2],
+                  step = 1,
                   value = week_range[2], 
                   animate = TRUE),
       
+      selectInput(&quot;adjust&quot;, label = h3(&quot;Display Style&quot;), 
+                  choices = list(&quot;Actual Case&quot; = &#39;case&#39;, &quot;Ajusted Case&quot; = &#39;adj&#39;), 
+                  selected = &#39;case&#39;),
+
       hr(),
-      helpText(paste(&#39;Starting from lastest data availabe: 2020-09-17 (Week 37)&#39;))
+      helpText(paste(&#39;Starting from lastest data availabe: 2020-10-01 (Week 39)&#39;))
     ),
     
     mainPanel(
@@ -332,16 +355,20 @@ ui &lt;- fluidPage(
 server&lt;-function(input, output) {
   
   output$cvmtl_map &lt;- renderTmap({
-    tm_shape(mtl) +  tm_polygons(paste0(&#39;Week-&#39;,as.character(input$week)), title = &quot;Cases&quot;, 
-                                   style = &quot;pretty&quot;,
-                                   legend.reverse = TRUE,
-    ) +
-      tm_layout(aes.palette = list(seq = &quot;-viridis&quot;))
+    
+    cvmtl &lt;- filter(cvmtl, week == input$week)
+
+      tm_shape(cvmtl) +  tm_polygons(input$adjust, title = &quot;Cases&quot;, 
+                                     style = input$select,
+                                     breaks = c(0, 10, 20, 50, 100, 200, 400, Inf),
+                                     legend.reverse = TRUE,
+      ) +
+        tm_layout(aes.palette = list(seq = &quot;YlGnBu&quot;))
   }) 
 }
 
 shinyApp(ui = ui, server = server)</code></pre>
-<p>I use a free ShinyApps account, active hour may be limited to 25 hours per month.</p>
+<p>I use a free ShinyApps account, active hour may be limited to 25 hours per month. There may be updated in the future in terms of functionality and data but the code is just a working example at the time of published date.</p>
 </div>
 
     
