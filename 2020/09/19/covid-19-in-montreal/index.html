@@ -337,9 +337,7 @@ ui &lt;- fluidPage(
                   value = week_range[2], 
                   animate = TRUE),
       
-      selectInput(&quot;adjust&quot;, label = h3(&quot;Display Style&quot;), 
-                  choices = list(&quot;Actual Case&quot; = &#39;case&#39;, &quot;Ajusted Case&quot; = &#39;adj&#39;), 
-                  selected = &#39;case&#39;),
+      checkboxInput(&quot;checkbox&quot;, label = &quot;Population Adjusted&quot;, value = FALSE),
 
       hr(),
       helpText(paste(&#39;Starting from lastest data availabe: 2020-10-01 (Week 39)&#39;))
@@ -357,8 +355,9 @@ server&lt;-function(input, output) {
   output$cvmtl_map &lt;- renderTmap({
     
     cvmtl &lt;- filter(cvmtl, week == input$week)
+    var_name &lt;- ifelse(input$checkbox, &#39;adj&#39;, &#39;case&#39;)
 
-      tm_shape(cvmtl) +  tm_polygons(input$adjust, title = &quot;Cases&quot;, 
+      tm_shape(cvmtl) +  tm_polygons(var_name, title = &quot;Cases&quot;, 
                                      style = input$select,
                                      breaks = c(0, 10, 20, 50, 100, 200, 400, Inf),
                                      legend.reverse = TRUE,
