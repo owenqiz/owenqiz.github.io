@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Analysis on COVID-19 Vaccine in US</title>
+        <style>
+
+    html body {
+        font-family: 'Mina', sans-serif;
+        background-color: #f5f5f5;
+    }
+
+    :root {
+        --accent: #386890;
+        --border-width:  0 ;
+    }
+
+</style>
+
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Mina">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=VT323">
+
+
+ <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/tomorrow.min.css"> 
+
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+
+ 
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/r.min.js"></script>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/python.min.js"></script>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/bash.min.js"></script>
+    
+
+    <script>hljs.initHighlightingOnLoad();</script>
+
+
+
+
+
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+
+<link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
+<script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
+
+
+<script>$(document).on('click', function() { $('.collapse').collapse('hide'); })</script>
+
+
+<script>
+$(document).ready(function(){
+    
+  var input = $('#night-mode-toggle');
+  var container = $('#bigbody');
+  var stat = $('#button-status');
+  
+  container.toggleClass(localStorage.toggled);
+  stat.bootstrapToggle(localStorage.button).change();
+  
+  input.on('click', function() {
+      if (localStorage.toggled != "-nightmode" ) {
+          container.toggleClass("-nightmode", true );
+          localStorage.toggled = "-nightmode";
+          localStorage.button = "on";
+       } else {
+          container.toggleClass("-nightmode", false );
+          localStorage.toggled = "";
+          localStorage.button = "off"
+       }
+  })
+});
+</script>
+ <meta name="generator" content="Hugo 0.54.0" />
+        
+        
+
+    
+    <link rel="apple-touch-icon" sizes="180x180" href="/img/favicon/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/img/favicon/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/img/favicon/favicon-16x16.png">
+    <link rel="manifest" href="/img/favicon/site.webmanifest">
+    <link rel="mask-icon" href="/img/favicon/safari-pinned-tab.svg" color="#000000">
+    <link rel="shortcut icon" href="/img/favicon/favicon.ico">
+    <meta name="msapplication-TileColor" content="#2b5797">
+    <meta name="msapplication-config" content="/img/favicon/browserconfig.xml">
+    <meta name="theme-color" content="#ffffff">
+    
+    
+    
+    <meta property="og:title" content="Analysis on COVID-19 Vaccine in US">
+    <meta property="og:type" content="article">
+      
+      <meta name="twitter:card" content="summary">
+      <meta name="twitter:image" content="/favicon/android-chrome-192x192.png" >
+      
+    <meta property="description" content="">
+    <meta property="og:description" content="">
+    
+    <meta name="twitter:creator" content="">
+    <meta name="twitter:site" content="">
+    
+    </head>
+
+    
+    
+    <script type="text/javascript" async
+      src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+    </script>
+    
+
+    <body id = "bigbody">
+        <nav class="navbar navbar-default navbar-fixed-top">
+            <div class="container">
+                <div class="navbar-header">
+                    <a class="navbar-brand visible-xs" href="#">Analysis on COVID-19 Vaccine in US</a>
+                    <button class="navbar-toggle" data-target=".navbar-collapse" data-toggle="collapse">
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                </div>
+                <div class="collapse navbar-collapse">
+                    
+                        <ul class="nav navbar-nav">
+                            
+                                <li><a href="/">Home</a></li>
+                            
+                                <li><a href="/post/">Blog</a></li>
+                            
+                                <li><a href="/tags/">Tags</a></li>
+                            
+                        </ul>
+                    
+                    
+                        <ul class="nav navbar-nav navbar-right">
+                            
+                                <li class="navbar-icon"><a href="https://github.com/owenqiz"><i class="fa fa-github"></i></a></li>
+                            
+                                <li class="navbar-icon"><a href="https://gitlab.com/owenqi"><i class="fa fa-gitlab"></i></a></li>
+                            
+                                <li class="navbar-icon"><a href="https://www.facebook.com/owenqiz"><i class="fa fa-facebook-f"></i></a></li>
+                            
+                                <li class="navbar-icon"><a href="https://www.linkedin.com/in/qi-zhang-10309993/"><i class="fa fa-linkedin"></i></a></li>
+                            
+                                <li class="navbar-icon"><a href="https://www.weibo.com/owenqi"><i class="fa fa-weibo"></i></a></li>
+                            
+                            <li id="night-mode-toggle">
+    <input type="checkbox" id = "button-status"
+        data-toggle="toggle"
+        data-width = "10"
+        data-height = "1"
+        data-on="<i class='fa fa-moon-o fa-lg' style='vertical-align:25%'></i>"
+        data-off= "<i class='fa fa-sun-o fa-lg' style='vertical-align:25%'></i>"
+        data-style="ios"
+        data-onstyle = "default">
+</li>
+                        </ul>
+                    
+                </div>
+            </div>
+        </nav>
+
+
+<main>
+
+    <div class="item">
+
+    
+    
+    
+
+    
+    
+      
+    
+
+    <h4><a href="/2021/05/21/analysis-on-covid-19-vaccine-in-us/">Analysis on COVID-19 Vaccine in US</a></h4>
+    <h5>May 21, 2021 - 5 minutes</h5>
+    <h5></h5>
+
+    
+
+        <a href="/categories/miscellaneous">
+        <kbd class="item-cat"> Miscellaneous </kbd>
+    </a>
+    
+    
+    <a href="/tags/ggplot2">
+        <kbd class="item-tag"> ggplot2 </kbd>
+    </a>
+    
+
+</div>
+
+
+    <br> <div class="text-justify">
+<script src="/rmarkdown-libs/header-attrs/header-attrs.js"></script>
+<script src="/rmarkdown-libs/htmlwidgets/htmlwidgets.js"></script>
+<script src="/rmarkdown-libs/jquery/jquery.min.js"></script>
+<link href="/rmarkdown-libs/datatables-css/datatables-crosstalk.css" rel="stylesheet" />
+<script src="/rmarkdown-libs/datatables-binding/datatables.js"></script>
+<link href="/rmarkdown-libs/dt-core/css/jquery.dataTables.min.css" rel="stylesheet" />
+<link href="/rmarkdown-libs/dt-core/css/jquery.dataTables.extra.css" rel="stylesheet" />
+<script src="/rmarkdown-libs/dt-core/js/jquery.dataTables.min.js"></script>
+<link href="/rmarkdown-libs/nouislider/jquery.nouislider.min.css" rel="stylesheet" />
+<script src="/rmarkdown-libs/nouislider/jquery.nouislider.min.js"></script>
+<link href="/rmarkdown-libs/selectize/selectize.bootstrap3.css" rel="stylesheet" />
+<script src="/rmarkdown-libs/selectize/selectize.min.js"></script>
+<link href="/rmarkdown-libs/crosstalk/css/crosstalk.css" rel="stylesheet" />
+<script src="/rmarkdown-libs/crosstalk/js/crosstalk.min.js"></script>
+
+
+<p>As I am going to get my first dose next week, I would like have some ideas about the safety of the vaccine. In Canada, AstraZeneca (AZ) and Pfizer are delivered. But recently, AZ are no longer suggested in province like Quebec and Ontario. I am going to use the available data on US.</p>
+<div id="vaccination-in-us" class="section level3">
+<h3>Vaccination in US</h3>
+<p>And vaccinations data are available on <a href="https://github.com/owid/covid-19-data/tree/master/public/data/vaccinations">Our World in Data</a>.</p>
+<p>The code for manipulations are as follows, but I imputed some missing data by linear interpolation.</p>
+<pre class="r"><code>library(lubridate)
+library(dplyr)
+library(ggplot2)
+library(zoo)
+
+vax_us &lt;- readr::read_csv(&#39;us_state_vaccinations.csv&#39;)
+
+vax_us &lt;- vax_us %&gt;% 
+  select(location, date, pvax = people_vaccinated, fvax = people_fully_vaccinated) %&gt;% 
+  mutate(pvax = replace_na(pvax, 0), fvax = replace_na(fvax, 0)) %&gt;% 
+  group_by(date) %&gt;% 
+  summarise(pvax = sum(pvax), fvax = sum(fvax)) %&gt;% 
+  mutate(pvax = na_if(pvax, 0), fvax = na_if(fvax, 0))
+
+vax_us$fvax[1:21] &lt;- 0
+vax_us$pvax[1] &lt;- 0
+
+# some interpolation for the missing data.
+vax_us &lt;- vax_us %&gt;% select(date, pvax, fvax) %&gt;% 
+  mutate(pvax = round(na.approx(pvax), 0), fvax = round(na.approx(fvax), 0))
+
+p_vax &lt;- ggplot(data = vax_us) + theme_bw() + xlab(&#39;&#39;) + ylab(&#39;Population&#39;) + 
+  geom_area(aes(x = date, y = pvax), alpha = .7, fill = &#39;steelblue3&#39;) + 
+  geom_area(aes(x = date, y = fvax), alpha = .7, fill = &#39;seagreen&#39;) + 
+  scale_y_continuous(breaks = seq(0, 3*10^8, by = 10^8), labels = c(0, paste0(c(100, 200, 300), &#39;M&#39;))) + 
+  ggtitle(&#39;US Vaccination&#39;) + 
+  theme(legend.title = element_blank(), legend.position = &#39;none&#39;, plot.title = element_text(hjust = .5))</code></pre>
+<p><img src="/post/2021-05-21-analysis-on-covid-19-vaccine-in-us_files/figure-html/vax_us_plot-1.png" width="672" /></p>
+</div>
+<div id="vares-in-us" class="section level3">
+<h3>VARES in US</h3>
+<p>The data is available from CDC <a href="https://vaers.hhs.gov/data/datasets.html?">VARES (Vaccine Adverse Event Reporting System)</a>, note that there is some delay on the data and the report is subjective to the doctor, in other words, not every adverse cases will report immediately. US start vaccination since December 14th, 2020. Hence, I will combine the data from 2020 - 2021 to find all adverse cases on COVID vaccine. Until this post, the last date of the report is on May 6th, 2021.</p>
+<pre class="r"><code>library(dplyr)
+library(tidyr)
+library(readr)
+library(stringr)
+
+# reading data
+X2021VAERSDATA &lt;- read_csv(&quot;2021VAERSDATA.csv&quot;, 
+                           col_types = cols(RECVDATE = col_date(format = &quot;%m/%d/%Y&quot;), 
+                                                  CAGE_YR = col_skip(), CAGE_MO = col_skip(), 
+                                                  RPT_DATE = col_skip(), SYMPTOM_TEXT = col_skip(), 
+                                                  DATEDIED = col_date(format = &quot;%m/%d/%Y&quot;), 
+                                                  L_THREAT = col_logical(), VAX_DATE = col_date(format = &quot;%m/%d/%Y&quot;), 
+                                                  ONSET_DATE = col_date(format = &quot;%m/%d/%Y&quot;), 
+                                                  LAB_DATA = col_skip(), V_ADMINBY = col_skip(), 
+                                                  V_FUNDBY = col_skip(), OTHER_MEDS = col_skip(), 
+                                                  CUR_ILL = col_skip(), HISTORY = col_skip(), 
+                                                  SPLTTYPE = col_skip(), FORM_VERS = col_skip(), 
+                                                  TODAYS_DATE = col_skip(), BIRTH_DEFECT = col_skip(), 
+                                                  OFC_VISIT = col_skip(), ER_ED_VISIT = col_skip(), 
+                                                  ALLERGIES = col_skip()))
+
+X2020VAERSDATA &lt;- read_csv(&quot;2020VAERSDATA.csv&quot;, 
+                           col_types = cols(RECVDATE = col_date(format = &quot;%m/%d/%Y&quot;), 
+                                                  CAGE_YR = col_skip(), CAGE_MO = col_skip(), 
+                                                  RPT_DATE = col_skip(), SYMPTOM_TEXT = col_skip(), 
+                                                  DATEDIED = col_date(format = &quot;%m/%d/%Y&quot;), 
+                                                  L_THREAT = col_logical(), VAX_DATE = col_date(format = &quot;%m/%d/%Y&quot;), 
+                                                  ONSET_DATE = col_date(format = &quot;%m/%d/%Y&quot;), 
+                                                  LAB_DATA = col_skip(), V_ADMINBY = col_skip(), 
+                                                  V_FUNDBY = col_skip(), OTHER_MEDS = col_skip(), 
+                                                  CUR_ILL = col_skip(), HISTORY = col_skip(), 
+                                                  SPLTTYPE = col_skip(), FORM_VERS = col_skip(), 
+                                                  TODAYS_DATE = col_skip(), BIRTH_DEFECT = col_skip(), 
+                                                  OFC_VISIT = col_skip(), ER_ED_VISIT = col_skip(), 
+                                                  ALLERGIES = col_skip()))
+
+X2020VAERSSYMPTOMS &lt;- read_csv(&quot;2020VAERSSYMPTOMS.csv&quot;, 
+                               col_types = cols(SYMPTOMVERSION1 = col_skip(), 
+                                                SYMPTOMVERSION2 = col_skip(), SYMPTOMVERSION3 = col_skip(), 
+                                                SYMPTOMVERSION4 = col_skip(), SYMPTOMVERSION5 = col_skip()))
+X2021VAERSSYMPTOMS &lt;- read_csv(&quot;2021VAERSSYMPTOMS.csv&quot;, 
+                               col_types = cols(SYMPTOMVERSION1 = col_skip(), 
+                                                SYMPTOMVERSION2 = col_skip(), SYMPTOMVERSION3 = col_skip(), 
+                                                SYMPTOMVERSION4 = col_skip(), SYMPTOMVERSION5 = col_skip()))
+
+X2021VAERSVAX &lt;- read_csv(&quot;2021VAERSVAX.csv&quot;, 
+                          col_types = cols(VAX_NAME = col_skip(), VAX_ROUTE = col_skip()))
+X2020VAERSVAX &lt;- read_csv(&quot;2020VAERSVAX.csv&quot;, 
+                          col_types = cols(VAX_NAME = col_skip(), VAX_ROUTE = col_skip()))
+
+
+VAERS_DATA &lt;- bind_rows(X2020VAERSDATA, X2021VAERSDATA)
+VAERS_VAX &lt;- bind_rows(X2020VAERSVAX, X2021VAERSVAX)
+VAERS_SYM &lt;- bind_rows(X2020VAERSSYMPTOMS, X2021VAERSSYMPTOMS)
+
+# filtering COVID vaccine (from VAERS_VAX) and join data
+covid_vax &lt;- VAERS_VAX %&gt;% 
+  filter(VAX_TYPE == &#39;COVID19&#39;) %&gt;% 
+  inner_join(VAERS_DATA, by = &#39;VAERS_ID&#39;) %&gt;% 
+  inner_join(VAERS_SYM, by = &#39;VAERS_ID&#39;)
+
+vax_vaers &lt;- covid_vax %&gt;% select(VAX_MANU, AGE_YRS, SEX, DIED, DATEDIED, HOSPITAL)
+
+vaers_info &lt;- vax_vaers %&gt;% 
+  group_by(VAX_MANU, SEX) %&gt;% 
+  mutate(SEX = recode_factor(SEX, &#39;F&#39; = &#39;Female&#39;, &#39;M&#39; = &#39;Male&#39;)) %&gt;% 
+  mutate(DIED = replace_na(DIED, &#39;N&#39;), HOSPITAL = replace_na(HOSPITAL, &#39;N&#39;), 
+         AGE_YRS = replace_na(AGE_YRS, 999)) %&gt;% 
+  mutate(DIED = as.factor(DIED), HOSPITAL = as.factor(HOSPITAL), 
+         SEX = as.factor(SEX), AGE_YRS = cut(AGE_YRS, breaks = c(0, seq(19, 79, by = 10), 129, Inf))) %&gt;% 
+  mutate(VAX_MANU = str_replace_all(VAX_MANU, &#39;PFIZER\\\\BIONTECH&#39;, &#39;PFIZER&#39;)) %&gt;% 
+  mutate(VAX_MANU = str_replace_all(VAX_MANU, &#39;UNKNOWN MANUFACTURER&#39;, &#39;UNKNOWN&#39;))
+  
+color_manu &lt;- c(&#39;seagreen&#39;,&#39;firebrick3&#39;,&#39;steelblue3&#39;, &#39;grey&#39;)
+
+library(ggplot2)
+
+p &lt;- ggplot(data = vaers_info %&gt;% filter(SEX != &#39;U&#39; &amp; VAX_MANU != &#39;UNKNOWN&#39;)) + theme_bw() + 
+  theme(legend.title = element_blank(),
+  legend.position = &#39;none&#39;,
+  plot.title = element_text(hjust = .5))
+
+p_vare &lt;- p + geom_bar(aes(x = AGE_YRS, fill = VAX_MANU), width = .5) + scale_fill_manual(values = color_manu) +
+  scale_x_discrete(labels = c(levels(vaers_info$AGE_YRS)[1:7], &#39;80+&#39;, &#39;unknown&#39;), 
+                   guide = guide_axis(check.overlap = TRUE)) + 
+  xlab(&#39;Age Groups&#39;) + ylab(&#39;Frequency&#39;) + ggtitle(&#39;US Vaccine Adverse Effect&#39;) + 
+  facet_grid(rows = vars(SEX), cols = vars(VAX_MANU))
+
+p_death &lt;- ggplot(vaers_info %&gt;% filter(DATEDIED &gt; &#39;2020-12-14&#39; &amp; SEX != &#39;U&#39; &amp; VAX_MANU != &#39;UNKNOWN&#39;)) +  
+  geom_bar(aes(x = DATEDIED, fill = VAX_MANU), width = .5) + xlab(&#39;&#39;) + ylab(&#39;Frequency&#39;) + 
+  ggtitle(&#39;US Vaccine Death&#39;) + 
+  scale_fill_manual(values = color_manu) +  facet_grid(rows = vars(VAX_MANU)) + theme_bw() +
+  theme(legend.title = element_blank(),
+        legend.position = &#39;none&#39;,
+        plot.title = element_text(hjust = .5))</code></pre>
+<p><img src="/post/2021-05-21-analysis-on-covid-19-vaccine-in-us_files/figure-html/vares_plot-1.png" width="672" /><img src="/post/2021-05-21-analysis-on-covid-19-vaccine-in-us_files/figure-html/vares_plot-2.png" width="672" /></p>
+<p>A table of relationship among manufactures, gender, hospitalization and death are listed below. Better representation are under consideration.</p>
+<pre class="r"><code>library(DT)
+
+tbl &lt;- vaers_info %&gt;% 
+  mutate(VAX_MANU = as.factor(VAX_MANU)) %&gt;% 
+  select(VAX_MANU, SEX, HOSPITAL, DIED) %&gt;% 
+  filter(SEX != &#39;U&#39;) %&gt;% 
+  filter(VAX_MANU != &#39;UNKNOWN&#39;) %&gt;% 
+  group_by(VAX_MANU, SEX, HOSPITAL, DIED) %&gt;% 
+  summarise(Frequency = n())
+
+datatable(tbl, filter = &#39;top&#39;, rownames = FALSE, options = list(pageLength = 24, autoWidth = TRUE))</code></pre>
+<div id="htmlwidget-1" style="width:100%;height:auto;" class="datatables html-widget"></div>
+<script type="application/json" data-for="htmlwidget-1">{"x":{"filter":"top","filterHTML":"<tr>\n  <td data-type=\"factor\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n    <div style=\"width: 100%; display: none;\">\n      <select multiple=\"multiple\" style=\"width: 100%;\" data-options=\"[&quot;JANSSEN&quot;,&quot;MODERNA&quot;,&quot;PFIZER&quot;,&quot;UNKNOWN&quot;]\"><\/select>\n    <\/div>\n  <\/td>\n  <td data-type=\"factor\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n    <div style=\"width: 100%; display: none;\">\n      <select multiple=\"multiple\" style=\"width: 100%;\" data-options=\"[&quot;Female&quot;,&quot;Male&quot;,&quot;U&quot;]\"><\/select>\n    <\/div>\n  <\/td>\n  <td data-type=\"factor\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n    <div style=\"width: 100%; display: none;\">\n      <select multiple=\"multiple\" style=\"width: 100%;\" data-options=\"[&quot;N&quot;,&quot;Y&quot;]\"><\/select>\n    <\/div>\n  <\/td>\n  <td data-type=\"factor\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n    <div style=\"width: 100%; display: none;\">\n      <select multiple=\"multiple\" style=\"width: 100%;\" data-options=\"[&quot;N&quot;,&quot;Y&quot;]\"><\/select>\n    <\/div>\n  <\/td>\n  <td data-type=\"integer\" style=\"vertical-align: top;\">\n    <div class=\"form-group has-feedback\" style=\"margin-bottom: auto;\">\n      <input type=\"search\" placeholder=\"All\" class=\"form-control\" style=\"width: 100%;\"/>\n      <span class=\"glyphicon glyphicon-remove-circle form-control-feedback\"><\/span>\n    <\/div>\n    <div style=\"display: none; position: absolute; width: 200px;\">\n      <div data-min=\"75\" data-max=\"84671\"><\/div>\n      <span style=\"float: left;\"><\/span>\n      <span style=\"float: right;\"><\/span>\n    <\/div>\n  <\/td>\n<\/tr>","data":[["JANSSEN","JANSSEN","JANSSEN","JANSSEN","JANSSEN","JANSSEN","JANSSEN","JANSSEN","MODERNA","MODERNA","MODERNA","MODERNA","MODERNA","MODERNA","MODERNA","MODERNA","PFIZER","PFIZER","PFIZER","PFIZER","PFIZER","PFIZER","PFIZER","PFIZER"],["Female","Female","Female","Female","Male","Male","Male","Male","Female","Female","Female","Female","Male","Male","Male","Male","Female","Female","Female","Female","Male","Male","Male","Male"],["N","N","Y","Y","N","N","Y","Y","N","N","Y","Y","N","N","Y","Y","N","N","Y","Y","N","N","Y","Y"],["N","Y","N","Y","N","Y","N","Y","N","Y","N","Y","N","Y","N","Y","N","Y","N","Y","N","Y","N","Y"],[27866,134,1704,85,11170,147,1215,75,84671,900,5135,363,19711,1261,3912,334,68281,806,5590,509,18249,1108,3764,419]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>VAX_MANU<\/th>\n      <th>SEX<\/th>\n      <th>HOSPITAL<\/th>\n      <th>DIED<\/th>\n      <th>Frequency<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":24,"autoWidth":true,"columnDefs":[{"className":"dt-right","targets":4}],"order":[],"orderClasses":false,"orderCellsTop":true,"lengthMenu":[10,24,25,50,100]}},"evals":[],"jsHooks":[]}</script>
+</div>
+</div>
+
+    
+    
+
+    
+
+        <h4 class="page-header">Related</h4>
+
+         <div class="item">
+
+    
+    
+    
+
+    
+    
+      
+    
+
+    <h4><a href="/2020/03/31/covid-19-in-quebec/">COVID-19 in Quebec</a></h4>
+    <h5>March 31, 2020 - 7 minutes</h5>
+    <h5></h5>
+
+    
+
+        <a href="/categories/statistics">
+        <kbd class="item-cat"> Statistics </kbd>
+    </a>
+    
+    
+    <a href="/tags/r">
+        <kbd class="item-tag"> R </kbd>
+    </a>
+    
+    <a href="/tags/ggplot2">
+        <kbd class="item-tag"> ggplot2 </kbd>
+    </a>
+    
+
+</div>
+  <div class="item">
+
+    
+    
+    
+
+    
+    
+      
+    
+
+    <h4><a href="/2019/07/05/bangladesh-ground-arsenic-with-r/">Bangladesh Ground Arsenic with R</a></h4>
+    <h5>July 5, 2019 - 3 minutes</h5>
+    <h5></h5>
+
+    
+
+        <a href="/categories/statistics">
+        <kbd class="item-cat"> Statistics </kbd>
+    </a>
+    
+    
+    <a href="/tags/r">
+        <kbd class="item-tag"> R </kbd>
+    </a>
+    
+    <a href="/tags/ggplot2">
+        <kbd class="item-tag"> ggplot2 </kbd>
+    </a>
+    
+
+</div>
+  <div class="item">
+
+    
+    
+    
+
+    
+    
+      
+    
+
+    <h4><a href="/2019/03/05/plot-area-under-the-curve-with-ggplot2/">Plot Area Under the Curve with ggplot2</a></h4>
+    <h5>March 5, 2019 - 2 minutes</h5>
+    <h5></h5>
+
+    
+
+        <a href="/categories/miscellaneous">
+        <kbd class="item-cat"> Miscellaneous </kbd>
+    </a>
+    
+    
+    <a href="/tags/r">
+        <kbd class="item-tag"> R </kbd>
+    </a>
+    
+    <a href="/tags/ggplot2">
+        <kbd class="item-tag"> ggplot2 </kbd>
+    </a>
+    
+
+</div>
+ 
+
+    
+
+    
+
+</main>
+
+        <footer id = "bigfooter">
+            <div style = "padding:15px;">
+                <p>&copy owenqi 2020 </p>
+                <p>Powered by <a href="https://gohugo.io">Hugo</a>. Themed by <a href="https://github.com/nathancday/min_night">min_night</a>.
+                </p>
+                <a rel="license" href="https://creativecommons.org/licenses/by/4.0/"
+                title="Creative Commons Attribution 4.0 International license">
+                <i class="fa fa-creative-commons" aria-hidden="true"></i> Attribution 4.0 International license
+                </a>
+            </div>
+        </footer>
+        
+        <script async src="https://www.googletagmanager.com/gtag/js?id="></script>
+        <script>
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments)};
+          gtag('js', new Date());
+          gtag('config', '');
+        </script>
+       
+    </body>
+
+</html>
+

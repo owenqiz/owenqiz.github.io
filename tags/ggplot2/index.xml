@@ -1,15 +1,25 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>ggplot2 on owenqi</title>
+    <title>Ggplot2 on owenqi</title>
     <link>/tags/ggplot2/</link>
-    <description>Recent content in ggplot2 on owenqi</description>
+    <description>Recent content in Ggplot2 on owenqi</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Tue, 31 Mar 2020 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Fri, 21 May 2021 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="/tags/ggplot2/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Analysis on COVID-19 Vaccine in US</title>
+      <link>/2021/05/21/analysis-on-covid-19-vaccine-in-us/</link>
+      <pubDate>Fri, 21 May 2021 00:00:00 +0000</pubDate>
+      
+      <guid>/2021/05/21/analysis-on-covid-19-vaccine-in-us/</guid>
+      <description>As I am going to get my first dose next week, I would like have some ideas about the safety of the vaccine. In Canada, AstraZeneca (AZ) and Pfizer are delivered. But recently, AZ are no longer suggested in province like Quebec and Ontario. I am going to use the available data on US.
+Vaccination in USAnd vaccinations data are available on Our World in Data.</description>
+    </item>
     
     <item>
       <title>COVID-19 in Quebec</title>
